@@ -69,8 +69,28 @@ export function TopDock(props: Props) {
     <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-3">
       <div className="glass pointer-events-auto flex max-w-full items-center gap-1 rounded-full p-1.5 shadow-2xl">
         <div
-          onClick={props.onOpenPipeline}
-          className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-default"
+          onTouchStart={(e) => {
+            // Secret mobile gesture: Long press (1.5 seconds) on logo unlocks admin monitor
+            const timer = setTimeout(() => {
+              props.onOpenPipeline?.()
+            }, 1400)
+            const cancel = () => clearTimeout(timer)
+            e.currentTarget.addEventListener('touchend', cancel, { once: true })
+            e.currentTarget.addEventListener('touchmove', cancel, { once: true })
+          }}
+          onClick={(e) => {
+            // Secret desktop/mobile gesture: 3 rapid clicks on the lightning icon within 1 second
+            const now = Date.now()
+            const target = e.currentTarget as any
+            const lastClicks = target._clicks || []
+            const recentClicks = [...lastClicks.filter((t: number) => now - t < 1000), now]
+            target._clicks = recentClicks
+            if (recentClicks.length >= 3) {
+              target._clicks = []
+              props.onOpenPipeline?.()
+            }
+          }}
+          className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-default active:scale-95 transition-transform"
         >
           <span className="relative flex size-7 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300">
             <CloudLightning className="size-4" aria-hidden="true" />
