@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef } from 'react'
-import { CalendarClock, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { CalendarClock, Moon, Pause, Play, SkipBack, SkipForward, Sun } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { HOUR, formatIST, fromISTInputValue, toISTInputValue } from '@/lib/time'
+import { HOUR, formatIST, fromISTInputValue, isDaylight, toISTInputValue } from '@/lib/time'
 
 type Props = {
   time: number
@@ -63,12 +63,16 @@ export function TimeScrubber(props: Props) {
           <button
             type="button"
             onClick={() => inputRef.current?.showPicker?.()}
-            className="flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             aria-label="Select date and time"
           >
-            <CalendarClock className="size-4 text-cyan-300" aria-hidden="true" />
+            {isDaylight(props.time) ? (
+              <Sun className="size-4 text-amber-300" aria-label="Daytime" />
+            ) : (
+              <Moon className="size-4 text-cyan-300" aria-label="Nighttime" />
+            )}
             <span className="whitespace-nowrap font-mono text-sm tabular-nums text-slate-50">{formatIST(props.time)}</span>
-            <span className="hidden whitespace-nowrap font-mono text-[11px] text-slate-400 sm:inline">UTC+5:30</span>
+            <span className="hidden whitespace-nowrap font-mono text-[11px] text-slate-400 sm:inline">IST</span>
           </button>
           <input
             ref={inputRef}

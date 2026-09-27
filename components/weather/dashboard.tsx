@@ -18,7 +18,7 @@ import {
   type TrackPoint,
 } from '@/lib/cyclones'
 import { createSampler, type WindData } from '@/lib/wind-field'
-import { DAY, HOUR, TEN_MIN, floorTo, istDayStart } from '@/lib/time'
+import { DAY, HOUR, TEN_MIN, floorTo, istDayStart, isDaylight } from '@/lib/time'
 import type { ActiveCycloneView, FlyTarget, MapPin } from './map-view'
 import { TopDock, type Page } from './top-dock'
 import { DaySelector } from './day-selector'
@@ -60,7 +60,8 @@ export default function Dashboard() {
   const [showWind, setShowWind] = useState(true)
   const [systemActive, setSystemActive] = useState(true)
   const [activeDismissed, setActiveDismissed] = useState(false)
-  const [basemap, setBasemap] = useState<'night' | 'satellite' | 'dark'>('night')
+  // Basemap override: null = automatic diurnal sync with timeline (Day = Satellite, Night = Black Marble)
+  const [basemapOverride, setBasemapOverride] = useState<'auto' | 'night' | 'satellite' | 'dark'>('auto')
   const [showRadar, setShowRadar] = useState(true)
   const [showDistricts, setShowDistricts] = useState(true)
   const [archiveId, setArchiveId] = useState<string | null>(null)
@@ -81,10 +82,6 @@ export default function Dashboard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const cycleBasemap = useCallback(() => {
-    setBasemap((prev) => (prev === 'night' ? 'satellite' : prev === 'satellite' ? 'dark' : 'night'))
-  }, [])
-
   const { data: sat } = useSWR<SatelliteInfo>('/api/satellite', fetcher, { refreshInterval: 10 * 60 * 1000 })
   const { data: wind } = useSWR<WindData>('/api/wind', fetcher, { revalidateOnFocus: false })
   const { data: liveBackend, mutate: mutateLiveBackend } = useSWR<any>('/api/cyclone/current', fetcher, {
@@ -96,6 +93,24 @@ export default function Dashboard() {
   const minTime = sat?.frames[0] ?? latestSat - 3 * HOUR
   const maxTime = wind ? Math.min(wind.times[wind.times.length - 1], now + 4.75 * DAY) : now + 4.5 * DAY
   const time = timeState ?? latestSat
+
+  // Dynamic Diurnal Basemap:
+  // When in 'auto' mode (default), daytime (06:00 to 18:30 IST) switches automatically to
+  // True-Color Daylight Earth Imagery ('satellite'). Nighttime switches to NASA VIIRS Black Marble ('night').
+  const effectiveBasemap: 'night' | 'satellite' | 'dark' = useMemo(() => {
+    if (basemapOverride !== 'auto') return basemapOverride
+    return isDaylight(time) ? 'satellite' : 'night'
+  }, [basemapOverride, time])
+
+  const cycleBasemap = useCallback(() => {
+    setBasemapOverride((prev) => {
+      // Cycle: auto -> satellite (Daylight forced) -> night (Night lights forced) -> dark -> auto
+      if (prev === 'auto') return 'satellite'
+      if (prev === 'satellite') return 'night'
+      if (prev === 'night') return 'dark'
+      return 'auto'
+    })
+  }, [])
 
   const satTime = sat ? toIso(time <= latestSat ? floorTo(Math.max(time, minTime), TEN_MIN) : latestSat) : null
 
@@ -375,7 +390,7 @@ export default function Dashboard() {
         archiveCyclone={archiveCyclone}
         pin={pin}
         flyTo={flyTo}
-        basemap={basemap}
+        basemap={effectiveBasemap}
         showRadar={showRadar}
         showDistricts={showDistricts && Boolean(activeView)}
         onMapClick={(lat, lon) => setPoint({ lat, lon })}
@@ -398,7 +413,8 @@ export default function Dashboard() {
           setSystemActive((v) => !v)
           setActiveDismissed(false)
         }}
-        basemap={basemap}
+        basemap={effectiveBasemap}
+        basemapMode={basemapOverride}
         onCycleBasemap={cycleBasemap}
         showRadar={showRadar}
         onToggleRadar={() => setShowRadar((v) => !v)}

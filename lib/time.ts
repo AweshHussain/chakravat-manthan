@@ -37,3 +37,17 @@ export function fromISTInputValue(value: string) {
 export function floorTo(ms: number, step: number) {
   return Math.floor(ms / step) * step
 }
+
+/**
+ * Determines whether a given timestamp falls during daylight hours across
+ * the Pan-Asia / Indian subcontinent domain (~06:00 to 18:30 IST / solar time).
+ * 06:00 to 18:30 IST = True-color Daylight Satellite
+ * 18:30 to 06:00 IST = NASA VIIRS Black Marble Night Lights
+ */
+export function isDaylight(ms: number): boolean {
+  // Convert to IST decimal hours (0.0 to 24.0)
+  const istDate = new Date(ms + IST_OFFSET_MS)
+  const hours = istDate.getUTCHours() + istDate.getUTCMinutes() / 60
+  // Daylight across the Bay of Bengal, Arabian Sea, and Indian Subcontinent
+  return hours >= 6.0 && hours < 18.5
+}

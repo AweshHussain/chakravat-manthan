@@ -1,4 +1,4 @@
-import { Cloud, CloudLightning, Compass, Eye, FlaskConical, Globe, Radar, Radio, Satellite, ShieldAlert, Wind } from 'lucide-react'
+import { Cloud, CloudLightning, Compass, Eye, FlaskConical, Globe, Moon, Radar, Radio, Satellite, ShieldAlert, Sun, Wind } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { BasemapMode } from './map-view'
 
@@ -16,6 +16,7 @@ type Props = {
   systemActive: boolean
   onToggleSystem: () => void
   basemap: BasemapMode
+  basemapMode?: 'auto' | 'night' | 'satellite' | 'dark'
   onCycleBasemap: () => void
   showRadar: boolean
   onToggleRadar: () => void
@@ -58,12 +59,22 @@ function ToggleChip({
 }
 
 export function TopDock(props: Props) {
-  const basemapLabel =
-    props.basemap === 'night'
-      ? 'Basemap: NASA Night Lights'
+  const isAuto = !props.basemapMode || props.basemapMode === 'auto'
+  const basemapLabel = isAuto
+    ? `Basemap: Auto Timeline Sync (${props.basemap === 'satellite' ? 'Daylight Imagery' : 'NASA Night Lights'})`
+    : props.basemap === 'night'
+      ? 'Basemap: NASA Night Lights (Pinned)'
       : props.basemap === 'satellite'
-        ? 'Basemap: True-Color Daylight World Imagery'
-        : 'Basemap: Carto / Canvas Dark'
+        ? 'Basemap: True-Color Daylight World Imagery (Pinned)'
+        : 'Basemap: Carto / Canvas Dark (Pinned)'
+
+  const BasemapIcon = isAuto
+    ? (props.basemap === 'satellite' ? Sun : Moon)
+    : props.basemap === 'satellite'
+      ? Sun
+      : props.basemap === 'night'
+        ? Moon
+        : Globe
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-3">
@@ -128,8 +139,16 @@ export function TopDock(props: Props) {
           title={basemapLabel}
           className="flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-slate-200 transition hover:bg-white/[0.12] active:scale-95"
         >
-          <Globe className="size-3.5 text-cyan-300" aria-hidden="true" />
-          <span className="capitalize">{props.basemap}</span>
+          <BasemapIcon
+            className={cn(
+              'size-3.5',
+              props.basemap === 'satellite' ? 'text-amber-300' : 'text-cyan-300',
+            )}
+            aria-hidden="true"
+          />
+          <span className="capitalize">
+            {isAuto ? (props.basemap === 'satellite' ? 'Day (Auto)' : 'Night (Auto)') : props.basemap}
+          </span>
         </button>
 
         <div className="hidden items-center gap-0.5 sm:flex" role="group" aria-label="Map layers">
