@@ -92,9 +92,8 @@ export function TopDock(props: Props) {
           }}
           className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-default active:scale-95 transition-transform"
         >
-          <span className="relative flex size-7 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300">
-            <CloudLightning className="size-4" aria-hidden="true" />
-            <span className="absolute inset-0 animate-ping rounded-full bg-cyan-400/20 [animation-duration:3s]" />
+          <span className="relative flex size-8 items-center justify-center rounded-full overflow-hidden shadow-[0_0_15px_-2px_rgba(34,211,238,0.5)]">
+            <img src="/logo.png" alt="Chakravat Manthan Logo" className="size-full object-contain" />
           </span>
           <h1 className="hidden whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50 md:block">
             Chakravat <span className="text-cyan-300">Manthan</span>
