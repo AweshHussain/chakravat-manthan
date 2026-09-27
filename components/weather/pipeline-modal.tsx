@@ -121,70 +121,92 @@ export function PipelineTelemetryModal({
           </form>
         ) : (
           <>
-            {/* Pipeline Stages Diagram */}
-            <div className="my-4 space-y-3">
-          {/* Stage 1: MOSDAC Ingestion */}
-          <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-3 border border-white/5">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-300">
-              <Activity className="size-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-200">1. ISRO MOSDAC Telemetry</span>
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> Ingested
-                </span>
+            {/* Full 4-Stage Decoupled Workflow */}
+            <div className="my-4 space-y-2.5">
+              {/* Stage 1: ISRO MOSDAC Ingestion */}
+              <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-2.5 border border-white/5">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-orange-500/20 text-orange-400">
+                  <Activity className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-200">1. ISRO MOSDAC Telemetry</span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> Ingested
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">{passId}</p>
+                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1"><Clock className="size-3" /> Satellite Pass: <strong className="text-slate-300">{statusAgo}</strong></span>
+                    <span className="font-mono text-cyan-300">TIR-1 (10.8µm)</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-[11px] text-slate-400 truncate mt-0.5 font-mono">{passId}</p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-400">
-                <Clock className="size-3" />
-                <span>Fetched: <strong className="text-slate-300">{statusAgo}</strong></span>
-              </div>
-            </div>
-          </div>
 
-          {/* Stage 2: PyTorch Neural Inference */}
-          <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-3 border border-white/5">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
-              <Server className="size-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-200">2. CNN-GRU Multi-Task Inference</span>
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> Processed
-                </span>
+              {/* Stage 2: Database 1 - Ingestion Buffer Queue */}
+              <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-2.5 border border-white/5">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                  <Database className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-200">2. Ingestion Buffer (DB 1)</span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> Buffered
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-300 font-mono">
+                    <span>Queue: <strong className="text-cyan-300">chakravat-ingestion-buffer</strong></span>
+                    <span className="text-emerald-400">Status: PROCESSED</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    Crop: <span className="text-slate-300 font-mono">512x512 array (~250 KB)</span> · Zero-Drop Guarantee
+                  </p>
+                </div>
               </div>
-              <div className="mt-1 grid grid-cols-2 gap-2 text-[10px] text-slate-300 font-mono">
-                <div>Confidence: <strong className="text-cyan-300">{data?.intensity_stage?.confidence_pct ?? 99.2}%</strong></div>
-                <div>Stage: <strong className="text-amber-300">{data?.intensity_stage?.code ?? 'FAIR'}</strong></div>
-              </div>
-              <div className="mt-1 text-[10px] text-slate-400">
-                Model: <span className="text-slate-300">Custom 4-Stage CNN + 2-Layer Temporal GRU (91.94% Acc)</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Stage 3: Supabase Cloud Database Sync */}
-          <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-3 border border-white/5">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300">
-              <Database className="size-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-200">3. Supabase Cloud Sync</span>
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> Synced
-                </span>
+              {/* Stage 3: PyTorch CNN-GRU Deep Learning Inference */}
+              <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-2.5 border border-white/5">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400">
+                  <Server className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-200">3. CNN-GRU Multi-Task AI</span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> Computed
+                    </span>
+                  </div>
+                  <div className="mt-1 grid grid-cols-2 gap-2 text-[10px] text-slate-300 font-mono">
+                    <div>Confidence: <strong className="text-cyan-300">{data?.intensity_stage?.confidence_pct ?? 99.2}%</strong></div>
+                    <div>Stage: <strong className="text-amber-300">{data?.intensity_stage?.code ?? 'FAIR'}</strong></div>
+                  </div>
+                  <div className="mt-1 text-[10px] text-slate-400">
+                    Model: <span className="text-slate-300">Custom 4-Stage CNN + 2-Layer Temporal GRU</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-[11px] text-slate-300 truncate mt-0.5 font-mono">{dbStatus}</p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-400">
-                <Clock className="size-3" />
-                <span>Last Upsert: <strong className="text-slate-300">{statusAgo}</strong></span>
+
+              {/* Stage 4: Database 2 - Public Live Telemetry & Vercel Edge */}
+              <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-2.5 border border-white/5">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+                  <Database className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-200">4. Live Telemetry (DB 2) & UI</span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> Active
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 truncate mt-0.5 font-mono">{dbStatus}</p>
+                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1"><Clock className="size-3" /> Synchronized: <strong className="text-slate-300">{statusAgo}</strong></span>
+                    <span className="text-cyan-300">Vercel Edge</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
         {/* Footer info */}
         <div className="flex items-center justify-between border-t border-white/10 pt-3 text-[11px] text-slate-400">
