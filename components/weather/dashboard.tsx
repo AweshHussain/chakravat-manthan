@@ -15,6 +15,7 @@ import {
   compass,
   interpolateTrack,
   warningStageIndex,
+  type TrackPoint,
 } from '@/lib/cyclones'
 import { createSampler, type WindData } from '@/lib/wind-field'
 import { DAY, HOUR, TEN_MIN, floorTo, istDayStart } from '@/lib/time'

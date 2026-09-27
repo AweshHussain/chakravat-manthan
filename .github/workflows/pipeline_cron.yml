@@ -27,9 +27,9 @@ jobs:
 
       - name: Execute Autonomous Pipeline Sync
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_URL || 'https://etvcqmbqmdtiatrqfbxy.supabase.co' }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY != '' && secrets.SUPABASE_KEY || 'sb_publishable_KJYaxY4yu7StdTOWyoX__A_sli7UVQt' }}
-          MOSDAC_USER: ${{ secrets.MOSDAC_USER != '' && secrets.MOSDAC_USER || 'awesh_21' }}
-          MOSDAC_PASS: ${{ secrets.MOSDAC_PASS != '' && secrets.MOSDAC_PASS || 'AH_Since_2006@' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          MOSDAC_USER: ${{ secrets.MOSDAC_USER }}
+          MOSDAC_PASS: ${{ secrets.MOSDAC_PASS }}
         run: |
           python backend/cloud_sync_worker.py
