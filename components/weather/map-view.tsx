@@ -170,23 +170,29 @@ export default function MapView(props: Props) {
       baseLayerRef.current = null
     }
 
+    // NASA Black Marble level 8 caps out natively at zoom 8.
+    // By setting maxNativeZoom: 8 and maxZoom: 16, Leaflet smoothly upscales the level 8 tiles
+    // when you zoom in deeply, preventing NASA from returning 'Zoom Level Not Supported' tiles!
     let url = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png'
     let maxNative = 8
+    let maxZ = 16
     let className = 'cm-black-marble'
 
     if (props.basemap === 'satellite') {
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
       maxNative = 18
+      maxZ = 18
       className = 'cm-world-imagery'
     } else if (props.basemap === 'dark') {
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       maxNative = 16
+      maxZ = 16
       className = 'cm-canvas-dark'
     }
 
     const layer = L.tileLayer(url, {
       maxNativeZoom: maxNative,
-      maxZoom: 16,
+      maxZoom: maxZ,
       className,
       attribution: 'Imagery: NASA / Esri',
     })
@@ -210,11 +216,15 @@ export default function MapView(props: Props) {
       .then((data) => {
         if (!mapRef.current || !data?.radar?.past?.length) return
         const latest = data.radar.past[data.radar.past.length - 1]
+        // RainViewer Doppler radar tiles natively stop at zoom 7.
+        // Setting maxNativeZoom: 7 allows Leaflet to smoothly upscale the radar tiles up to street-level zoom 16
+        // without RainViewer returning grey 'Zoom Level Not Supported' tile error watermarks!
         const radarLayer = L.tileLayer(
           `${data.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
           {
             pane: 'radar',
             opacity: 0.8,
+            maxNativeZoom: 7,
             maxZoom: 16,
             className: 'cm-rainviewer-radar',
           },
