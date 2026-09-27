@@ -117,9 +117,13 @@ export default function Dashboard() {
 
   const sampler = useMemo(() => {
     if (!wind) return null
-    // Only inject a rotating cyclone vortex if there is an actual active tropical storm (>28 kt Deep Depression threshold)
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? (activeState?.windKt ?? 0)
-    const isStormActive = currentWind >= 28 && liveBackend?.intensity_stage?.code !== 'FAIR' && !liveBackend?.storm?.includes('Basin')
+    // Only inject a rotating cyclone vortex if liveBackend has loaded AND confirms an actual active tropical storm (>28 kt)
+    if (!liveBackend) return createSampler(wind, time, null)
+
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || ''
+    const isStormActive = currentWind >= 28 && stageCode !== 'FAIR' && stageCode !== 'TD' && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')
     
     const vortex = (activeState && isStormActive)
       ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
@@ -128,15 +132,26 @@ export default function Dashboard() {
   }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
-    if (!activeState) return null
-    // If backend reports fair weather or wind under 28 kt (below Deep Depression), do not render false cyclone vortex rings on map
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
-    if (currentWind < 28 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.storm?.includes('Basin')) {
+    // If backend telemetry hasn't loaded yet or system is toggled off, default to fair basin (null)
+    if (!activeState || !liveBackend) return null
+
+    // Strictly check if an actual active tropical storm is reported
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || ''
+
+    if (
+      currentWind < 28 ||
+      stageCode === 'FAIR' ||
+      stageCode === 'TD' ||
+      stormName.includes('Basin') ||
+      stormName.toLowerCase().includes('fair')
+    ) {
       return null
     }
 
     return {
-      name: liveBackend?.storm || ACTIVE_NAME,
+      name: stormName || ACTIVE_NAME,
       state: activeState,
       track,
       now: time,
