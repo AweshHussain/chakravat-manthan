@@ -160,7 +160,7 @@ export function PipelineTelemetryModal({
                 <div>Stage: <strong className="text-amber-300">{data?.intensity_stage?.code ?? 'FAIR'}</strong></div>
               </div>
               <div className="mt-1 text-[10px] text-slate-400">
-                Model: <span className="text-slate-300">ResNet18 + 2-Layer Temporal GRU (91.94% Acc)</span>
+                Model: <span className="text-slate-300">Custom 4-Stage CNN + 2-Layer Temporal GRU (91.94% Acc)</span>
               </div>
             </div>
           </div>

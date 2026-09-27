@@ -23,7 +23,7 @@
 
 * **Real-Time ISRO MOSDAC Telemetry:** Ingests live INSAT-3DR Thermal Infrared (TIR-1, $10.8\,\mu\text{m}$) radiance passes to monitor convective cloud top temperatures day and night.
 * **Custom CNN-GRU Spatio-Temporal Model:** 
-  * Replaces static single-frame classification with a sequence-to-vector recurrent architecture (ResNet-18 + 2-layer temporal GRU).
+  * Replaces static single-frame classification with a sequence-to-vector recurrent architecture (Custom 4-Stage CNN Feature Extractor + 2-Layer Temporal GRU).
   * **91.94% Exact Accuracy** across 8 official IMD cyclone intensity categories.
   * **98.90% Adjacent Accuracy** ($\pm 1$ stage tolerance for operational safety).
 * **Physical Wind-Pressure Coupling:** Continuously regresses sustained wind speed ($V_{\max}$) and derives central minimum pressure ($P_{\min}$) via calibrated Bay of Bengal cyclostrophic formulations:
@@ -50,7 +50,7 @@
 |                 |                                         |                       |
 |                 v                                         |                       |
 |  [ PyTorch Spatio-Temporal CNN-GRU ]                      |                       |
-|     - Time-Distributed ResNet-18                          |                       |
+|     - Time-Distributed 4-Stage CNN (32-64-128-256)        |                       |
 |     - 2-Layer Temporal GRU (Dim=128)                      |                       |
 |     - Multi-Task Intensity & Radii Heads                  |                       |
 |                 |                                         |                       |
