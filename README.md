@@ -28,11 +28,13 @@
   * **98.90% Adjacent Accuracy** ($\pm 1$ stage tolerance for operational safety).
 * **Physical Wind-Pressure Coupling:** Continuously regresses sustained wind speed ($V_{\max}$) and derives central minimum pressure ($P_{\min}$) via calibrated Bay of Bengal cyclostrophic formulations:
   $$P_{\min} = 1010 - \left(\frac{V_{\max}}{2.3}\right)^{1.33} \quad [\text{hPa}]$$
-* **Rigid Geographic Geospatial Lockdown:** Bounded strictly between **Afghanistan (`63.0°E`)** and **Lijiang, Yunnan (`100.5°E`)** to focus on the North Indian Ocean without irrelevant global distortion.
-* **Physical Atmospheric Wind Streamlines:** Real-time particle streamlines driven by true GFS/ECMWF numerical vector fields ($u, v$), with zero synthetic distortion during fair weather.
+* **Pan-Asia Meteorological Domain:** Expanded geospatial view spanning the entire Asian continent and oceanic basins ($40.0^\circ\text{E}$ to $145.0^\circ\text{E}$, $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$), from the Arabian Peninsula to Japan, China, Southeast Asia, and the Western Pacific.
+* **Pan-Asia Atmospheric Wind Streamlines:** Real-time continuous particle streamlines driven by true numerical vector fields ($u, v$) flowing across all of Asia and adjacent oceans.
 * **IMD Coastal District Warning Zones:** Dynamic GIS alert boundaries (Red, Orange, Yellow) along Odisha, Andhra Pradesh, West Bengal, and Gujarat coastlines.
 * **Cyclone Archives & AI Research Lab:** Deep-dive case studies of historical landmark storms (**Dana**, **Amphan**, **Mocha**, **Fani**, **Biparjoy**, **Tauktae**).
-* **24/7 Autonomous Cloud Worker:** Automated 30-minute cloud sync (via GitHub Actions workflow) updating Supabase and Vercel continuously 24/7, even when local machines are offline.
+* **Decoupled Two-Database Zero-Loss Buffer Architecture:** 
+  * **Database 1 (Buffer Queue & Ingestion):** Dedicated backend buffer storing satellite pass queue metadata and $512 \times 512$ crops with status tracking (`PENDING` -> `PROCESSED`). Guarantees zero dropped frames during network or runner delays.
+  * **Database 2 (Live Telemetry Store):** Dedicated clean public operational store (`cyclone_live`) read directly by the Next.js frontend on Vercel.
 
 ---
 
@@ -43,20 +45,26 @@
 |                        CHAKRAVAT MANTHAN ARCHITECTURE                             |
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
-|  [ ISRO MOSDAC INSAT-3DR Satellite ]       [ Global GFS / ECMWF Wind Data ]       |
+|  [ ISRO MOSDAC INSAT-3DR Satellite ]       [ Global Atmospheric Wind Vectors ]    |
 |                 |                                         |                       |
-|                 v                                         v                       |
-|     TIR-1 Infrared Radiance                     10m Surface Wind Vectors          |
+|                 v (Every 15-30 min)                       v                       |
+|       TIR-1 Infrared Radiance               Pan-Asia Wind Vector Grid (40°-145°E) |
 |                 |                                         |                       |
 |                 v                                         |                       |
-|  [ PyTorch Spatio-Temporal CNN-GRU ]                      |                       |
+|  [ DATABASE 1: Ingestion Buffer Store ]                   |                       |
+|     - Table: `satellite_ingestion_queue`                  |                       |
+|     - Stores 512x512 crops & queue status                 |                       |
+|     - Status: 'PENDING' -> 'PROCESSED'                    |                       |
+|                 |                                         |                       |
+|                 v (Batch-safe consumer: 1, 2, or 4 passes)|                       |
+|  [ PyTorch Spatio-Temporal CNN-GRU Model ]                |                       |
 |     - Time-Distributed 4-Stage CNN (32-64-128-256)        |                       |
 |     - 2-Layer Temporal GRU (Dim=128)                      |                       |
 |     - Multi-Task Intensity & Radii Heads                  |                       |
 |                 |                                         |                       |
-|                 v                                         |                       |
-|  [ Supabase Cloud Database (PostgreSQL) ]                 |                       |
-|     - Telemetry, Tracks & District Alerts                 |                       |
+|                 v (Clean operational telemetry)           |                       |
+|  [ DATABASE 2: Public Live Telemetry Store ]              |                       |
+|     - Table: `cyclone_live` (Current state & track)       |                       |
 |                 |                                         |                       |
 |                 +-------------------+---------------------+                       |
 |                                     |                                             |

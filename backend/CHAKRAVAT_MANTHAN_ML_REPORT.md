@@ -204,18 +204,20 @@ The final trained checkpoint (`chakravat_manthan_cnn_gru_fixed_best.pt`) achieve
 
 ## 7. Current Operational Condition & Live Status
 
-As of **September 27, 2026**:
+As of **September 28, 2026**:
 1. **Model Weights:** Safely pushed and hosted in the GitHub repository (`backend/checkpoints/`).
-2. **Real-Time Ocean State:** Correctly reports **Fair Weather / Normal Conditions** across the North Indian Ocean basin with gentle 12-knot winds and 1010 hPa sea-level pressure.
-3. **Natural Wind Streamlines:** Driven 100% by physical GFS/ECMWF atmospheric vectors; artificial vortex injection is active strictly when an actual tropical storm ($\ge 28\text{ kt}$) is detected.
-4. **Cloud Database Sync:** End-to-end verified with sub-second latency from Python inference to Supabase PostgreSQL.
-5. **Live Production Dashboard:** Hosted on Vercel at **https://chakravat-manthan-live.vercel.app** with zero template branding, rigid geographic framing, and private admin telemetry monitoring.
+2. **Decoupled Two-Database Zero-Loss Buffer Pipeline:**
+   * **Database 1 (Buffer Queue):** Dedicated database (`chakravat-ingestion-buffer`) ingesting raw ISRO MOSDAC passes and storing 512x512 crops with status flags (`PENDING` -> `PROCESSED`). Guarantees zero dropped frames during shared CI runner delays or network congestion.
+   * **Database 2 (Live Telemetry):** Dedicated operational database (`cyclone_live`) serving real-time inferences to the Next.js Vercel frontend.
+3. **Pan-Asia Meteorological Coverage:** Geospatial viewing domain expanded across the entire Asian continent and oceanic basins ($40.0^\circ\text{E}$ to $145.0^\circ\text{E}$, $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$), from the Arabian Peninsula to Japan, China, Southeast Asia, and the Western Pacific.
+4. **Physical Wind Streamlines:** Real atmospheric GFS/ECMWF streamlines dynamically calculated across the entire Pan-Asia grid; artificial vortex rotation is triggered strictly when an actual tropical storm ($\ge 28\text{ kt}$) is verified.
+5. **Live Production Dashboard:** Hosted on Vercel at **https://chakravat-manthan-live.vercel.app** with zero template branding and private admin telemetry monitoring.
 
 ---
 
 ## 8. Conclusion & Future Roadmap
 
-The Chakravat Manthan machine learning framework represents a robust, meteorologically sound, and production-tested system for Indian Ocean tropical cyclone monitoring. By combining physical atmospheric constraints with spatio-temporal neural dynamics, the platform provides early warning capabilities that bridge the gap between complex satellite telemetry and life-saving disaster management decisions.
+The Chakravat Manthan machine learning framework represents a robust, meteorologically sound, and production-tested system for tropical cyclone monitoring. By combining physical atmospheric constraints with spatio-temporal neural dynamics and a decoupled zero-loss buffer pipeline, the platform provides early warning capabilities that bridge the gap between complex satellite telemetry and life-saving disaster management decisions.
 
 **Planned Next Phases:**
 * Integration of Scatterometer (SCATSAT-1 / EOS-06) ocean surface roughness measurements.
