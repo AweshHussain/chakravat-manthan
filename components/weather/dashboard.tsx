@@ -133,10 +133,22 @@ export default function Dashboard() {
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
     // If systemActive is toggled off or activeState is null, do not show
-    if (!activeState) return null
+    if (!activeState || !liveBackend) return null
 
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
-    const stormName = (liveBackend?.storm && !liveBackend.storm.includes('Basin')) ? liveBackend.storm : 'Deep Depression (01B)'
+    // Strictly verify against satellite & neural model telemetry:
+    // Only display if actual cyclogenesis / deep depression (wind >= 28 kt, not FAIR or normal basin)
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || ''
+    const isCycloneActive =
+      currentWind >= 28 &&
+      stageCode !== 'FAIR' &&
+      stageCode !== 'TD' &&
+      !stormName.includes('Basin') &&
+      !stormName.toLowerCase().includes('fair')
+
+    // If ocean is calm / fair weather according to satellite data, do NOT render fake cyclone
+    if (!isCycloneActive) return null
 
     return {
       name: stormName,
