@@ -103,25 +103,28 @@ export default function Dashboard() {
     return createSampler(wind, time, vortex)
   }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt])
 
-  const activeView: ActiveCycloneView | null = useMemo(
-    () =>
-      activeState
+  const activeView: ActiveCycloneView | null = useMemo(() => {
+    if (!activeState) return null
+    // If backend reports fair weather or wind under 28 kt (below Deep Depression), do not render false cyclone vortex rings on map
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
+    if (currentWind < 28 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.storm?.includes('Basin')) {
+      return null
+    }
+
+    return {
+      name: liveBackend?.storm || ACTIVE_NAME,
+      state: activeState,
+      track,
+      now: time,
+      geometry: liveBackend?.aerial_top_view_geometry
         ? {
-            name: liveBackend?.storm || ACTIVE_NAME,
-            state: activeState,
-            track,
-            now: time,
-            geometry: liveBackend?.aerial_top_view_geometry
-              ? {
-                  outerRadiusKm: liveBackend.aerial_top_view_geometry.outer_radius_km,
-                  cdoRadiusKm: liveBackend.aerial_top_view_geometry.cdo_radius_km,
-                  eyeRadiusKm: liveBackend.aerial_top_view_geometry.eye_radius_km,
-                }
-              : undefined,
+            outerRadiusKm: liveBackend.aerial_top_view_geometry.outer_radius_km,
+            cdoRadiusKm: liveBackend.aerial_top_view_geometry.cdo_radius_km,
+            eyeRadiusKm: liveBackend.aerial_top_view_geometry.eye_radius_km,
           }
-        : null,
-    [activeState?.lat, activeState?.lon, activeState?.windKt, track, time, liveBackend?.storm, liveBackend?.aerial_top_view_geometry],
-  )
+        : undefined,
+    }
+  }, [activeState, track, time, liveBackend])
 
   const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === archiveId) ?? null) : null
 
@@ -175,26 +178,33 @@ export default function Dashboard() {
         }))
       }
 
+      const isFair = backendWind === undefined || backendWind <= 25 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.intensity_stage?.code === 'D'
+
       return {
         kind: 'active',
         name: backendStorm,
-        subtitle: liveBackend?.intensity_trend || `Bay of Bengal · Scenario system · heading ${compass(activeState.headingDeg)}`,
-        windKt: backendWind ?? activeState.windKt,
-        pressure: backendPress ?? activeState.pressure,
-        lat: activeState.lat,
-        lon: activeState.lon,
-        headingDeg: activeState.headingDeg,
-        speedKmh: activeState.speedKmh,
-        warningIndex: idx,
-        warningNote:
-          hoursTo < 0
+        subtitle: isFair
+          ? 'Bay of Bengal & Arabian Sea · Fair Weather · No Active Cyclone'
+          : liveBackend?.intensity_trend || `Bay of Bengal · Active System · heading ${compass(activeState.headingDeg)}`,
+        windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
+        pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
+        lat: isFair ? 16.5 : activeState.lat,
+        lon: isFair ? 86.5 : activeState.lon,
+        headingDeg: isFair ? null : activeState.headingDeg,
+        speedKmh: isFair ? null : activeState.speedKmh,
+        warningIndex: isFair ? -1 : idx,
+        warningNote: isFair
+          ? 'Normal synoptic conditions across Indian coastal waters. No cyclone watches, warnings, or alerts in effect.'
+          : hoursTo < 0
             ? `System made landfall ${Math.round(-hoursTo)} h ago and is weakening inland. Heavy rainfall outlook remains in effect.`
             : `${stage ? stage.label : 'Monitoring'} in effect. Expected landfall in ~${Math.round(hoursTo)} h. Fishermen advised not to venture into the sea.`,
         series: track.map((p) => p.windKt),
         seriesIndex: ((time - first) / (last - first)) * (track.length - 1),
-        landfall: `${ACTIVE_LANDFALL_PLACE} (forecast)`,
+        landfall: isFair ? 'No Impending Landfall' : `${ACTIVE_LANDFALL_PLACE} (forecast)`,
         customProbabilities,
-        geometry: liveBackend?.aerial_top_view_geometry
+        geometry: isFair
+          ? { outerRadiusKm: 0, cdoRadiusKm: 0, eyeRadiusKm: 0 }
+          : liveBackend?.aerial_top_view_geometry
           ? {
               outerRadiusKm: liveBackend.aerial_top_view_geometry.outer_radius_km,
               cdoRadiusKm: liveBackend.aerial_top_view_geometry.cdo_radius_km,

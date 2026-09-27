@@ -8,7 +8,8 @@ export type ImdCategory = {
 }
 
 export const IMD_CATEGORIES: ImdCategory[] = [
-  { code: 'TD', name: 'Tropical Depression', minKt: 0, color: '#38bdf8' },
+  { code: 'FAIR', name: 'Fair Weather / Normal Basin', minKt: 0, color: '#34d399' },
+  { code: 'TD', name: 'Tropical Depression', minKt: 12, color: '#38bdf8' },
   { code: 'D', name: 'Depression', minKt: 17, color: '#67e8f9' },
   { code: 'DD', name: 'Deep Depression', minKt: 28, color: '#22d3ee' },
   { code: 'CS', name: 'Cyclonic Storm', minKt: 34, color: '#a3e635' },
@@ -161,9 +162,9 @@ const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [
   [72, 22.3, 86.0, 24],
 ]
 
-export const ACTIVE_NAME = 'Arnab'
+export const ACTIVE_NAME = 'North Indian Ocean Basin'
 export const ACTIVE_LANDFALL_OFFSET_H = 48
-export const ACTIVE_LANDFALL_PLACE = 'Near Paradip, Odisha'
+export const ACTIVE_LANDFALL_PLACE = 'No Impending Landfall'
 
 export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)
