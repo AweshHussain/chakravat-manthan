@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET() {
   // 1. If Supabase is configured (e.g. on Vercel deployment), query the cloud DB
   if (supabase) {
@@ -40,6 +43,10 @@ export async function GET() {
             lon: Number(data.lon),
           },
           last_updated: data.last_updated,
+        }, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          }
         })
       }
     } catch {
