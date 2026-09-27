@@ -87,7 +87,10 @@ export default function Dashboard() {
 
   const { data: sat } = useSWR<SatelliteInfo>('/api/satellite', fetcher, { refreshInterval: 10 * 60 * 1000 })
   const { data: wind } = useSWR<WindData>('/api/wind', fetcher, { revalidateOnFocus: false })
-  const { data: liveBackend } = useSWR<any>('/api/cyclone/current', fetcher, { refreshInterval: 15 * 1000 })
+  const { data: liveBackend } = useSWR<any>('/api/cyclone/current', fetcher, {
+    refreshInterval: 60 * 1000,
+    revalidateOnFocus: true,
+  })
 
   const latestSat = sat?.latest ?? floorTo(now - HOUR, TEN_MIN)
   const minTime = sat?.frames[0] ?? latestSat - 3 * HOUR
