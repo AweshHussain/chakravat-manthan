@@ -29,10 +29,12 @@ export function PipelineTelemetryModal({
   open,
   onClose,
   data,
+  onRefresh,
 }: {
   open: boolean
   onClose: () => void
   data?: any
+  onRefresh?: () => void
 }) {
   const [refreshing, setRefreshing] = useState(false)
   const [pin, setPin] = useState('')
@@ -190,7 +192,12 @@ export function PipelineTelemetryModal({
           <button
             onClick={() => {
               setRefreshing(true)
-              window.location.reload()
+              if (onRefresh) {
+                onRefresh()
+                setTimeout(() => setRefreshing(false), 800)
+              } else {
+                window.location.reload()
+              }
             }}
             className="flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[11px] text-white hover:bg-white/20 transition"
           >

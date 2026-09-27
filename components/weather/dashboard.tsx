@@ -87,7 +87,7 @@ export default function Dashboard() {
 
   const { data: sat } = useSWR<SatelliteInfo>('/api/satellite', fetcher, { refreshInterval: 10 * 60 * 1000 })
   const { data: wind } = useSWR<WindData>('/api/wind', fetcher, { revalidateOnFocus: false })
-  const { data: liveBackend } = useSWR<any>('/api/cyclone/current', fetcher, {
+  const { data: liveBackend, mutate: mutateLiveBackend } = useSWR<any>('/api/cyclone/current', fetcher, {
     refreshInterval: 60 * 1000,
     revalidateOnFocus: true,
   })
@@ -392,6 +392,7 @@ export default function Dashboard() {
         open={pipelineModalOpen}
         onClose={() => setPipelineModalOpen(false)}
         data={liveBackend}
+        onRefresh={() => mutateLiveBackend()}
       />
 
       {page === 'live' && point && (
