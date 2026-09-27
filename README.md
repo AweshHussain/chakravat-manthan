@@ -163,16 +163,6 @@ python backend/verify_e2e_sync.py
 
 ---
 
-## 🔐 Private Admin Pipeline Monitor
-
-The platform includes a built-in, private telemetry monitor for system administrators to audit live MOSDAC pass ingestion, PyTorch confidence, and Supabase upserts:
-
-* **Desktop Hotkey:** Press `Ctrl + Shift + P` (or `Cmd + Shift + P` on Mac).
-* **Mobile Secret Gesture:** Long-press (1.5 seconds) or triple-tap the **Chakravat Manthan** top lightning logo.
-* **Authentication PIN:** `7860` (or `1234`).
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
