@@ -99,9 +99,15 @@ export default function Dashboard() {
 
   const sampler = useMemo(() => {
     if (!wind) return null
-    const vortex = activeState ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: activeState.windKt * 1.852 * 0.9, rmwKm: 45 } : null
+    // Only inject a rotating cyclone vortex if there is an actual active tropical storm (>28 kt Deep Depression threshold)
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? (activeState?.windKt ?? 0)
+    const isStormActive = currentWind >= 28 && liveBackend?.intensity_stage?.code !== 'FAIR' && !liveBackend?.storm?.includes('Basin')
+    
+    const vortex = (activeState && isStormActive)
+      ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
+      : null
     return createSampler(wind, time, vortex)
-  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt])
+  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
     if (!activeState) return null
@@ -334,7 +340,7 @@ export default function Dashboard() {
         flyTo={flyTo}
         basemap={basemap}
         showRadar={showRadar}
-        showDistricts={showDistricts}
+        showDistricts={showDistricts && Boolean(activeView)}
         onMapClick={(lat, lon) => setPoint({ lat, lon })}
         onCycloneClick={() => setActiveDismissed(false)}
       />
