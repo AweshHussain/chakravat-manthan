@@ -218,7 +218,7 @@ export default function Dashboard() {
           : hoursTo < 0
             ? `System made landfall ${Math.round(-hoursTo)} h ago and is weakening inland. Heavy rainfall outlook remains in effect.`
             : `${stage ? stage.label : 'Monitoring'} in effect. Expected landfall in ~${Math.round(hoursTo)} h. Fishermen advised not to venture into the sea.`,
-        series: track.map((p) => p.windKt),
+        series: track.map((p: TrackPoint) => p.windKt),
         seriesIndex: ((time - first) / (last - first)) * (track.length - 1),
         landfall: isFair ? 'No Impending Landfall' : `${ACTIVE_LANDFALL_PLACE} (forecast)`,
         customProbabilities,

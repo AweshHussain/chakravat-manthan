@@ -22,6 +22,7 @@ export type ActiveCycloneView = {
 }
 
 export type BasemapMode = 'night' | 'satellite' | 'dark'
+export type FlyTarget = { lat: number; lon: number; zoom?: number }
 
 type Props = {
   satTime: string | null
