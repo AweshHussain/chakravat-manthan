@@ -173,19 +173,23 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                   </h3>
                   <span className="font-mono text-[10px] text-cyan-400">MOSDAC / PyTorch Geometry</span>
                 </div>
-                <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl bg-slate-900/60 p-2">
-                    <span className="block text-[9px] uppercase tracking-wider text-slate-400">Total Width</span>
-                    <span className="font-mono text-sm font-semibold text-slate-100">{data.geometry.outerRadiusKm * 2} <span className="text-[10px] font-normal text-slate-400">km</span></span>
+                <div className="mt-2.5 grid grid-cols-3 gap-1.5 text-center">
+                  <div className="flex flex-col justify-between rounded-xl bg-slate-900/60 p-2 min-w-0">
+                    <span className="block text-[9px] uppercase tracking-wider text-slate-400 truncate">Total Width</span>
+                    <span className="mt-1 font-mono text-xs sm:text-sm font-semibold text-slate-100 truncate">
+                      {data.geometry.outerRadiusKm * 2} <span className="text-[10px] font-normal text-slate-400">km</span>
+                    </span>
                   </div>
-                  <div className="rounded-xl bg-slate-900/60 p-2">
-                    <span className="block text-[9px] uppercase tracking-wider text-amber-300/80">CDO Core</span>
-                    <span className="font-mono text-sm font-semibold text-amber-200">{data.geometry.cdoRadiusKm * 2} <span className="text-[10px] font-normal text-slate-400">km</span></span>
+                  <div className="flex flex-col justify-between rounded-xl bg-slate-900/60 p-2 min-w-0">
+                    <span className="block text-[9px] uppercase tracking-wider text-amber-300/80 truncate">CDO Core</span>
+                    <span className="mt-1 font-mono text-xs sm:text-sm font-semibold text-amber-200 truncate">
+                      {data.geometry.cdoRadiusKm * 2} <span className="text-[10px] font-normal text-slate-400">km</span>
+                    </span>
                   </div>
-                  <div className="rounded-xl bg-slate-900/60 p-2">
-                    <span className="block text-[9px] uppercase tracking-wider text-cyan-300/80">Eye Width</span>
-                    <span className="font-mono text-sm font-semibold text-cyan-200">
-                      {data.geometry.eyeRadiusKm > 0 ? `${data.geometry.eyeRadiusKm * 2} km` : 'Disorganized'}
+                  <div className="flex flex-col justify-between rounded-xl bg-slate-900/60 p-2 min-w-0">
+                    <span className="block text-[9px] uppercase tracking-wider text-cyan-300/80 truncate">Eye Width</span>
+                    <span className="mt-1 font-mono text-xs sm:text-sm font-semibold text-cyan-200 truncate">
+                      {data.geometry.eyeRadiusKm > 0 ? `${data.geometry.eyeRadiusKm * 2} km` : 'None / Calm'}
                     </span>
                   </div>
                 </div>
