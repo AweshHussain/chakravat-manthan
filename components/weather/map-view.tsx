@@ -100,10 +100,11 @@ export default function MapView(props: Props) {
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    // Exact custom frame: From Afghanistan (West: ~63.0°E) to Lijiang (East: ~100.5°E)
+    // Expanded Asia Domain: From Middle East/Horn of Africa (West: 40.0°E) to Japan / Western Pacific (East: 145.0°E)
+    // and Equatorial Indian Ocean (South: -10.0°S) to Central/East Asia (North: 48.0°N)
     const exactDomainBounds = L.latLngBounds(
-      L.latLng(4.0, 63.0),    // South: Sri Lanka / North Indian Ocean; West: Afghanistan / Eastern Arabian Sea
-      L.latLng(36.5, 100.5),  // North: Kashmir & Hindu Kush; East: Lijiang (Yunnan) / Myanmar border
+      L.latLng(-10.0, 40.0),   // South: Equatorial IO / Maldives / Chagos; West: Red Sea / Arabian Peninsula / Iran
+      L.latLng(48.0, 145.0),   // North: Central Asia / Mongolia / Japan; East: West Pacific Basin / Philippines / Japan
     )
 
     const map = L.map(containerRef.current, {
@@ -111,11 +112,11 @@ export default function MapView(props: Props) {
       zoomSnap: 0.1,
       maxZoom: 16,
       maxBounds: exactDomainBounds,
-      maxBoundsViscosity: 1.0, // 100% rigid lock — cannot drag west of Afghanistan or east of Lijiang
+      maxBoundsViscosity: 0.8, // Smooth damping at outer Asia borders
     })
     mapRef.current = map
 
-    // Fit precisely into the Afghanistan to Lijiang boundary
+    // Center on the South Asia / Bay of Bengal & Arabian Sea focal point
     map.fitBounds(exactDomainBounds, { padding: [10, 10] })
     const computedMinZoom = map.getBoundsZoom(exactDomainBounds, true)
     map.setMinZoom(computedMinZoom)
