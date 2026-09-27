@@ -28,9 +28,9 @@
 |:---:|:---:|:---:|
 | Direct API integration with ISRO MOSDAC. Live TIR-1 (10.8 µm) thermal radiance passes day and night. | Custom 4-stage convolutional encoder + 2-layer recurrent GRU trained from scratch (98.90% safety accuracy). | Real-time numerical vector streamlines ($u, v$) flowing across the entire Asian continent (40°E–145°E). |
 
-| 🛡️ **IMD Warning Envelopes** | 🔄 **Decoupled Buffer Queue** | 📊 **Historical Cyclone Lab** |
+| ☀️ **Dynamic Diurnal Basemap** | 🔄 **Decoupled Buffer Queue** | 🌀 **Precision Cyclone Physics** |
 |:---:|:---:|:---:|
-| Dynamic GIS boundary polygons for coastal districts with Red, Orange, and Yellow evacuation alerts. | 2-database buffer architecture preventing packet dropouts during CI/CD delays or server spikes. | Interactive case studies of landmark superstorms (**Amphan**, **Fani**, **Mocha**, **Biparjoy**, **Dana**). |
+| Seamless diurnal day/night cycle. Auto-switches to True-Color Daylight Earth (06:00–18:30 IST) and NASA Black Marble at night. | 2-database buffer architecture preventing packet dropouts during CI/CD delays or server spikes. | Deep-learning coupled eye rings, CDO radius swaths, and multi-node intensity tracks grounded strictly in satellite telemetry. |
 
 </div>
 
@@ -160,7 +160,9 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 
 </div>
 
-* **Full Pan-Asia Domain:** Encompasses $40.0^\circ\text{E}$ to $145.0^\circ\text{E}$ and $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$.
+* **Full Pan-Asia Domain:** Encompasses $40.0^\circ\text{E}$ to $145.0^\circ\text{E}$ and $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$, providing synoptic coverage from the Arabian Peninsula and Red Sea through the Bay of Bengal, South China Sea, and Sea of Japan.
+* **Dynamic Diurnal Solar Basemap:** Synchronizes directly with the interactive time scrubber. Daylight hours (~06:00 to 18:30 IST) automatically project high-resolution True-Color Daylight Earth Imagery (`Esri World_Imagery`), while nighttime hours automatically transition into NASA VIIRS Black Marble Night Lights. Includes manual cycling controls (`Auto` / `Daylight` / `Night Lights` / `Canvas Dark`).
+* **Deep Zoom with District Alert Boundaries:** Crisp vector tiles up to street level ($Z=16$) without "Zoom Level Not Supported" tile clipping, showing administrative district alert boundaries and IMD evacuation readiness zones.
 * **Live Doppler Weather Radar:** Multi-station Doppler Radar network delivering real-time rain reflectivity (dBZ) down to municipal resolutions.
 * **Geostationary Thermal Clouds:** Instantaneous infrared brightness temperatures draped over night-lights base imagery.
 * **Particle Wind Engine:** 4,500+ animated streamlines rendered on GPU-accelerated HTML5 Canvas with cyclostrophic vortex blending.
