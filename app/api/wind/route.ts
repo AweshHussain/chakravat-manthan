@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // Comprehensive Pan-Asia grid: West Asia / Arabian Sea (42°E) to Japan / West Pacific (146°E)
 // and Equatorial Indian Ocean (-10°S) to Northern Asia (46°N)
 const LATS = Array.from({ length: 15 }, (_, i) => -10 + i * 4) // -10, -6, -2, 2, ... 46
