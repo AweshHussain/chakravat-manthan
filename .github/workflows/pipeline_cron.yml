@@ -26,10 +26,6 @@ jobs:
           pip install requests supabase
 
       - name: Execute Autonomous Pipeline Sync
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          MOSDAC_USER: ${{ secrets.MOSDAC_USER }}
-          MOSDAC_PASS: ${{ secrets.MOSDAC_PASS }}
         run: |
           python backend/cloud_sync_worker.py
+
