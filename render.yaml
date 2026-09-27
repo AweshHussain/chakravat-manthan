@@ -1,0 +1,17 @@
+services:
+  - type: cron
+    name: chakravat-manthan-mosdac-sync
+    runtime: python
+    region: singapore
+    schedule: "*/30 * * * *"
+    buildCommand: "pip install -r backend/requirements_worker.txt"
+    startCommand: "python backend/cloud_sync_worker.py"
+    envVars:
+      - key: SUPABASE_URL
+        value: https://etvcqmbqmdtiatrqfbxy.supabase.co
+      - key: SUPABASE_KEY
+        value: sb_publishable_KJYaxY4yu7StdTOWyoX__A_sli7UVQt
+      - key: MOSDAC_USER
+        value: awesh_21
+      - key: MOSDAC_PASS
+        value: AH_Since_2006@

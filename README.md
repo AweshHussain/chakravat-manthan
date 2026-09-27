@@ -32,7 +32,7 @@
 * **Physical Atmospheric Wind Streamlines:** Real-time particle streamlines driven by true GFS/ECMWF numerical vector fields ($u, v$), with zero synthetic distortion during fair weather.
 * **IMD Coastal District Warning Zones:** Dynamic GIS alert boundaries (Red, Orange, Yellow) along Odisha, Andhra Pradesh, West Bengal, and Gujarat coastlines.
 * **Cyclone Archives & AI Research Lab:** Deep-dive case studies of historical landmark storms (**Dana**, **Amphan**, **Mocha**, **Fani**, **Biparjoy**, **Tauktae**).
-* **24/7 Autonomous Cloud Worker:** Automated GitHub Actions cron runner updating Supabase and Vercel every 30 minutes, even when local machines are offline.
+* **24/7 Autonomous Cloud Worker:** Automated 30-minute cloud sync (via Render Cron Job or GitHub Actions) updating Supabase and Vercel continuously, even when local machines are offline.
 
 ---
 
