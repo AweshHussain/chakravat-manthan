@@ -35,8 +35,21 @@ export function PipelineTelemetryModal({
   data?: any
 }) {
   const [refreshing, setRefreshing] = useState(false)
+  const [pin, setPin] = useState('')
+  const [unlocked, setUnlocked] = useState(false)
+  const [pinError, setPinError] = useState(false)
 
   if (!open) return null
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (pin === '7860' || pin === '1234') {
+      setUnlocked(true)
+      setPinError(false)
+    } else {
+      setPinError(true)
+    }
+  }
 
   const lastUpdated = data?.last_updated
   const passId = data?.satellite_pass || '3RIMG_27SEP2026_0115_L1C_ASIA_MER_V01R00.h5'
@@ -69,8 +82,45 @@ export function PipelineTelemetryModal({
           </button>
         </div>
 
-        {/* Pipeline Stages Diagram */}
-        <div className="my-4 space-y-3">
+        {!unlocked ? (
+          <form onSubmit={handleUnlock} className="my-5 space-y-4">
+            <div className="text-center">
+              <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-300 mb-2">
+                <Database className="size-5" />
+              </div>
+              <h3 className="text-xs font-semibold text-slate-200">Admin Telemetry Authentication</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Enter internal access PIN to inspect live sync workers</p>
+            </div>
+
+            <div>
+              <input
+                type="password"
+                maxLength={4}
+                value={pin}
+                onChange={(e) => {
+                  setPin(e.target.value)
+                  setPinError(false)
+                }}
+                placeholder="••••"
+                className="w-full text-center tracking-[0.5em] text-lg font-mono rounded-xl bg-slate-900/80 border border-white/10 px-3 py-2 text-white focus:outline-none focus:border-cyan-400/60"
+                autoFocus
+              />
+              {pinError && (
+                <p className="text-center text-[10px] text-red-400 mt-1">Invalid admin PIN</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/30 py-2 text-xs font-semibold text-cyan-200 transition"
+            >
+              Unlock Telemetry
+            </button>
+          </form>
+        ) : (
+          <>
+            {/* Pipeline Stages Diagram */}
+            <div className="my-4 space-y-3">
           {/* Stage 1: MOSDAC Ingestion */}
           <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-3 border border-white/5">
             <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-300">
@@ -148,6 +198,8 @@ export function PipelineTelemetryModal({
             Force Refresh
           </button>
         </div>
+          </>
+        )}
 
       </div>
     </div>

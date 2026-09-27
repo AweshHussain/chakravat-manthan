@@ -68,6 +68,18 @@ export default function Dashboard() {
   const [locating, setLocating] = useState(false)
   const [pipelineModalOpen, setPipelineModalOpen] = useState(false)
 
+  // Secret Admin Hotkey: Ctrl+Shift+P (or Cmd+Shift+P on Mac)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault()
+        setPipelineModalOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   const cycleBasemap = useCallback(() => {
     setBasemap((prev) => (prev === 'night' ? 'satellite' : prev === 'satellite' ? 'dark' : 'night'))
   }, [])
