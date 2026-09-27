@@ -25,6 +25,7 @@ import { TimeScrubber } from './time-scrubber'
 import { PointCard, type PointWeather } from './point-card'
 import { CyclonePanel, type CyclonePanelData } from './cyclone-panel'
 import { ArchivePanel } from './archive-panel'
+import { PipelineTelemetryModal } from './pipeline-modal'
 
 const MapView = dynamic(() => import('./map-view'), { ssr: false })
 
@@ -65,6 +66,7 @@ export default function Dashboard() {
   const [point, setPoint] = useState<{ lat: number; lon: number } | null>(null)
   const [flyTo, setFlyTo] = useState<FlyTarget | null>(null)
   const [locating, setLocating] = useState(false)
+  const [pipelineModalOpen, setPipelineModalOpen] = useState(false)
 
   const cycleBasemap = useCallback(() => {
     setBasemap((prev) => (prev === 'night' ? 'satellite' : prev === 'satellite' ? 'dark' : 'night'))
@@ -367,6 +369,13 @@ export default function Dashboard() {
         onToggleRadar={() => setShowRadar((v) => !v)}
         showDistricts={showDistricts}
         onToggleDistricts={() => setShowDistricts((v) => !v)}
+        onOpenPipeline={() => setPipelineModalOpen(true)}
+      />
+
+      <PipelineTelemetryModal
+        open={pipelineModalOpen}
+        onClose={() => setPipelineModalOpen(false)}
+        data={liveBackend}
       />
 
       {page === 'live' && point && (

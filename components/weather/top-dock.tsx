@@ -21,6 +21,7 @@ type Props = {
   onToggleRadar: () => void
   showDistricts: boolean
   onToggleDistricts: () => void
+  onOpenPipeline?: () => void
 }
 
 const PAGES: { id: Page; label: string; short: string; icon: typeof Satellite }[] = [
@@ -67,7 +68,12 @@ export function TopDock(props: Props) {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-3">
       <div className="glass pointer-events-auto flex max-w-full items-center gap-1 rounded-full p-1.5 shadow-2xl">
-        <div className="flex items-center gap-2 pl-2 pr-3">
+        <button
+          type="button"
+          onClick={props.onOpenPipeline}
+          title="Open Internal Pipeline Monitor (MOSDAC • PyTorch • Supabase)"
+          className="flex items-center gap-2 pl-2 pr-3 text-left transition hover:opacity-80 active:scale-95 focus-visible:outline-none"
+        >
           <span className="relative flex size-7 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300">
             <CloudLightning className="size-4" aria-hidden="true" />
             <span className="absolute inset-0 animate-ping rounded-full bg-cyan-400/20 [animation-duration:3s]" />
@@ -75,7 +81,7 @@ export function TopDock(props: Props) {
           <h1 className="hidden whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50 md:block">
             Chakravat <span className="text-cyan-300">Manthan</span>
           </h1>
-        </div>
+        </button>
 
         <nav aria-label="Dashboard pages" className="flex items-center gap-1 rounded-full bg-slate-900/60 p-1">
           {PAGES.map(({ id, label, short, icon: Icon }) => (
