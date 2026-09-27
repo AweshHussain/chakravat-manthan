@@ -44,11 +44,13 @@ type Props = {
 const cycloneIconHtml = (name: string, code: string, color: string) => `
   <div class="cm-cyclone" style="--c:${color}">
     <span class="cm-cyclone-pulse"></span>
-    <svg class="cm-cyclone-glyph" viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="4.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
-      <path d="M20 6 C10 6 6 13 7 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-      <path d="M20 34 C30 34 34 27 33 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-    </svg>
+    <div class="cm-cyclone-core" style="background:${color}; box-shadow: 0 0 14px ${color};">
+      <svg class="cm-cyclone-glyph" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="4.5" fill="none" stroke="#ffffff" stroke-width="2.6"/>
+        <path d="M20 6 C10 6 6 13 7 20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M20 34 C30 34 34 27 33 20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
     <span class="cm-cyclone-label">${name} · ${code}</span>
   </div>`
 
@@ -330,13 +332,14 @@ export default function MapView(props: Props) {
     if (past.length > 1) L.polyline(past, { color: '#e2e8f0', weight: 2, opacity: 0.7, interactive: false }).addTo(group)
     if (future.length > 1)
       L.polyline(future, { color: '#67e8f9', weight: 2, opacity: 0.9, dashArray: '6 6', interactive: false }).addTo(group)
+    // Prominent connected track nodes like user's screenshot (purple/magenta intensity markers)
     track.forEach((p) => {
       L.circleMarker([p.lat, p.lon], {
-        radius: 3.5,
-        color: '#020617',
-        weight: 1,
-        fillColor: categoryFor(p.windKt).color,
-        fillOpacity: 1,
+        radius: 6,
+        color: '#ffffff',
+        weight: 1.5,
+        fillColor: categoryFor(p.windKt).color || '#8b5cf6',
+        fillOpacity: 0.95,
         interactive: false,
       }).addTo(group)
     })

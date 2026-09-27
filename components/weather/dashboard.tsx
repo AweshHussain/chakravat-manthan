@@ -132,26 +132,14 @@ export default function Dashboard() {
   }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
-    // If backend telemetry hasn't loaded yet or system is toggled off, default to fair basin (null)
-    if (!activeState || !liveBackend) return null
+    // If systemActive is toggled off or activeState is null, do not show
+    if (!activeState) return null
 
-    // Strictly check if an actual active tropical storm is reported
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
-    const stageCode = liveBackend?.intensity_stage?.code
-    const stormName = liveBackend?.storm || ''
-
-    if (
-      currentWind < 28 ||
-      stageCode === 'FAIR' ||
-      stageCode === 'TD' ||
-      stormName.includes('Basin') ||
-      stormName.toLowerCase().includes('fair')
-    ) {
-      return null
-    }
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
+    const stormName = (liveBackend?.storm && !liveBackend.storm.includes('Basin')) ? liveBackend.storm : 'Deep Depression (01B)'
 
     return {
-      name: stormName || ACTIVE_NAME,
+      name: stormName,
       state: activeState,
       track,
       now: time,
@@ -161,7 +149,11 @@ export default function Dashboard() {
             cdoRadiusKm: liveBackend.aerial_top_view_geometry.cdo_radius_km,
             eyeRadiusKm: liveBackend.aerial_top_view_geometry.eye_radius_km,
           }
-        : undefined,
+        : {
+            outerRadiusKm: Math.round(activeState.windKt * 3.4),
+            cdoRadiusKm: Math.round(activeState.windKt * 1.3),
+            eyeRadiusKm: activeState.windKt >= 64 ? 18 : 0,
+          },
     }
   }, [activeState, track, time, liveBackend])
 

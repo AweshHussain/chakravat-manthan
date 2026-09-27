@@ -222,18 +222,30 @@
   color: var(--c);
   cursor: pointer;
 }
+.cm-cyclone-core {
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  border: 3.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 24px var(--c);
+  z-index: 2;
+}
 .cm-cyclone-glyph {
   position: absolute;
-  inset: 4px;
-  filter: drop-shadow(0 0 6px var(--c));
+  inset: 2px;
+  filter: drop-shadow(0 0 6px #ffffff);
   animation: cm-spin 3.5s linear infinite;
 }
 .cm-cyclone-pulse {
   position: absolute;
-  inset: 0;
+  inset: -6px;
   border-radius: 9999px;
-  border: 1.5px solid var(--c);
-  animation: cm-pulse 2.4s ease-out infinite;
+  border: 2px solid #ffffff;
+  animation: cm-pulse 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  z-index: 1;
 }
 .cm-cyclone-label {
   position: absolute;
