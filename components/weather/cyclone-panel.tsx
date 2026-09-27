@@ -188,8 +188,16 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                   </div>
                   <div className="flex flex-col justify-between rounded-xl bg-slate-900/60 p-2 min-w-0">
                     <span className="block text-[9px] uppercase tracking-wider text-cyan-300/80 truncate">Eye Width</span>
-                    <span className="mt-1 font-mono text-xs sm:text-sm font-semibold text-cyan-200 truncate">
-                      {data.geometry.eyeRadiusKm > 0 ? `${data.geometry.eyeRadiusKm * 2} km` : 'None / Calm'}
+                    <span className="mt-1 font-mono text-xs sm:text-sm font-semibold text-cyan-200">
+                      {data.geometry.eyeRadiusKm > 0 ? (
+                        <>
+                          {data.geometry.eyeRadiusKm * 2} <span className="text-[10px] font-normal text-slate-400">km</span>
+                        </>
+                      ) : (
+                        <>
+                          0 <span className="text-[10px] font-normal text-slate-400">km</span>
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
