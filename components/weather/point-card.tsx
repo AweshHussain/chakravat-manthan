@@ -82,16 +82,16 @@ export function PointCard({ lat, lon, weather, loading, error, onClose }: Props)
                 <span className="ml-1 text-sm text-slate-400">km/h</span>
               </p>
             </div>
-            <div className="flex flex-col items-center gap-1 pb-1" title={`Wind from ${compass(weather.direction)} (${Math.round(weather.direction)}°) blowing towards ${compass(weather.direction + 180)}`}>
+            <div className="flex flex-col items-center gap-1 pb-1" title={`Blowing towards ${compass(weather.direction + 180)} (${Math.round((weather.direction + 180) % 360)}°) · Originates from ${compass(weather.direction)} (${Math.round(weather.direction)}°)`}>
               <span className="flex size-10 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10 text-cyan-300">
                 <ArrowUp className="size-5 transition-transform duration-300" style={{ transform: `rotate(${weather.direction + 180}deg)` }} aria-hidden="true" />
               </span>
-              <span className="font-mono text-[10px] text-slate-300">From {compass(weather.direction)}</span>
+              <span className="font-mono text-[11px] font-semibold text-cyan-300">→ {compass(weather.direction + 180)}</span>
             </div>
           </div>
           <dl className="mt-3 grid grid-cols-2 gap-2">
             <Stat icon={Wind} label="Gusts" value={String(Math.round(weather.gusts))} unit="km/h" />
-            <Stat icon={ArrowUp} label="Wind From" value={`${Math.round(weather.direction)}°`} unit={compass(weather.direction)} />
+            <Stat icon={ArrowUp} label="Flowing Toward" value={`${Math.round((weather.direction + 180) % 360)}°`} unit={compass(weather.direction + 180)} />
             <Stat icon={Gauge} label="Pressure" value={weather.pressure.toFixed(0)} unit="hPa" />
             <Stat icon={Thermometer} label="Temp" value={weather.temperature.toFixed(1)} unit="°C" />
           </dl>

@@ -396,7 +396,7 @@ export default function Dashboard() {
         ? {
             lat: point.lat,
             lon: point.lon,
-            label: pointWeather ? `Gusts ${Math.round(pointWeather.gusts)} km/h ${compass(pointWeather.direction)}` : null,
+            label: pointWeather ? `Gusts ${Math.round(pointWeather.gusts)} km/h → ${compass(pointWeather.direction + 180)}` : null,
             dirDeg: pointWeather?.direction ?? null,
           }
         : null,
