@@ -150,7 +150,7 @@ export function TopDock(props: Props) {
           <ToggleChip active={props.enhancedIr} onClick={props.onToggleEnhanced} label="Enhanced IR color temperature palette" shortName="Enhanced IR" icon={Satellite} />
           <ToggleChip active={props.showRadar} onClick={props.onToggleRadar} label="Live Doppler Radar & Precipitation (RainViewer)" shortName="Doppler Radar" icon={Radar} />
           <ToggleChip active={props.showWind} onClick={props.onToggleWind} label="Real-time wind streamline particle vectors" shortName="Wind Flow" icon={Wind} />
-          <ToggleChip active={props.showDistricts} onClick={props.onToggleDistricts} label="Coastal District Alert Boundaries" shortName="Districts" icon={ShieldAlert} />
+          {/* <ToggleChip active={props.showDistricts} onClick={props.onToggleDistricts} label="Coastal District Alert Boundaries" shortName="Districts" icon={ShieldAlert} /> */}
           <ToggleChip active={props.systemActive} onClick={props.onToggleSystem} label="Toggle Cyclone Track & Observation Swath" shortName="Storm Swath" icon={Radio} />
         </div>
       </div>
