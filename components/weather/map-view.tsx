@@ -21,7 +21,7 @@ export type ActiveCycloneView = {
   }
 }
 
-export type BasemapMode = 'night' | 'satellite' | 'dark'
+export type BasemapMode = 'night' | 'satellite'
 export type FlyTarget = { lat: number; lon: number; zoom?: number; key?: number }
 
 type Props = {
@@ -185,11 +185,6 @@ export default function MapView(props: Props) {
       maxNative = 18
       maxZ = 18
       className = 'cm-world-imagery'
-    } else if (props.basemap === 'dark') {
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-      maxNative = 16
-      maxZ = 16
-      className = 'cm-canvas-dark'
     }
 
     const layer = L.tileLayer(url, {

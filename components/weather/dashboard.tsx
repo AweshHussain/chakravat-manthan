@@ -61,7 +61,7 @@ export default function Dashboard() {
   const [systemActive, setSystemActive] = useState(true)
   const [activeDismissed, setActiveDismissed] = useState(false)
   // Basemap override: null = automatic diurnal sync with timeline (Day = Satellite, Night = Black Marble)
-  const [basemapOverride, setBasemapOverride] = useState<'auto' | 'night' | 'satellite' | 'dark'>('auto')
+  const [basemapOverride, setBasemapOverride] = useState<'auto' | 'night' | 'satellite'>('auto')
   const [showRadar, setShowRadar] = useState(true)
   const [showDistricts, setShowDistricts] = useState(true)
   const [archiveId, setArchiveId] = useState<string | null>(null)
@@ -97,17 +97,16 @@ export default function Dashboard() {
   // Dynamic Diurnal Basemap:
   // When in 'auto' mode (default), daytime (06:00 to 18:30 IST) switches automatically to
   // True-Color Daylight Earth Imagery ('satellite'). Nighttime switches to NASA VIIRS Black Marble ('night').
-  const effectiveBasemap: 'night' | 'satellite' | 'dark' = useMemo(() => {
+  const effectiveBasemap: 'night' | 'satellite' = useMemo(() => {
     if (basemapOverride !== 'auto') return basemapOverride
     return isDaylight(time) ? 'satellite' : 'night'
   }, [basemapOverride, time])
 
   const cycleBasemap = useCallback(() => {
     setBasemapOverride((prev) => {
-      // Cycle: auto -> satellite (Daylight forced) -> night (Night lights forced) -> dark -> auto
+      // Cycle: auto -> satellite (Daylight forced) -> night (Night lights forced) -> auto
       if (prev === 'auto') return 'satellite'
       if (prev === 'satellite') return 'night'
-      if (prev === 'night') return 'dark'
       return 'auto'
     })
   }, [])

@@ -16,7 +16,7 @@ type Props = {
   systemActive: boolean
   onToggleSystem: () => void
   basemap: BasemapMode
-  basemapMode?: 'auto' | 'night' | 'satellite' | 'dark'
+  basemapMode?: 'auto' | 'night' | 'satellite'
   onCycleBasemap: () => void
   showRadar: boolean
   onToggleRadar: () => void
@@ -64,17 +64,13 @@ export function TopDock(props: Props) {
     ? `Basemap: Auto Timeline Sync (${props.basemap === 'satellite' ? 'Daylight Imagery' : 'NASA Night Lights'})`
     : props.basemap === 'night'
       ? 'Basemap: NASA Night Lights (Pinned)'
-      : props.basemap === 'satellite'
-        ? 'Basemap: True-Color Daylight World Imagery (Pinned)'
-        : 'Basemap: Carto / Canvas Dark (Pinned)'
+      : 'Basemap: True-Color Daylight World Imagery (Pinned)'
 
   const BasemapIcon = isAuto
     ? (props.basemap === 'satellite' ? Sun : Moon)
     : props.basemap === 'satellite'
       ? Sun
-      : props.basemap === 'night'
-        ? Moon
-        : Globe
+      : Moon
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-3">
