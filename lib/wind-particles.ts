@@ -18,11 +18,11 @@ export class WindParticles {
   private sampler: WindSampler | null = null
   private particles: Particle[] = []
   private frame = 0
+  private moving = false
   private width = 0
   private height = 0
   private dpr = 1
   private leaflet: typeof L
-  private lastOrigin: L.Point | null = null
 
   constructor(leaflet: typeof L, map: L.Map, pane: HTMLElement) {
     this.leaflet = leaflet
@@ -32,7 +32,7 @@ export class WindParticles {
     this.canvas.style.pointerEvents = 'none'
     pane.appendChild(this.canvas)
     this.ctx = this.canvas.getContext('2d')!
-    map.on('move', this.onMove)
+    map.on('movestart zoomstart', this.onMoveStart)
     map.on('moveend zoomend resize', this.onMoveEnd)
     this.reset()
     this.loop()
@@ -44,31 +44,18 @@ export class WindParticles {
 
   destroy() {
     cancelAnimationFrame(this.frame)
-    this.map.off('move', this.onMove)
+    this.map.off('movestart zoomstart', this.onMoveStart)
     this.map.off('moveend zoomend resize', this.onMoveEnd)
     this.canvas.remove()
   }
 
-  private onMove = () => {
-    // When the map moves, compute pixel shift so particles stay locked to their geographic place
-    const newOrigin = this.map.containerPointToLayerPoint([0, 0])
-    this.leaflet.DomUtil.setPosition(this.canvas, newOrigin)
-
-    if (this.lastOrigin) {
-      const dx = newOrigin.x - this.lastOrigin.x
-      const dy = newOrigin.y - this.lastOrigin.y
-      if (dx !== 0 || dy !== 0) {
-        // Shift particle coordinates by the exact pan offset so they stay fixed over their land/sea locations
-        for (const p of this.particles) {
-          p.x -= dx
-          p.y -= dy
-        }
-      }
-    }
-    this.lastOrigin = newOrigin
+  private onMoveStart = () => {
+    this.moving = true
+    this.ctx.clearRect(0, 0, this.width, this.height)
   }
 
   private onMoveEnd = () => {
+    this.moving = false
     this.reset()
   }
 
@@ -81,9 +68,7 @@ export class WindParticles {
     this.canvas.height = size.y * this.dpr
     this.canvas.style.width = `${size.x}px`
     this.canvas.style.height = `${size.y}px`
-    const origin = this.map.containerPointToLayerPoint([0, 0])
-    this.lastOrigin = origin
-    this.leaflet.DomUtil.setPosition(this.canvas, origin)
+    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
     const count = Math.min(4500, Math.round((size.x * size.y) / 380))
     this.particles = Array.from({ length: count }, () => this.spawn({ x: 0, y: 0, age: 0, maxAge: 0 }, true))
@@ -99,6 +84,7 @@ export class WindParticles {
 
   private loop = () => {
     this.frame = requestAnimationFrame(this.loop)
+    if (this.moving) return
     const ctx = this.ctx
     ctx.globalCompositeOperation = 'destination-in'
     ctx.fillStyle = 'rgba(0, 0, 0, 0.93)'
