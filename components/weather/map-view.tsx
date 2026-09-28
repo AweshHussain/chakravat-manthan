@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react'
 import { createIrCloudLayer, type IrMode } from '@/lib/ir-cloud-layer'
 import { WindParticles } from '@/lib/wind-particles'
 import type { WindSampler } from '@/lib/wind-field'
-import { categoryFor, type ArchiveCyclone, type CycloneState, type TrackPoint } from '@/lib/cyclones'
+import { categoryFor, interpolateArchiveProgress, type ArchiveCyclone, type CycloneState, type TrackPoint } from '@/lib/cyclones'
 
 export type MapPin = { lat: number; lon: number; label: string | null; dirDeg: number | null }
 export type ActiveCycloneView = {
@@ -32,6 +32,7 @@ type Props = {
   showWind: boolean
   activeCyclone: ActiveCycloneView | null
   archiveCyclone: ArchiveCyclone | null
+  simulationProgress?: number | null
   pin: MapPin | null
   flyTo: FlyTarget | null
   basemap: BasemapMode
@@ -437,55 +438,101 @@ export default function MapView(props: Props) {
         interactive: false,
       }).addTo(group),
     )
-    const peak = pts.reduce((a, b) => (b.windKt > a.windKt ? b : a))
-    const cat = categoryFor(peak.windKt)
+    // If in interactive simulation mode, render dynamic moving storm at current interpolated position
+    if (typeof props.simulationProgress === 'number') {
+      const sim = interpolateArchiveProgress(cyclone, props.simulationProgress)
+      const simCat = categoryFor(sim.windKt)
+      const outerR = Math.max(120, Math.round(sim.windKt * 3.8))
+      const cdoR = Math.max(45, Math.round(sim.windKt * 1.5))
 
-    // Render spatial swath circles at peak intensity
-    const outerR = Math.round(peak.windKt * 3.8)
-    const cdoR = Math.round(peak.windKt * 1.5)
-    L.circle([peak.lat, peak.lon], {
-      radius: outerR * 1000,
-      color: '#38bdf8',
-      weight: 1.5,
-      opacity: 0.7,
-      fillColor: '#0284c7',
-      fillOpacity: 0.08,
-      dashArray: '6 8',
-      interactive: false,
-    }).addTo(group)
+      L.circle([sim.lat, sim.lon], {
+        radius: outerR * 1000,
+        color: '#38bdf8',
+        weight: 1.5,
+        opacity: 0.85,
+        fillColor: '#0284c7',
+        fillOpacity: 0.12,
+        dashArray: '6 8',
+        interactive: false,
+      }).addTo(group)
 
-    L.circle([peak.lat, peak.lon], {
-      radius: cdoR * 1000,
-      color: '#f59e0b',
-      weight: 1.5,
-      opacity: 0.8,
-      fillColor: '#d97706',
-      fillOpacity: 0.12,
-      interactive: false,
-    }).addTo(group)
-
-    if (peak.windKt >= 64) {
-      L.circle([peak.lat, peak.lon], {
-        radius: 22 * 1000,
-        color: '#ef4444',
-        weight: 2,
+      L.circle([sim.lat, sim.lon], {
+        radius: cdoR * 1000,
+        color: '#f59e0b',
+        weight: 1.5,
         opacity: 0.9,
-        fillColor: '#dc2626',
+        fillColor: '#d97706',
         fillOpacity: 0.18,
         interactive: false,
       }).addTo(group)
-    }
 
-    L.marker([peak.lat, peak.lon], {
-      icon: L.divIcon({ className: '', html: cycloneIconHtml(cyclone.name, cat.code, cat.color), iconSize: [48, 48], iconAnchor: [24, 24] }),
-      interactive: false,
-    }).addTo(group)
-    map.flyToBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon] as L.LatLngTuple)), {
-      padding: [120, 120],
-      maxZoom: 6,
-      duration: 1.2,
-    })
-  }, [props.archiveCyclone])
+      if (sim.windKt >= 64) {
+        L.circle([sim.lat, sim.lon], {
+          radius: 20 * 1000,
+          color: '#ef4444',
+          weight: 2,
+          opacity: 0.95,
+          fillColor: '#dc2626',
+          fillOpacity: 0.25,
+          interactive: false,
+        }).addTo(group)
+      }
+
+      L.marker([sim.lat, sim.lon], {
+        icon: L.divIcon({ className: '', html: cycloneIconHtml(cyclone.name, simCat.code, simCat.color), iconSize: [48, 48], iconAnchor: [24, 24] }),
+        interactive: false,
+      }).addTo(group)
+    } else {
+      const peak = pts.reduce((a, b) => (b.windKt > a.windKt ? b : a))
+      const cat = categoryFor(peak.windKt)
+
+      // Render spatial swath circles at peak intensity
+      const outerR = Math.round(peak.windKt * 3.8)
+      const cdoR = Math.round(peak.windKt * 1.5)
+      L.circle([peak.lat, peak.lon], {
+        radius: outerR * 1000,
+        color: '#38bdf8',
+        weight: 1.5,
+        opacity: 0.7,
+        fillColor: '#0284c7',
+        fillOpacity: 0.08,
+        dashArray: '6 8',
+        interactive: false,
+      }).addTo(group)
+
+      L.circle([peak.lat, peak.lon], {
+        radius: cdoR * 1000,
+        color: '#f59e0b',
+        weight: 1.5,
+        opacity: 0.8,
+        fillColor: '#d97706',
+        fillOpacity: 0.12,
+        interactive: false,
+      }).addTo(group)
+
+      if (peak.windKt >= 64) {
+        L.circle([peak.lat, peak.lon], {
+          radius: 22 * 1000,
+          color: '#ef4444',
+          weight: 2,
+          opacity: 0.9,
+          fillColor: '#dc2626',
+          fillOpacity: 0.18,
+          interactive: false,
+        }).addTo(group)
+      }
+
+      L.marker([peak.lat, peak.lon], {
+        icon: L.divIcon({ className: '', html: cycloneIconHtml(cyclone.name, cat.code, cat.color), iconSize: [48, 48], iconAnchor: [24, 24] }),
+        interactive: false,
+      }).addTo(group)
+      map.flyToBounds(L.latLngBounds(pts.map((p) => [p.lat, p.lon] as L.LatLngTuple)), {
+        padding: [120, 120],
+        maxZoom: 6,
+        duration: 1.2,
+      })
+    }
+  }, [props.archiveCyclone, props.simulationProgress])
 
   useEffect(() => {
     const map = mapRef.current

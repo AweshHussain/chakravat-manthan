@@ -49,10 +49,12 @@ export type ArchiveCyclone = {
   peakWindKt: number
   minPressure: number
   landfall: string
+  durationHours: number
+  startDate: string
   track: TrackPoint[]
 }
 
-const tp = (lat: number, lon: number, windKt: number): TrackPoint => ({ lat, lon, windKt })
+const tp = (lat: number, lon: number, windKt: number, hourOffset = 0): TrackPoint => ({ lat, lon, windKt, t: hourOffset })
 
 export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
   {
@@ -63,7 +65,20 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
     peakWindKt: 130,
     minPressure: 920,
     landfall: 'Digha–Hatiya, West Bengal · 20 May',
-    track: [tp(9.5, 87.5, 20), tp(9.8, 86.4, 25), tp(13.7, 86.2, 120), tp(14.8, 86.5, 130), tp(16.0, 86.9, 120), tp(17.4, 87.0, 105), tp(18.7, 87.3, 100), tp(20.6, 88.0, 90), tp(22.8, 88.6, 65)],
+    durationHours: 96,
+    startDate: '16 May 2020, 00:00 UTC',
+    track: [
+      tp(9.5, 87.5, 20, 0),      // 16 May 00:00 UTC (Depression genesis)
+      tp(9.8, 86.4, 25, 12),     // 16 May 12:00 UTC (Deep Depression)
+      tp(11.2, 86.1, 45, 24),    // 17 May 00:00 UTC (Cyclonic Storm Amphan named)
+      tp(13.7, 86.2, 120, 48),   // 18 May 00:00 UTC (Extremely Severe)
+      tp(14.8, 86.5, 130, 56),   // 18 May 08:00 UTC (Super Cyclone peak 130 kt)
+      tp(16.0, 86.9, 120, 68),   // 18 May 20:00 UTC (Maintaining extreme intensity)
+      tp(17.4, 87.0, 105, 76),   // 19 May 04:00 UTC (Approaching north bay)
+      tp(18.7, 87.3, 100, 84),   // 19 May 12:00 UTC (Turning north-northeast)
+      tp(20.6, 88.0, 90, 90),    // 20 May 06:00 UTC (Coast crossing near Digha)
+      tp(22.8, 88.6, 65, 96),    // 20 May 12:00 UTC (Landfall decay over West Bengal)
+    ],
   },
   {
     id: 'kyarr-2019',
@@ -73,7 +88,19 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
     peakWindKt: 130,
     minPressure: 922,
     landfall: 'Open Arabian Sea Super Cyclone · Record Intensity',
-    track: [tp(15.1, 67.2, 20), tp(17.2, 67.4, 125), tp(18.2, 65.1, 125), tp(19.1, 63.5, 120), tp(19.6, 62.9, 100), tp(18.9, 61.4, 65), tp(17.7, 60.0, 40), tp(16.2, 59.0, 25), tp(14.0, 56.6, 25)],
+    durationHours: 96,
+    startDate: '24 Oct 2019, 06:00 UTC',
+    track: [
+      tp(15.1, 67.2, 20, 0),
+      tp(17.2, 67.4, 125, 24),
+      tp(18.2, 65.1, 125, 48),
+      tp(19.1, 63.5, 120, 60),
+      tp(19.6, 62.9, 100, 72),
+      tp(18.9, 61.4, 65, 80),
+      tp(17.7, 60.0, 40, 88),
+      tp(16.2, 59.0, 25, 92),
+      tp(14.0, 56.6, 25, 96),
+    ],
   },
   {
     id: 'fani-2019',
@@ -83,7 +110,19 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
     peakWindKt: 115,
     minPressure: 932,
     landfall: 'Puri, Odisha · 3 May',
-    track: [tp(1.9, 90.2, 25), tp(3.5, 89.7, 25), tp(6.0, 89.2, 45), tp(8.0, 87.6, 45), tp(10.5, 86.9, 55), tp(13.4, 84.6, 95), tp(14.8, 84.2, 100), tp(16.8, 84.8, 110), tp(19.6, 85.7, 100)],
+    durationHours: 96,
+    startDate: '26 Apr 2019, 00:00 UTC',
+    track: [
+      tp(1.9, 90.2, 25, 0),
+      tp(3.5, 89.7, 25, 12),
+      tp(6.0, 89.2, 45, 24),
+      tp(8.0, 87.6, 45, 36),
+      tp(10.5, 86.9, 55, 48),
+      tp(13.4, 84.6, 95, 60),
+      tp(14.8, 84.2, 100, 72),
+      tp(16.8, 84.8, 110, 84),
+      tp(19.6, 85.7, 100, 96),
+    ],
   },
   {
     id: 'tauktae-2021',
@@ -93,9 +132,64 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
     peakWindKt: 100,
     minPressure: 950,
     landfall: 'Diu / Saurashtra Coast, Gujarat · 17 May',
-    track: [tp(11.2, 72.5, 25), tp(12.8, 72.4, 45), tp(14.6, 72.6, 75), tp(16.5, 72.2, 95), tp(18.5, 71.5, 100), tp(20.8, 71.1, 100), tp(22.5, 71.5, 50), tp(24.0, 72.8, 25)],
+    durationHours: 84,
+    startDate: '14 May 2021, 00:00 UTC',
+    track: [
+      tp(11.2, 72.5, 25, 0),
+      tp(12.8, 72.4, 45, 12),
+      tp(14.6, 72.6, 75, 24),
+      tp(16.5, 72.2, 95, 36),
+      tp(18.5, 71.5, 100, 48),
+      tp(20.8, 71.1, 100, 60),
+      tp(22.5, 71.5, 50, 72),
+      tp(24.0, 72.8, 25, 84),
+    ],
   },
 ]
+
+/**
+ * Interpolates archive cyclone state along its historical lifecycle from progress (0.0 to 1.0).
+ */
+export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: number): CycloneState & { progressHours: number; phaseName: string } {
+  const pts = cyclone.track
+  const maxH = cyclone.durationHours || pts[pts.length - 1].t || 96
+  const currentH = Math.max(0, Math.min(maxH, progress * maxH))
+
+  let i = 0
+  while (i < pts.length - 2 && (pts[i + 1].t ?? (i + 1) * 12) < currentH) {
+    i++
+  }
+  const a = pts[i]
+  const b = pts[i + 1]
+  const at = a.t ?? i * 12
+  const bt = b.t ?? (i + 1) * 12
+  const f = bt === at ? 0 : Math.max(0, Math.min(1, (currentH - at) / (bt - at)))
+
+  const lat = a.lat + (b.lat - a.lat) * f
+  const lon = a.lon + (b.lon - a.lon) * f
+  const windKt = Math.round(a.windKt + (b.windKt - a.windKt) * f)
+  const dy = (b.lat - a.lat) * 111
+  const dx = (b.lon - a.lon) * 111 * Math.cos((lat * Math.PI) / 180)
+  const headingDeg = (Math.atan2(dx, dy) * 180) / Math.PI + (dx < 0 ? 360 : 0)
+  const speedKmh = Math.max(12, Math.hypot(dx, dy) / Math.max(1, (bt - at)))
+
+  let phaseName = 'Genesis / Depression'
+  if (currentH >= maxH * 0.9) phaseName = 'Landfall & Dissipation'
+  else if (windKt >= 120) phaseName = 'Peak Super Cyclonic Storm'
+  else if (windKt >= 64) phaseName = 'Intensification / Severe Storm'
+  else if (windKt >= 34) phaseName = 'Cyclonic Storm Development'
+
+  return {
+    lat,
+    lon,
+    windKt,
+    pressure: pressureFromWind(windKt),
+    headingDeg,
+    speedKmh,
+    progressHours: Math.round(currentH),
+    phaseName,
+  }
+}
 
 /** Scenario system used to demonstrate the live analytics workflow. Offsets are hours from the current 6-hourly synoptic cycle. */
 const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [

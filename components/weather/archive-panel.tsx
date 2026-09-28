@@ -8,6 +8,8 @@ import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor } from '@/lib/cyclones'
 type Props = {
   selectedId: string | null
   onSelect: (id: string) => void
+  onSimulate?: (id: string) => void
+  simulatingId?: string | null
 }
 
 const PIPELINE = [
@@ -20,7 +22,7 @@ const PIPELINE = [
 // Real per-class recall from test_frames_expanded.csv evaluation
 const CLASS_RECALL = [0.96, 0.94, 0.91, 0.89, 0.88, 0.93, 0.91, 0.95]
 
-export function ArchivePanel({ selectedId, onSelect }: Props) {
+export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId }: Props) {
   const [tab, setTab] = useState<'archive' | 'lab'>('archive')
   const [query, setQuery] = useState('')
   const results = ARCHIVE_CYCLONES.filter((c) => `${c.name} ${c.year} ${c.basin}`.toLowerCase().includes(query.toLowerCase()))
@@ -66,12 +68,13 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
               />
             </label>
           </div>
-          <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-3">
+          <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-2 pb-3">
             {results.map((c) => {
               const cat = categoryFor(c.peakWindKt)
               const active = c.id === selectedId
+              const isSimulating = simulatingId === c.id
               return (
-                <li key={c.id}>
+                <li key={c.id} className="rounded-2xl transition-all">
                   <button
                     type="button"
                     onClick={() => onSelect(c.id)}
@@ -100,6 +103,29 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
                       </span>
                     </span>
                   </button>
+                  {active && onSimulate && (
+                    <div className="mx-2 mb-2 mt-1 flex items-center justify-between rounded-xl bg-cyan-950/40 p-2 border border-cyan-400/20">
+                      <div className="text-[10px] text-slate-300">
+                        <span className="font-semibold text-cyan-300">Historical Track</span>
+                        <div className="font-mono text-slate-400">{c.durationHours}h lifecycle · {c.startDate}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onSimulate(c.id)
+                        }}
+                        className={cn(
+                          'flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-mono text-[11px] font-semibold transition-all shadow-sm',
+                          isSimulating
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            : 'bg-cyan-500 text-slate-950 hover:bg-cyan-400 hover:scale-[1.02]'
+                        )}
+                      >
+                        {isSimulating ? 'Active ⚡' : '▶ Simulate'}
+                      </button>
+                    </div>
+                  )}
                 </li>
               )
             })}

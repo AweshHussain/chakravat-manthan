@@ -13,6 +13,7 @@ import {
   activeCycleBase,
   activeTrack,
   compass,
+  interpolateArchiveProgress,
   interpolateTrack,
   warningStageIndex,
   type TrackPoint,
@@ -27,6 +28,7 @@ import { PointCard, type PointWeather } from './point-card'
 import { CyclonePanel, type CyclonePanelData } from './cyclone-panel'
 import { ArchivePanel } from './archive-panel'
 import { PipelineTelemetryModal } from './pipeline-modal'
+import { SimulationScrubber } from './simulation-scrubber'
 
 const MapView = dynamic(() => import('./map-view'), { ssr: false })
 
@@ -65,6 +67,10 @@ export default function Dashboard() {
   const [showRadar, setShowRadar] = useState(true)
   const [showDistricts, setShowDistricts] = useState(true)
   const [archiveId, setArchiveId] = useState<string | null>(null)
+  const [simulatingId, setSimulatingId] = useState<string | null>(null)
+  const [simProgress, setSimProgress] = useState(0)
+  const [simPlaying, setSimPlaying] = useState(false)
+  const [simSpeed, setSimSpeed] = useState<number>(1)
   const [point, setPoint] = useState<{ lat: number; lon: number } | null>(null)
   const [flyTo, setFlyTo] = useState<FlyTarget | null>(null)
   const [locating, setLocating] = useState(false)
@@ -183,10 +189,57 @@ export default function Dashboard() {
     }
   }, [activeState, track, time, liveBackend])
 
-  const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === archiveId) ?? null) : null
+  const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
+
+  const simInterpolation = useMemo(() => {
+    if (!archiveCyclone || !simulatingId) return null
+    return interpolateArchiveProgress(archiveCyclone, simProgress)
+  }, [archiveCyclone, simulatingId, simProgress])
+
+  // Playback timer for interactive archive simulation
+  useEffect(() => {
+    if (!simPlaying || !simulatingId) return
+    const intervalMs = Math.max(30, Math.round(100 / simSpeed))
+    const step = 0.003 * simSpeed
+    const id = window.setInterval(() => {
+      setSimProgress((prev) => {
+        if (prev >= 1) {
+          setSimPlaying(false)
+          return 1
+        }
+        return Math.min(1, prev + step)
+      })
+    }, intervalMs)
+    return () => window.clearInterval(id)
+  }, [simPlaying, simulatingId, simSpeed])
 
   const panelData: CyclonePanelData | null = useMemo(() => {
     if (archiveCyclone) {
+      if (simulatingId && simInterpolation) {
+        const totalPoints = archiveCyclone.track.length
+        return {
+          kind: 'archive',
+          name: `${archiveCyclone.name} (Simulation)`,
+          subtitle: `${archiveCyclone.basin} · ${archiveCyclone.year} · ${simInterpolation.phaseName}`,
+          windKt: simInterpolation.windKt,
+          pressure: simInterpolation.pressure,
+          lat: simInterpolation.lat,
+          lon: simInterpolation.lon,
+          headingDeg: simInterpolation.headingDeg,
+          speedKmh: Math.round(simInterpolation.speedKmh),
+          warningIndex: simInterpolation.windKt >= 120 ? 3 : simInterpolation.windKt >= 64 ? 2 : 1,
+          warningNote: `Simulated lifecycle: ${simInterpolation.progressHours}h elapsed since genesis. Phase: ${simInterpolation.phaseName}.`,
+          series: archiveCyclone.track.map((p) => p.windKt),
+          seriesIndex: simProgress * (totalPoints - 1),
+          landfall: archiveCyclone.landfall,
+          geometry: {
+            outerRadiusKm: Math.max(120, Math.round(simInterpolation.windKt * 3.8)),
+            cdoRadiusKm: Math.max(45, Math.round(simInterpolation.windKt * 1.5)),
+            eyeRadiusKm: simInterpolation.windKt >= 64 ? 20 : 0,
+          },
+        }
+      }
+
       const peakIndex = archiveCyclone.track.reduce((best, p, i, arr) => (p.windKt > arr[best].windKt ? i : best), 0)
       const peak = archiveCyclone.track[peakIndex]
       return {
@@ -387,6 +440,7 @@ export default function Dashboard() {
         showWind={showWind}
         activeCyclone={page === 'live' ? activeView : null}
         archiveCyclone={archiveCyclone}
+        simulationProgress={simulatingId ? simProgress : null}
         pin={pin}
         flyTo={flyTo}
         basemap={effectiveBasemap}
@@ -443,9 +497,34 @@ export default function Dashboard() {
         />
       )}
 
-      {page === 'archive' && <ArchivePanel selectedId={archiveId} onSelect={setArchiveId} />}
+      {page === 'archive' && (
+        <ArchivePanel
+          selectedId={archiveId}
+          onSelect={(id) => {
+            setArchiveId(id)
+            if (simulatingId && simulatingId !== id) {
+              setSimulatingId(null)
+              setSimPlaying(false)
+            }
+          }}
+          simulatingId={simulatingId}
+          onSimulate={(id) => {
+            setArchiveId(id)
+            if (simulatingId === id) {
+              setSimulatingId(null)
+              setSimPlaying(false)
+            } else {
+              setSimulatingId(id)
+              setSimProgress(0)
+              setSimPlaying(true)
+            }
+          }}
+        />
+      )}
 
-      <DaySelector now={now} time={time} onSelectDay={selectDay} onLocate={locate} locating={locating} shifted={panelOpen} />
+      {page === 'live' && (
+        <DaySelector now={now} time={time} onSelectDay={selectDay} onLocate={locate} locating={locating} shifted={panelOpen} />
+      )}
 
       <CyclonePanel
         open={panelOpen}
@@ -453,6 +532,8 @@ export default function Dashboard() {
         onClose={() => {
           if (panelData?.kind === 'archive') {
             setArchiveId(null)
+            setSimulatingId(null)
+            setSimPlaying(false)
           } else {
             setActiveDismissed(true)
             setSystemActive(false)
@@ -460,23 +541,48 @@ export default function Dashboard() {
         }}
       />
 
-      <TimeScrubber
-        time={time}
-        minTime={minTime}
-        maxTime={maxTime}
-        latestSat={latestSat}
-        playing={playing}
-        onTogglePlay={() => setPlaying((p) => !p)}
-        onStep={(dir) => {
-          setPlaying(false)
-          stepTime(dir)
-        }}
-        onChange={(t) => {
-          setPlaying(false)
-          setTimeState(t)
-        }}
-        panelOpen={panelOpen}
-      />
+      {page === 'live' ? (
+        <TimeScrubber
+          time={time}
+          minTime={minTime}
+          maxTime={maxTime}
+          latestSat={latestSat}
+          playing={playing}
+          onTogglePlay={() => setPlaying((p) => !p)}
+          onStep={(dir) => {
+            setPlaying(false)
+            stepTime(dir)
+          }}
+          onChange={(t) => {
+            setPlaying(false)
+            setTimeState(t)
+          }}
+          panelOpen={panelOpen}
+        />
+      ) : simulatingId && archiveCyclone && simInterpolation ? (
+        <SimulationScrubber
+          cyclone={archiveCyclone}
+          progress={simProgress}
+          playing={simPlaying}
+          speed={simSpeed}
+          currentWindKt={simInterpolation.windKt}
+          currentPressureHpa={simInterpolation.pressure}
+          elapsedHours={simInterpolation.progressHours}
+          phaseName={simInterpolation.phaseName}
+          panelOpen={panelOpen}
+          onTogglePlay={() => setSimPlaying((p) => !p)}
+          onChangeProgress={(p) => setSimProgress(p)}
+          onCycleSpeed={() => setSimSpeed((s) => (s === 1 ? 4 : s === 4 ? 10 : 1))}
+          onReset={() => {
+            setSimProgress(0)
+            setSimPlaying(true)
+          }}
+          onExit={() => {
+            setSimulatingId(null)
+            setSimPlaying(false)
+          }}
+        />
+      ) : null}
 
       {!sat || !wind ? (
         <div className="glass pointer-events-none absolute bottom-24 left-1/2 z-[1000] -translate-x-1/2 rounded-full px-3 py-1.5 font-mono text-[11px] text-slate-300">
