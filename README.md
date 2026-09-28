@@ -79,6 +79,11 @@ flowchart TD
     class AI ai;
     class PRODUCTION prod;
     class USER usr;
+
+    linkStyle default stroke:#38bdf8,stroke-width:2.5px;
+    linkStyle 0,1,2,3,4,5 stroke:#38bdf8,stroke-width:2.5px;
+    linkStyle 6,7,8 stroke:#a855f7,stroke-width:3px;
+    linkStyle 9,10,11,12 stroke:#38bdf8,stroke-width:2.5px;
 ```
 
 ---

@@ -324,9 +324,9 @@ export default function MapView(props: Props) {
     }
     const past = track.filter((p) => p.t! <= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
     const future = track.filter((p) => p.t! >= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
-    if (past.length > 1) L.polyline(past, { color: '#e2e8f0', weight: 2, opacity: 0.7, interactive: false }).addTo(group)
+    if (past.length > 1) L.polyline(past, { color: '#fbbf24', weight: 3, opacity: 0.95, interactive: false }).addTo(group)
     if (future.length > 1)
-      L.polyline(future, { color: '#67e8f9', weight: 2, opacity: 0.9, dashArray: '6 6', interactive: false }).addTo(group)
+      L.polyline(future, { color: '#38bdf8', weight: 3, opacity: 0.95, dashArray: '6 6', interactive: false }).addTo(group)
     // Prominent connected track nodes like user's screenshot (purple/magenta intensity markers)
     track.forEach((p) => {
       L.circleMarker([p.lat, p.lon], {
