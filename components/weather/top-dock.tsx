@@ -100,7 +100,7 @@ export function TopDock(props: Props) {
               Chakravat <span className="text-cyan-300">Manthan</span>
             </span>
             <span className="whitespace-nowrap text-[9px] font-medium tracking-wider text-cyan-400/80 uppercase font-mono mt-0.5">
-              Built by Cybernetic Crusaders
+              by Cybernetic Crusaders
             </span>
           </div>
         </button>

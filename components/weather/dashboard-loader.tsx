@@ -16,7 +16,7 @@ const Dashboard = dynamic(() => import('./dashboard'), {
           Chakravat Manthan
         </p>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-cyan-400/80">
-          Built by Cybernetic Crusaders
+          by Cybernetic Crusaders
         </span>
       </div>
     </main>
