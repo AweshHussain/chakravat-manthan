@@ -42,6 +42,7 @@ export async function GET() {
             lat: Number(data.lat),
             lon: Number(data.lon),
           },
+          track_points: data.track_points || null,
           last_updated: data.last_updated,
         }, {
           headers: {
