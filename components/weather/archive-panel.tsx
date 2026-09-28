@@ -116,7 +116,7 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
               </span>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-slate-400">
-              Chakravat Manthan operational PyTorch model (SWA weights): Estimates IMD intensity stage & continuous wind/pressure from INSAT-3D/3DR IR1 sequences over the North Indian Ocean.
+              Chakravat Manthan operational PyTorch model (v1 weights): Trained and validated strictly on 4 landmark North Indian Ocean cyclones (Amphan, Kyarr, Fani, Tauktae) from INSAT-3DR IR1 passes.
             </p>
           </div>
           <ol className="space-y-2">
