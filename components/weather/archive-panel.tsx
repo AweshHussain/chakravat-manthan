@@ -237,11 +237,29 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-slate-400">Satellite Sequence (2-10 frames)</label>
-                <div className="mt-1 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/40 p-3 text-center transition hover:border-cyan-400/50">
-                  <span className="text-[11px] text-slate-300">Click to upload INSAT/Himawari frames</span>
-                  <span className="text-[10px] text-slate-500">Leave blank to use live MOSDAC buffer</span>
-                </div>
+                <label htmlFor="sat-frames-input" className="block text-[10px] uppercase tracking-wider text-slate-400">Satellite Sequence (2-10 frames)</label>
+                <label
+                  htmlFor="sat-frames-input"
+                  className="mt-1 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/40 p-3 text-center transition hover:border-cyan-400/50"
+                >
+                  <input
+                    id="sat-frames-input"
+                    type="file"
+                    name="satellite_frames"
+                    multiple
+                    accept="image/png,image/jpeg,image/webp"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const count = e.target.files?.length || 0
+                      const label = e.currentTarget.parentElement?.querySelector('#upload-label-text')
+                      if (label) {
+                        label.textContent = count > 0 ? `${count} frame${count > 1 ? 's' : ''} selected` : 'Click to select 2-10 image frames'
+                      }
+                    }}
+                  />
+                  <span id="upload-label-text" className="text-[11px] text-slate-300">Click to select 2–10 image frames (PNG / JPG)</span>
+                  <span className="text-[10px] text-slate-500">Hold Ctrl/Shift to pick multiple files · Leave blank to use live MOSDAC buffer</span>
+                </label>
               </div>
 
               <button
