@@ -1,7 +1,7 @@
 import type L from 'leaflet'
 import type { WindSampler } from './wind-field'
 
-type Particle = { lat: number; lon: number; age: number; maxAge: number }
+type Particle = { x: number; y: number; age: number; maxAge: number }
 
 const SPEED_BUCKETS = [
   { max: 12, style: 'rgba(148, 163, 184, 0.45)' },
@@ -22,6 +22,7 @@ export class WindParticles {
   private height = 0
   private dpr = 1
   private leaflet: typeof L
+  private lastOrigin: L.Point | null = null
 
   constructor(leaflet: typeof L, map: L.Map, pane: HTMLElement) {
     this.leaflet = leaflet
@@ -32,7 +33,7 @@ export class WindParticles {
     pane.appendChild(this.canvas)
     this.ctx = this.canvas.getContext('2d')!
     map.on('move', this.onMove)
-    map.on('resize', this.onResize)
+    map.on('moveend zoomend resize', this.onMoveEnd)
     this.reset()
     this.loop()
   }
@@ -44,16 +45,30 @@ export class WindParticles {
   destroy() {
     cancelAnimationFrame(this.frame)
     this.map.off('move', this.onMove)
-    this.map.off('resize', this.onResize)
+    this.map.off('moveend zoomend resize', this.onMoveEnd)
     this.canvas.remove()
   }
 
   private onMove = () => {
-    // Keep canvas anchored to the current viewport corner
-    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
+    // When the map moves, compute pixel shift so particles stay locked to their geographic place
+    const newOrigin = this.map.containerPointToLayerPoint([0, 0])
+    this.leaflet.DomUtil.setPosition(this.canvas, newOrigin)
+
+    if (this.lastOrigin) {
+      const dx = newOrigin.x - this.lastOrigin.x
+      const dy = newOrigin.y - this.lastOrigin.y
+      if (dx !== 0 || dy !== 0) {
+        // Shift particle coordinates by the exact pan offset so they stay fixed over their land/sea locations
+        for (const p of this.particles) {
+          p.x -= dx
+          p.y -= dy
+        }
+      }
+    }
+    this.lastOrigin = newOrigin
   }
 
-  private onResize = () => {
+  private onMoveEnd = () => {
     this.reset()
   }
 
@@ -66,24 +81,17 @@ export class WindParticles {
     this.canvas.height = size.y * this.dpr
     this.canvas.style.width = `${size.x}px`
     this.canvas.style.height = `${size.y}px`
-    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
+    const origin = this.map.containerPointToLayerPoint([0, 0])
+    this.lastOrigin = origin
+    this.leaflet.DomUtil.setPosition(this.canvas, origin)
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
     const count = Math.min(4500, Math.round((size.x * size.y) / 380))
-    this.particles = Array.from({ length: count }, () => this.spawn({ lat: 0, lon: 0, age: 0, maxAge: 0 }, true))
+    this.particles = Array.from({ length: count }, () => this.spawn({ x: 0, y: 0, age: 0, maxAge: 0 }, true))
   }
 
   private spawn(p: Particle, randomAge = false) {
-    const bounds = this.map.getBounds()
-    const south = bounds.getSouth()
-    const north = bounds.getNorth()
-    const west = bounds.getWest()
-    const east = bounds.getEast()
-
-    // Spawn randomly within the current visible geographical bounds (with padding)
-    const latSpan = north - south
-    const lonSpan = east - west
-    p.lat = south - 0.1 * latSpan + Math.random() * (latSpan * 1.2)
-    p.lon = west - 0.1 * lonSpan + Math.random() * (lonSpan * 1.2)
+    p.x = Math.random() * this.width
+    p.y = Math.random() * this.height
     p.maxAge = 60 + Math.random() * 80
     p.age = randomAge ? Math.random() * p.maxAge : 0
     return p
@@ -98,10 +106,8 @@ export class WindParticles {
     ctx.globalCompositeOperation = 'source-over'
     if (!this.sampler) return
 
-    const bounds = this.map.getBounds()
     const zoom = this.map.getZoom()
-    // Geographic displacement scale per frame in degrees (km/h -> lat/lon delta)
-    const dt = 0.003
+    const scale = 0.045 * (1 + (zoom - 5) * 0.18)
     const paths: Path2D[] = SPEED_BUCKETS.map(() => new Path2D())
 
     for (const p of this.particles) {
@@ -109,48 +115,25 @@ export class WindParticles {
         this.spawn(p)
         continue
       }
-
-      // Sample wind flow at the particle's geographic location
-      const normLon = ((p.lon + 540) % 360) - 180
-      const w = this.sampler(p.lat, normLon)
+      const ll = this.map.containerPointToLatLng([p.x, p.y])
+      const w = this.sampler(ll.lat, ((ll.lng + 540) % 360) - 180)
       if (!w) {
         this.spawn(p)
         continue
       }
-
-      // Start screen position
-      const pt1 = this.map.latLngToContainerPoint([p.lat, p.lon])
-
-      // Advance particle position geographically based on true vector components
-      // w[0] is eastward wind u (km/h), w[1] is northward wind v (km/h)
-      const cosLat = Math.max(0.2, Math.cos((p.lat * Math.PI) / 180))
-      const dLon = (w[0] * dt) / (111.32 * cosLat)
-      const dLat = (w[1] * dt) / 110.57
-
-      p.lon += dLon
-      p.lat += dLat
-
-      // End screen position
-      const pt2 = this.map.latLngToContainerPoint([p.lat, p.lon])
-
-      // Classify speed for color styling
       const speed = Math.hypot(w[0], w[1])
+      const nx = p.x + w[0] * scale
+      const ny = p.y - w[1] * scale
       let b = 0
       while (speed > SPEED_BUCKETS[b].max) b++
-
-      // Only draw line if inside or near screen viewport
-      if (
-        (pt1.x >= -30 && pt1.x <= this.width + 30 && pt1.y >= -30 && pt1.y <= this.height + 30) ||
-        (pt2.x >= -30 && pt2.x <= this.width + 30 && pt2.y >= -30 && pt2.y <= this.height + 30)
-      ) {
-        paths[b].moveTo(pt1.x, pt1.y)
-        paths[b].lineTo(pt2.x, pt2.y)
-      } else {
-        this.spawn(p)
-      }
+      paths[b].moveTo(p.x, p.y)
+      paths[b].lineTo(nx, ny)
+      p.x = nx
+      p.y = ny
+      if (nx < 0 || ny < 0 || nx > this.width || ny > this.height) this.spawn(p)
     }
 
-    ctx.lineWidth = Math.max(1.1, Math.min(2.0, 1.0 + (zoom - 4) * 0.15))
+    ctx.lineWidth = 1.1
     ctx.lineCap = 'round'
     paths.forEach((path, i) => {
       ctx.strokeStyle = SPEED_BUCKETS[i].style
