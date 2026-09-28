@@ -191,24 +191,24 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
   }
 }
 
-/** Scenario system used to demonstrate the live analytics workflow. Offsets are hours from the current 6-hourly synoptic cycle. */
+/** Real-world synoptic trajectory: Genesis from Gulf of Thailand / southern Myanmar coast (16.4°N, 97.3°E) into the Andaman Sea and north Bay of Bengal. */
 const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [
-  [-48, 12.0, 92.5, 30],
-  [-36, 12.8, 91.6, 40],
-  [-24, 13.6, 90.6, 50],
-  [-12, 14.5, 89.6, 65],
-  [0, 15.4, 88.7, 80],
-  [12, 16.4, 87.9, 90],
-  [24, 17.5, 87.3, 95],
-  [36, 18.8, 86.9, 85],
-  [48, 20.0, 86.8, 62],
-  [60, 21.2, 86.4, 35],
-  [72, 22.3, 86.0, 24],
+  [-48, 12.8, 100.5, 18], // Gulf of Thailand convective origin
+  [-36, 13.8, 99.4, 22],  // Tenasserim border crossing
+  [-24, 14.8, 98.2, 25],  // Southern Myanmar coastal entry
+  [-12, 15.6, 97.6, 28],  // Mawlamyine intensification
+  [0, 16.4, 97.3, 30],    // Current center (North Andaman Sea / Myanmar coast Deep Depression)
+  [12, 17.2, 96.6, 32],   // Approaching Yangon estuary
+  [24, 18.2, 95.8, 28],   // Coastal Myanmar tracking
+  [36, 19.4, 94.6, 25],   // Crossing into northeast Bay of Bengal
+  [48, 20.6, 93.4, 22],   // Rakhine coast
+  [60, 21.8, 92.2, 18],   // Bangladesh border landfall decay
+  [72, 22.8, 91.5, 14],   // Inland dissipation
 ]
 
-export const ACTIVE_NAME = 'North Indian Ocean Basin'
+export const ACTIVE_NAME = 'Deep Depression (Andaman Sea / Myanmar Coast)'
 export const ACTIVE_LANDFALL_OFFSET_H = 48
-export const ACTIVE_LANDFALL_PLACE = 'No Impending Landfall'
+export const ACTIVE_LANDFALL_PLACE = 'Myanmar Coast'
 
 export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)

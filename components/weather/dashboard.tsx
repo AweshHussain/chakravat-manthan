@@ -143,7 +143,7 @@ export default function Dashboard() {
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
     const stormName = liveBackend?.storm || ''
-    const isStormActive = currentWind >= 28 && stageCode !== 'FAIR' && stageCode !== 'TD' && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')
+    const isStormActive = currentWind >= 17 && stageCode !== 'FAIR' && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')
     
     const vortex = (activeState && isStormActive)
       ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
@@ -156,14 +156,13 @@ export default function Dashboard() {
     if (!activeState || !liveBackend) return null
 
     // Strictly verify against satellite & neural model telemetry:
-    // Only display if actual cyclogenesis / deep depression (wind >= 28 kt, not FAIR or normal basin)
+    // Display if actual cyclogenesis / depression is confirmed (wind >= 17 kt, not FAIR or normal basin)
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
     const stormName = liveBackend?.storm || ''
     const isCycloneActive =
-      currentWind >= 28 &&
+      currentWind >= 17 &&
       stageCode !== 'FAIR' &&
-      stageCode !== 'TD' &&
       !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
 
@@ -288,14 +287,14 @@ export default function Dashboard() {
         }))
       }
 
-      const isFair = backendWind === undefined || backendWind <= 25 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.intensity_stage?.code === 'D'
+      const isFair = backendWind === undefined || backendWind < 17 || liveBackend?.intensity_stage?.code === 'FAIR' || backendStorm.includes('Basin')
 
       return {
         kind: 'active',
         name: backendStorm,
         subtitle: isFair
           ? 'Bay of Bengal & Arabian Sea · Fair Weather · No Active Cyclone'
-          : liveBackend?.intensity_trend || `Bay of Bengal · Active System · heading ${compass(activeState.headingDeg)}`,
+          : liveBackend?.intensity_trend || `North Indian Ocean · Active System · heading ${compass(activeState.headingDeg)}`,
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
         lat: isFair ? 16.5 : activeState.lat,
@@ -445,7 +444,7 @@ export default function Dashboard() {
         flyTo={flyTo}
         basemap={effectiveBasemap}
         showRadar={showRadar}
-        showDistricts={showDistricts && Boolean(activeView)}
+        showDistricts={showDistricts && Boolean(activeView) && (activeView?.state?.lon ? activeView.state.lon <= 89 : false)}
         onMapClick={(lat, lon) => setPoint({ lat, lon })}
         onCycloneClick={() => setActiveDismissed(false)}
       />
