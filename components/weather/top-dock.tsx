@@ -1,4 +1,4 @@
-import { Cloud, CloudLightning, Compass, Eye, FlaskConical, Globe, Moon, Radar, Radio, Satellite, ShieldAlert, Sun, Wind } from 'lucide-react'
+import { Cloud, CloudLightning, Compass, Eye, FlaskConical, Globe, Info, Moon, Radar, Radio, Satellite, ShieldAlert, Sun, Wind } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { BasemapMode } from './map-view'
 
@@ -23,6 +23,7 @@ type Props = {
   showDistricts: boolean
   onToggleDistricts: () => void
   onOpenPipeline?: () => void
+  onOpenAbout?: () => void
 }
 
 const PAGES: { id: Page; label: string; short: string; icon: typeof Satellite }[] = [
@@ -154,6 +155,21 @@ export function TopDock(props: Props) {
           <ToggleChip active={props.showWind} onClick={props.onToggleWind} label="Real-time wind streamline particle vectors" shortName="Wind Flow" icon={Wind} />
           <ToggleChip active={props.systemActive} onClick={props.onToggleSystem} label="Toggle Cyclone Track & Observation Swath" shortName="Storm Swath" icon={Radio} />
         </div>
+
+        {props.onOpenAbout && (
+          <>
+            <div className="mx-1 hidden h-6 w-px bg-white/10 sm:block" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={props.onOpenAbout}
+              title="About Chakravat Manthan & Team Cybernetic Crusaders"
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 px-3 py-1.5 text-[11px] font-medium text-cyan-200 transition-all duration-200 shadow-[0_4px_12px_rgba(6,182,212,0.25),inset_0_1px_2px_rgba(255,255,255,0.2)] hover:bg-cyan-500/20 hover:border-cyan-400/50 hover:text-white active:scale-95"
+            >
+              <Info className="size-3.5 text-cyan-300" aria-hidden="true" />
+              <span>About</span>
+            </button>
+          </>
+        )}
       </div>
     </header>
   )

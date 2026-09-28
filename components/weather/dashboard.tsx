@@ -29,6 +29,7 @@ import { CyclonePanel, type CyclonePanelData } from './cyclone-panel'
 import { ArchivePanel } from './archive-panel'
 import { PipelineTelemetryModal } from './pipeline-modal'
 import { SimulationScrubber } from './simulation-scrubber'
+import { AboutModal } from './about-modal'
 
 import { supabase } from '@/lib/supabase'
 
@@ -77,6 +78,7 @@ export default function Dashboard() {
   const [flyTo, setFlyTo] = useState<FlyTarget | null>(null)
   const [locating, setLocating] = useState(false)
   const [pipelineModalOpen, setPipelineModalOpen] = useState(false)
+  const [aboutModalOpen, setAboutModalOpen] = useState(false)
 
   // Secret Admin Hotkey: Ctrl+Shift+P (or Cmd+Shift+P on Mac)
   useEffect(() => {
@@ -511,6 +513,7 @@ export default function Dashboard() {
         showDistricts={showDistricts}
         onToggleDistricts={() => setShowDistricts((v) => !v)}
         onOpenPipeline={() => setPipelineModalOpen(true)}
+        onOpenAbout={() => setAboutModalOpen(true)}
       />
 
       <PipelineTelemetryModal
@@ -518,6 +521,11 @@ export default function Dashboard() {
         onClose={() => setPipelineModalOpen(false)}
         data={liveBackend}
         onRefresh={() => mutateLiveBackend()}
+      />
+
+      <AboutModal
+        open={aboutModalOpen}
+        onClose={() => setAboutModalOpen(false)}
       />
 
       {page === 'live' && point && (
