@@ -2,33 +2,20 @@ import type L from 'leaflet'
 
 export type IrMode = 'natural' | 'enhanced'
 
-const GREY_LOW = 160
+const GREY_LOW = 145
 const GREY_HIGH = 240
+const LIMB_FADE_START = 62
+const LIMB_FADE_END = 72
 
-// Himawari-8/9 Sub-satellite Point: 0.0°N, 140.7°E
-// True full-disk horizon from GEO is ~81.3°. Setting max to 81.5° ensures the entire Arabian Sea,
-// Western India, Lakshadweep, and Horn of Africa cloud formations are fully visible!
-const SAT_SUB_LON = 140.7
-const SAT_MAX_RADIUS_DEG = 81.5
-const SAT_FADE_START_DEG = 78.5
-
-function pixelLimbFactor(px: number, py: number, x: number, y: number, z: number): number {
-  const worldPx = 256 * (2 ** z)
-  const lon = ((x * 256 + px) / worldPx) * 360 - 180
-  
-  // Mercator y to latitude
-  const n = Math.PI - (2 * Math.PI * (y * 256 + py)) / worldPx
-  const lat = (Math.atan(Math.sinh(n)) * 180) / Math.PI
-
-  // Spherical angular distance (great-circle) from Himawari sub-satellite point (0, 140.7)
-  const phi1 = (lat * Math.PI) / 180
-  const dLon = ((lon - SAT_SUB_LON) * Math.PI) / 180
-  const cosDist = Math.cos(phi1) * Math.cos(dLon)
-  const distDeg = (Math.acos(Math.max(-1, Math.min(1, cosDist))) * 180) / Math.PI
-
-  if (distDeg >= SAT_MAX_RADIUS_DEG) return 0
-  if (distDeg <= SAT_FADE_START_DEG) return 1
-  return (SAT_MAX_RADIUS_DEG - distDeg) / (SAT_MAX_RADIUS_DEG - SAT_FADE_START_DEG)
+function limbAlpha(x: number, z: number): Float32Array {
+  const col = new Float32Array(256)
+  const worldPx = 256 * 2 ** z
+  for (let px = 0; px < 256; px++) {
+    const lon = ((x * 256 + px) / worldPx) * 360 - 180
+    const t = (lon - LIMB_FADE_START) / (LIMB_FADE_END - LIMB_FADE_START)
+    col[px] = Math.min(1, Math.max(0, t))
+  }
+  return col
 }
 
 /**
@@ -43,14 +30,13 @@ function toNaturalClouds(img: HTMLImageElement, canvas: HTMLCanvasElement, coord
   ctx.drawImage(img, 0, 0, 256, 256)
   const image = ctx.getImageData(0, 0, 256, 256)
   const d = image.data
+  const limb = limbAlpha(coords.x, coords.z)
 
   for (let i = 0; i < d.length; i += 4) {
     const a = d[i + 3]
     if (a === 0) continue
 
-    const px = (i >> 2) % 256
-    const py = Math.floor((i >> 2) / 256)
-    const limbFactor = pixelLimbFactor(px, py, coords.x, coords.y, coords.z)
+    const limbFactor = limb[(i >> 2) & 255]
     if (limbFactor <= 0) {
       d[i + 3] = 0
       continue
@@ -76,7 +62,7 @@ function toNaturalClouds(img: HTMLImageElement, canvas: HTMLCanvasElement, coord
       t = (r - GREY_LOW) / (GREY_HIGH - GREY_LOW)
       t = Math.pow(t * t * (3 - 2 * t), 1.25)
       // Cut off near-zero background noise to prevent rectangular tile haze
-      if (t < 0.05) {
+      if (t < 0.04) {
         d[i + 3] = 0
         continue
       }
