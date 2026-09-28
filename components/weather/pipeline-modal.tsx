@@ -40,6 +40,12 @@ export function PipelineTelemetryModal({
   const [pin, setPin] = useState('')
   const [unlocked, setUnlocked] = useState(false)
   const [pinError, setPinError] = useState(false)
+  const [db1Info, setDb1Info] = useState<{
+    passId?: string
+    acquiredAt?: string
+    status?: string
+    pendingCount?: number
+  } | null>(null)
 
   if (!open) return null
 
@@ -53,10 +59,34 @@ export function PipelineTelemetryModal({
     }
   }
 
+  const handleForceRefresh = async () => {
+    setRefreshing(true)
+    try {
+      const res = await fetch('/api/pipeline/check', { method: 'POST' })
+      if (res.ok) {
+        const payload = await res.json()
+        if (payload?.db1_status) {
+          setDb1Info({
+            passId: payload.db1_status.latest_pass_id,
+            acquiredAt: payload.db1_status.acquired_at,
+            status: payload.db1_status.status,
+            pendingCount: payload.db1_status.pending_count,
+          })
+        }
+      }
+    } catch {
+      // Fallback gracefully
+    } finally {
+      if (onRefresh) onRefresh()
+      setTimeout(() => setRefreshing(false), 600)
+    }
+  }
+
   const lastUpdated = data?.last_updated
-  const passId = data?.satellite_pass || '3RIMG_27SEP2026_0115_L1C_ASIA_MER_V01R00.h5'
+  const passId = db1Info?.passId || data?.satellite_pass || '3RIMG_28SEP2026_2048_L1C_ASIA_MER_V01R00.h5'
   const dbStatus = data?.status === 'live_supabase' ? 'CONNECTED (Supabase Asia-Pacific)' : 'LOCAL_FALLBACK'
   const statusAgo = timeAgo(lastUpdated)
+  const db1TimeAgo = timeAgo(db1Info?.acquiredAt)
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -152,16 +182,24 @@ export function PipelineTelemetryModal({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-200">2. Ingestion Buffer (DB 1)</span>
                     <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                      <CheckCircle2 className="size-3" /> Buffered
+                      <CheckCircle2 className="size-3" /> {db1Info?.status ?? 'Buffered'}
                     </span>
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[10px] text-slate-300 font-mono">
-                    <span>Queue: <strong className="text-cyan-300">chakravat-ingestion-buffer</strong></span>
-                    <span className="text-emerald-400">Status: PROCESSED</span>
+                    <span>Queue: <strong className="text-cyan-300">satellite_ingestion_queue</strong></span>
+                    <span className="text-emerald-400">
+                      Status: {db1Info?.status ?? 'PROCESSED'}
+                    </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    Crop: <span className="text-slate-300 font-mono">512x512 array (~250 KB)</span> · Zero-Drop Guarantee
-                  </p>
+                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="size-3 text-cyan-300" />
+                      Fetched: <strong className="text-slate-200">{db1Info?.acquiredAt ? db1TimeAgo : statusAgo}</strong>
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400">
+                      {db1Info ? (db1Info.pendingCount === 0 ? 'Queue Clean · 0 Pending' : `${db1Info.pendingCount} Pending Ingest`) : 'Zero-Drop Guarantee'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -215,16 +253,9 @@ export function PipelineTelemetryModal({
             Live Sync: <strong className="text-cyan-300">Realtime WebSocket (Auto)</strong>
           </span>
           <button
-            onClick={() => {
-              setRefreshing(true)
-              if (onRefresh) {
-                onRefresh()
-                setTimeout(() => setRefreshing(false), 800)
-              } else {
-                window.location.reload()
-              }
-            }}
-            className="flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[11px] text-white hover:bg-white/20 transition"
+            onClick={handleForceRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[11px] text-white hover:bg-white/20 transition disabled:opacity-50"
           >
             <RefreshCw className={cn('size-3', refreshing && 'animate-spin')} />
             Force Refresh
