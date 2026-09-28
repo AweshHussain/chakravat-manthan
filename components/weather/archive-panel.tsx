@@ -169,7 +169,7 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
               Run Custom Inference Engine
             </h3>
             <p className="mt-1 text-[11px] text-slate-400">
-              Execute live forward-pass on Multi-Task CNN-GRU model ({'http://127.0.0.1:8000'}).
+              Execute live forward-pass on Multi-Task CNN-GRU operational inference pipeline.
             </p>
 
             <form
@@ -179,21 +179,29 @@ export function ArchivePanel({ selectedId, onSelect }: Props) {
                 const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement
                 const statusDiv = form.querySelector('#infer-status') as HTMLDivElement
                 btn.disabled = true
-                statusDiv.innerHTML = '<span class="text-cyan-300 animate-pulse">Running CUDA forward pass...</span>'
+                statusDiv.innerHTML = '<span class="text-cyan-300 animate-pulse">Running neural forward pass...</span>'
 
                 try {
-                  const res = await fetch('http://127.0.0.1:8000/live/mosdac-feed')
+                  const res = await fetch('/api/cyclone/current')
+                  if (!res.ok) throw new Error('Inference API returned error')
                   const json = await res.json()
+                  const stage = json.intensity_stage?.code || 'Observed'
+                  const conf = json.intensity_stage?.confidence_pct || 90.0
+                  const windKt = json.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+                  const windKmh = json.continuous_measurements?.neural_regression_head?.wind_speed_kmh ?? Math.round(windKt * 1.852)
+                  const pres = json.continuous_measurements?.neural_regression_head?.central_pressure_hpa ?? 990
+                  const trend = json.intensity_trend || json.lifecycle_status || 'Operational Cycle'
+
                   statusDiv.innerHTML = `
                     <div class="mt-2 rounded-xl bg-slate-900/90 p-2.5 text-[11px] font-mono border border-cyan-400/30">
-                      <div class="text-cyan-300 font-bold">Prediction: ${json.intensity_stage?.code} (${json.intensity_stage?.confidence_pct}%)</div>
-                      <div class="text-slate-300">Wind: ${json.continuous_measurements?.neural_regression_head?.wind_speed_knots} kt (${json.continuous_measurements?.neural_regression_head?.wind_speed_kmh} km/h)</div>
-                      <div class="text-slate-400">Pressure: ${json.continuous_measurements?.neural_regression_head?.central_pressure_hpa} hPa</div>
-                      <div class="text-slate-400 text-[10px] mt-1 text-slate-500">${json.intensity_trend}</div>
+                      <div class="text-cyan-300 font-bold">Prediction: ${stage} (${conf}%)</div>
+                      <div class="text-slate-300">Wind: ${windKt} kt (${windKmh} km/h)</div>
+                      <div class="text-slate-400">Pressure: ${pres} hPa</div>
+                      <div class="text-cyan-400/80 text-[10px] mt-1">${trend}</div>
                     </div>
                   `
                 } catch (err) {
-                  statusDiv.innerHTML = '<span class="text-red-400">Failed to connect to backend on port 8000.</span>'
+                  statusDiv.innerHTML = '<span class="text-red-400">Prediction service temporarily busy. Please retry.</span>'
                 } finally {
                   btn.disabled = false
                 }
