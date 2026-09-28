@@ -137,7 +137,7 @@ export default function Dashboard() {
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
     const stormName = liveBackend?.storm || ''
-    const isStormActive = currentWind >= 28 && stageCode !== 'FAIR' && stageCode !== 'TD' && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')
+    const isStormActive = currentWind >= 17 && stageCode !== 'FAIR' && !stormName.toLowerCase().includes('fair')
     
     const vortex = (activeState && isStormActive)
       ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
@@ -150,15 +150,13 @@ export default function Dashboard() {
     if (!activeState || !liveBackend) return null
 
     // Strictly verify against satellite & neural model telemetry:
-    // Only display if actual cyclogenesis / deep depression (wind >= 28 kt, not FAIR or normal basin)
+    // Only display if actual cyclogenesis / depression (wind >= 17 kt / 31 km/h, not FAIR or normal basin)
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
     const stormName = liveBackend?.storm || ''
     const isCycloneActive =
-      currentWind >= 28 &&
+      currentWind >= 17 &&
       stageCode !== 'FAIR' &&
-      stageCode !== 'TD' &&
-      !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
 
     // If ocean is calm / fair weather according to satellite data, do NOT render fake cyclone
@@ -235,7 +233,7 @@ export default function Dashboard() {
         }))
       }
 
-      const isFair = backendWind === undefined || backendWind <= 25 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.intensity_stage?.code === 'D'
+      const isFair = backendWind === undefined || backendWind < 17 || liveBackend?.intensity_stage?.code === 'FAIR'
 
       return {
         kind: 'active',
