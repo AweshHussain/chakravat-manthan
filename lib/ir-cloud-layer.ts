@@ -6,11 +6,10 @@ const GREY_LOW = 160
 const GREY_HIGH = 240
 
 // Himawari-8/9 Sub-satellite Point: 0.0°N, 140.7°E
-// True full-disk horizon from GEO is ~81.3°. Setting max to 81.5° ensures the entire Arabian Sea,
-// Western India, Lakshadweep, and Horn of Africa cloud formations are fully visible!
+// Smoothly fade before reaching NASA GIBS tile truncation boundary
 const SAT_SUB_LON = 140.7
-const SAT_MAX_RADIUS_DEG = 81.5
-const SAT_FADE_START_DEG = 78.5
+const SAT_MAX_RADIUS_DEG = 80.5
+const SAT_FADE_START_DEG = 74.0
 
 function pixelLimbFactor(px: number, py: number, x: number, y: number, z: number): number {
   const worldPx = 256 * (2 ** z)
@@ -82,11 +81,16 @@ function toNaturalClouds(img: HTMLImageElement, canvas: HTMLCanvasElement, coord
       }
     }
 
+    // Border feathering: smoothly blend pixels that reach the 4 outer edges of a tile
+    // to prevent any hard rectangular tile seams when adjacent tiles differ or terminate.
+    const edgeDist = Math.min(px, 255 - px, py, 255 - py)
+    const edgeFactor = edgeDist < 4 ? edgeDist / 4 : 1.0
+
     const tone = 205 + 50 * t
     d[i] = tone
     d[i + 1] = tone
     d[i + 2] = Math.min(255, tone + 6)
-    d[i + 3] = Math.round(t * 235 * (a / 255) * limbFactor)
+    d[i + 3] = Math.round(t * 235 * (a / 255) * limbFactor * edgeFactor)
   }
   ctx.putImageData(image, 0, 0)
 }
