@@ -409,8 +409,11 @@ export default function Dashboard() {
         onToggleWind={() => setShowWind((v) => !v)}
         systemActive={systemActive}
         onToggleSystem={() => {
-          setSystemActive((v) => !v)
-          setActiveDismissed(false)
+          setSystemActive((prev) => {
+            const next = !prev
+            setActiveDismissed(!next)
+            return next
+          })
         }}
         basemap={effectiveBasemap}
         basemapMode={basemapOverride}
@@ -447,7 +450,14 @@ export default function Dashboard() {
       <CyclonePanel
         open={panelOpen}
         data={panelData}
-        onClose={() => (panelData?.kind === 'archive' ? setArchiveId(null) : setActiveDismissed(true))}
+        onClose={() => {
+          if (panelData?.kind === 'archive') {
+            setArchiveId(null)
+          } else {
+            setActiveDismissed(true)
+            setSystemActive(false)
+          }
+        }}
       />
 
       <TimeScrubber
