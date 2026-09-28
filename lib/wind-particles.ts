@@ -32,8 +32,9 @@ export class WindParticles {
     this.canvas.style.pointerEvents = 'none'
     pane.appendChild(this.canvas)
     this.ctx = this.canvas.getContext('2d')!
-    map.on('movestart zoomstart', this.onMoveStart)
-    map.on('moveend zoomend resize', this.onMoveEnd)
+    map.on('move', this.onMove)
+    map.on('zoomstart', this.onZoomStart)
+    map.on('zoomend resize', this.onZoomEnd)
     this.reset()
     this.loop()
   }
@@ -44,17 +45,23 @@ export class WindParticles {
 
   destroy() {
     cancelAnimationFrame(this.frame)
-    this.map.off('movestart zoomstart', this.onMoveStart)
-    this.map.off('moveend zoomend resize', this.onMoveEnd)
+    this.map.off('move', this.onMove)
+    this.map.off('zoomstart', this.onZoomStart)
+    this.map.off('zoomend resize', this.onZoomEnd)
     this.canvas.remove()
   }
 
-  private onMoveStart = () => {
+  private onMove = () => {
+    // Keep canvas anchored to viewport coordinates during continuous panning
+    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
+  }
+
+  private onZoomStart = () => {
     this.moving = true
     this.ctx.clearRect(0, 0, this.width, this.height)
   }
 
-  private onMoveEnd = () => {
+  private onZoomEnd = () => {
     this.moving = false
     this.reset()
   }
