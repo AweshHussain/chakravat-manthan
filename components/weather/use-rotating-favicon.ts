@@ -10,10 +10,13 @@ export function useRotatingFavicon() {
     img.src = '/logo.png'
 
     const canvas = document.createElement('canvas')
-    canvas.width = 32
-    canvas.height = 32
+    // 64x64 for crystal clear, high-DPI retina rendering
+    canvas.width = 64
+    canvas.height = 64
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
 
     let angle = 0
     let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']")
@@ -27,20 +30,21 @@ export function useRotatingFavicon() {
     let intervalId: number | null = null
 
     img.onload = () => {
-      // Rotate 360 degrees smoothly: increased speed by 10% (3.96 deg / 100ms)
+      // 30 FPS update rate (33ms) with 1.307 deg/frame gives identical overall speed (~9.1 sec / 360 deg) but ultra-fluid motion
+      const degPerTick = 1.307
       intervalId = window.setInterval(() => {
-        angle = (angle + 3.96) % 360
-        ctx.clearRect(0, 0, 32, 32)
+        angle = (angle + degPerTick) % 360
+        ctx.clearRect(0, 0, 64, 64)
         ctx.save()
-        ctx.translate(16, 16)
+        ctx.translate(32, 32)
         ctx.rotate((angle * Math.PI) / 180)
-        ctx.drawImage(img, -16, -16, 32, 32)
+        ctx.drawImage(img, -32, -32, 64, 64)
         ctx.restore()
 
         if (link) {
           link.href = canvas.toDataURL('image/png')
         }
-      }, 100)
+      }, 33)
     }
 
     return () => {
