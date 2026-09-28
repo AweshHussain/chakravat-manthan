@@ -86,14 +86,23 @@ export function TopDock(props: Props) {
             window.location.reload()
           }}
           title="Reload Chakravat Manthan"
-          className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-pointer rounded-full hover:bg-white/[0.08] active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+          className="group flex items-center gap-2.5 pl-2 pr-3 text-left select-none cursor-pointer rounded-full hover:bg-white/[0.08] active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
         >
-          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-[0_0_15px_-2px_rgba(34,211,238,0.5)]">
-            <img src="/logo.png" alt="Chakravat Manthan Logo" className="size-full object-contain" />
+          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-[0_0_15px_-2px_rgba(34,211,238,0.5)] bg-slate-950/80 border border-cyan-400/30">
+            <img
+              src="/logo.png"
+              alt="Chakravat Manthan Logo"
+              className="size-full object-contain animate-[spin_12s_linear_infinite] group-hover:animate-[spin_4s_linear_infinite] transition-all"
+            />
           </span>
-          <span className="hidden whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50 md:block">
-            Chakravat <span className="text-cyan-300">Manthan</span>
-          </span>
+          <div className="hidden flex-col leading-none md:flex">
+            <span className="whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50">
+              Chakravat <span className="text-cyan-300">Manthan</span>
+            </span>
+            <span className="whitespace-nowrap text-[9px] font-medium tracking-wider text-cyan-400/80 uppercase font-mono mt-0.5">
+              Built by Cybernetic Crusaders
+            </span>
+          </div>
         </button>
 
         <nav aria-label="Dashboard pages" className="flex shrink-0 items-center gap-1 rounded-full bg-slate-900/60 p-1">
