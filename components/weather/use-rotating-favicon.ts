@@ -27,9 +27,9 @@ export function useRotatingFavicon() {
     let intervalId: number | null = null
 
     img.onload = () => {
-      // Rotate 360 degrees smoothly every 10 seconds (~3.6 degrees every 100ms)
+      // Rotate 360 degrees smoothly: increased speed by 10% (3.96 deg / 100ms)
       intervalId = window.setInterval(() => {
-        angle = (angle + 3.6) % 360
+        angle = (angle + 3.96) % 360
         ctx.clearRect(0, 0, 32, 32)
         ctx.save()
         ctx.translate(16, 16)
