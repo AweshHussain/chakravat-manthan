@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useRotatingFavicon } from './use-rotating-favicon'
 
 const Dashboard = dynamic(() => import('./dashboard'), {
   ssr: false,
@@ -23,5 +24,6 @@ const Dashboard = dynamic(() => import('./dashboard'), {
 })
 
 export function DashboardLoader() {
+  useRotatingFavicon()
   return <Dashboard />
 }
