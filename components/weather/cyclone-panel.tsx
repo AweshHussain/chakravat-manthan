@@ -116,8 +116,8 @@ export function CyclonePanel({ open, data, onClose }: Props) {
 
           <div className="flex-1 space-y-5 overflow-y-auto p-5">
             <dl className="grid grid-cols-2 gap-2.5">
-              <div className="col-span-2 rounded-2xl bg-white/[0.03] p-3">
-                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-400">
+              <div className="clay-card col-span-2 p-3.5">
+                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-cyan-300/80">
                   <Wind className="size-3" aria-hidden="true" />
                   Max sustained wind
                 </dt>
@@ -132,8 +132,8 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                   </span>
                 </dd>
               </div>
-              <div className="rounded-2xl bg-white/[0.03] p-3">
-                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-400">
+              <div className="clay-card p-3.5">
+                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-cyan-300/80">
                   <Gauge className="size-3" aria-hidden="true" />
                   Central pressure
                 </dt>
@@ -142,8 +142,8 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                   <span className="ml-1 text-xs text-slate-400">hPa</span>
                 </dd>
               </div>
-              <div className="rounded-2xl bg-white/[0.03] p-3">
-                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-400">
+              <div className="clay-card p-3.5">
+                <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-cyan-300/80">
                   <Navigation className="size-3" aria-hidden="true" />
                   {data.headingDeg !== null ? 'Movement' : 'Position'}
                 </dt>

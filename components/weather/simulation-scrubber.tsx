@@ -80,7 +80,7 @@ export function SimulationScrubber(props: Props) {
           <button
             type="button"
             onClick={props.onReset}
-            className="flex size-8 items-center justify-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+            className="flex size-8 items-center justify-center rounded-full text-slate-400 bg-slate-900/50 border border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] hover:bg-white/10 hover:text-white transition-all active:scale-95"
             title="Restart simulation from genesis"
           >
             <RotateCcw className="size-3.5" />
@@ -89,7 +89,7 @@ export function SimulationScrubber(props: Props) {
           <button
             type="button"
             onClick={props.onTogglePlay}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-cyan-400 text-slate-950 shadow-[0_0_16px_rgba(34,211,238,0.6)] hover:scale-105 transition-all"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-cyan-500 text-slate-950 shadow-[0_6px_16px_rgba(6,182,212,0.5),inset_0_2px_3px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(8,51,68,0.5)] hover:scale-105 active:scale-95 transition-all"
             title={props.playing ? 'Pause' : 'Play'}
           >
             {props.playing ? <Pause className="size-4 fill-current" /> : <Play className="ml-0.5 size-4 fill-current" />}
@@ -98,7 +98,7 @@ export function SimulationScrubber(props: Props) {
           <button
             type="button"
             onClick={props.onCycleSpeed}
-            className="flex h-7 items-center gap-1 rounded-lg bg-white/5 px-2 text-[11px] font-mono text-slate-300 hover:bg-white/10 transition-colors"
+            className="flex h-7 items-center gap-1 rounded-xl bg-slate-900/60 border border-white/10 px-2.5 text-[11px] font-mono text-slate-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] hover:bg-white/10 transition-colors"
             title="Playback speed"
           >
             <FastForward className="size-3 text-cyan-300" />

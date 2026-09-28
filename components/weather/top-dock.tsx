@@ -50,13 +50,13 @@ function ToggleChip({
       aria-pressed={active}
       title={label}
       className={cn(
-        'flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 active:scale-95',
+        'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70',
         active
-          ? 'bg-cyan-400/15 text-cyan-300 shadow-[0_0_12px_-2px_rgba(34,211,238,0.5)] border border-cyan-400/30'
-          : 'text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200',
+          ? 'bg-gradient-to-b from-cyan-400/25 to-cyan-500/10 text-cyan-200 border border-cyan-300/40 shadow-[0_6px_14px_-2px_rgba(6,182,212,0.4),inset_0_1.5px_2px_0_rgba(255,255,255,0.45),inset_0_-2px_4px_0_rgba(0,0,0,0.5)] translate-y-[-1px]'
+          : 'text-slate-400 border border-white/[0.06] bg-slate-900/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] hover:bg-white/[0.08] hover:text-slate-100 hover:border-white/15',
       )}
     >
-      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+      <Icon className={cn('size-3.5 shrink-0 transition-transform', active && 'scale-110')} aria-hidden="true" />
       <span className="whitespace-nowrap">{shortName}</span>
     </button>
   )
@@ -105,7 +105,7 @@ export function TopDock(props: Props) {
           </div>
         </button>
 
-        <nav aria-label="Dashboard pages" className="flex shrink-0 items-center gap-1 rounded-full bg-slate-900/60 p-1">
+        <nav aria-label="Dashboard pages" className="flex shrink-0 items-center gap-1 rounded-full bg-slate-950/70 p-1 border border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
           {PAGES.map(({ id, label, short, icon: Icon }) => (
             <button
               key={id}
@@ -113,8 +113,10 @@ export function TopDock(props: Props) {
               onClick={() => props.onPageChange(id)}
               aria-current={props.page === id ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70',
-                props.page === id ? 'bg-slate-100 text-slate-950' : 'text-slate-300 hover:bg-white/5 hover:text-white',
+                'flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70',
+                props.page === id
+                  ? 'bg-gradient-to-b from-slate-100 to-slate-200 text-slate-950 shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1.5px_2px_rgba(255,255,255,0.9),inset_0_-2px_4px_rgba(148,163,184,0.5)] font-semibold'
+                  : 'text-slate-300 hover:bg-white/[0.08] hover:text-white',
               )}
             >
               <Icon className="size-3.5" aria-hidden="true" />
@@ -131,7 +133,7 @@ export function TopDock(props: Props) {
           type="button"
           onClick={props.onCycleBasemap}
           title={basemapLabel}
-          className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-slate-200 transition hover:bg-white/[0.12] active:scale-95"
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-slate-900/60 border border-white/10 px-3 py-1.5 text-[11px] font-medium text-slate-200 transition-all duration-200 shadow-[0_4px_10px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.15),inset_0_-1px_3px_rgba(0,0,0,0.4)] hover:bg-white/[0.12] hover:border-white/20 active:scale-95"
         >
           <BasemapIcon
             className={cn(

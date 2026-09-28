@@ -163,13 +163,58 @@
 }
 
 @utility glass {
-  background: rgb(2 6 23 / 0.74);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid rgb(148 163 184 / 0.14);
+  /* Claymorphism + Glassmorphism Hybrid (Glassmorphic Translucency + Claymorphic 3D Tactile Depth) */
+  background: radial-gradient(135% 120% at 15% 10%, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(2, 6, 23, 0.90) 100%);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 12px 40px -12px rgb(0 0 0 / 0.7),
-    inset 0 1px 0 rgb(255 255 255 / 0.05);
+    /* Claymorphism: Deep soft ambient drop shadows */
+    0 20px 45px -12px rgba(0, 0, 0, 0.85),
+    0 8px 18px -6px rgba(15, 23, 42, 0.6),
+    /* Claymorphism: Inner top-left pillowy light bevel */
+    inset 0 2px 4px 0 rgba(255, 255, 255, 0.28),
+    inset 2px 0 6px 0 rgba(255, 255, 255, 0.12),
+    /* Claymorphism: Inner bottom-right dark cushion depth */
+    inset 0 -3px 8px 0 rgba(0, 0, 0, 0.45),
+    inset -2px 0 8px 0 rgba(0, 0, 0, 0.35),
+    /* Glassmorphism: Cyan/teal ambient specular rim glow */
+    0 0 0 1px rgba(34, 211, 238, 0.14);
+}
+
+@utility clay-card {
+  background: radial-gradient(120% 120% at 10% 10%, rgba(51, 65, 85, 0.55) 0%, rgba(30, 41, 59, 0.75) 100%);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 10px 25px -8px rgba(0, 0, 0, 0.5),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 5px 0 rgba(0, 0, 0, 0.4);
+}
+
+@utility clay-btn {
+  background: radial-gradient(120% 120% at 20% 15%, rgba(56, 189, 248, 0.25) 0%, rgba(14, 116, 144, 0.35) 100%);
+  border: 1px solid rgba(103, 232, 249, 0.35);
+  box-shadow:
+    0 6px 14px -3px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px 0 rgba(8, 51, 68, 0.6);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 10px 20px -3px rgba(6, 182, 212, 0.35),
+      inset 0 2px 3px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -2px 4px 0 rgba(8, 51, 68, 0.7);
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow:
+      0 2px 6px -1px rgba(0, 0, 0, 0.5),
+      inset 0 2px 6px 0 rgba(0, 0, 0, 0.45);
+  }
 }
 
 .leaflet-container {
