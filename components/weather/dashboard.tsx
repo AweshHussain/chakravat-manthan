@@ -135,9 +135,28 @@ export default function Dashboard() {
 
   const activeState = systemActive ? interpolateTrack(track, time) : null
 
+  const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
+
+  const simInterpolation = useMemo(() => {
+    if (!archiveCyclone || !simulatingId) return null
+    return interpolateArchiveProgress(archiveCyclone, simProgress)
+  }, [archiveCyclone, simulatingId, simProgress])
+
   const sampler = useMemo(() => {
     if (!wind) return null
-    // Only inject a rotating cyclone vortex if liveBackend has loaded AND confirms an actual active tropical storm (>28 kt)
+
+    // If an archive simulation is actively playing or scrubbed, inject the historical cyclone's vortex
+    if (page === 'archive' && simulatingId && simInterpolation) {
+      const vortex = {
+        lat: simInterpolation.lat,
+        lon: simInterpolation.lon,
+        vmaxKmh: simInterpolation.windKt * 1.852,
+        rmwKm: Math.max(25, Math.min(60, Math.round(simInterpolation.windKt * 0.4))),
+      }
+      return createSampler(wind, time, vortex)
+    }
+
+    // Only inject a rotating cyclone vortex if liveBackend has loaded AND confirms an actual active tropical storm (>17 kt)
     if (!liveBackend) return createSampler(wind, time, null)
 
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
@@ -149,11 +168,11 @@ export default function Dashboard() {
       ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
       : null
     return createSampler(wind, time, vortex)
-  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend])
+  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
-    // If systemActive is toggled off or activeState is null, do not show
-    if (!activeState || !liveBackend) return null
+    // If on archive page, or systemActive is toggled off, or activeState is null, do not show live cyclone
+    if (page === 'archive' || !activeState || !liveBackend) return null
 
     // Strictly verify against satellite & neural model telemetry:
     // Display if actual cyclogenesis / depression is confirmed (wind >= 17 kt, not FAIR or normal basin)
@@ -186,14 +205,7 @@ export default function Dashboard() {
             eyeRadiusKm: activeState.windKt >= 64 ? 18 : 0,
           },
     }
-  }, [activeState, track, time, liveBackend])
-
-  const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
-
-  const simInterpolation = useMemo(() => {
-    if (!archiveCyclone || !simulatingId) return null
-    return interpolateArchiveProgress(archiveCyclone, simProgress)
-  }, [archiveCyclone, simulatingId, simProgress])
+  }, [activeState, track, time, liveBackend, page])
 
   // Playback timer for interactive archive simulation
   useEffect(() => {
