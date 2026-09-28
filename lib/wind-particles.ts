@@ -1,7 +1,12 @@
 import type L from 'leaflet'
 import type { WindSampler } from './wind-field'
 
-type Particle = { x: number; y: number; age: number; maxAge: number }
+type Particle = {
+  lat: number
+  lon: number
+  age: number
+  maxAge: number
+}
 
 const SPEED_BUCKETS = [
   { max: 12, style: 'rgba(148, 163, 184, 0.45)' },
@@ -22,7 +27,6 @@ export class WindParticles {
   private height = 0
   private dpr = 1
   private leaflet: typeof L
-  private lastOrigin: L.Point | null = null
 
   constructor(leaflet: typeof L, map: L.Map, pane: HTMLElement) {
     this.leaflet = leaflet
@@ -33,7 +37,7 @@ export class WindParticles {
     pane.appendChild(this.canvas)
     this.ctx = this.canvas.getContext('2d')!
     map.on('move', this.onMove)
-    map.on('moveend zoomend resize', this.onMoveEnd)
+    map.on('resize', this.onResize)
     this.reset()
     this.loop()
   }
@@ -45,30 +49,16 @@ export class WindParticles {
   destroy() {
     cancelAnimationFrame(this.frame)
     this.map.off('move', this.onMove)
-    this.map.off('moveend zoomend resize', this.onMoveEnd)
+    this.map.off('resize', this.onResize)
     this.canvas.remove()
   }
 
   private onMove = () => {
-    // When the map moves, compute pixel shift so particles stay locked to their geographic place
-    const newOrigin = this.map.containerPointToLayerPoint([0, 0])
-    this.leaflet.DomUtil.setPosition(this.canvas, newOrigin)
-
-    if (this.lastOrigin) {
-      const dx = newOrigin.x - this.lastOrigin.x
-      const dy = newOrigin.y - this.lastOrigin.y
-      if (dx !== 0 || dy !== 0) {
-        // Shift particle coordinates by the exact pan offset so they stay fixed over their land/sea locations
-        for (const p of this.particles) {
-          p.x -= dx
-          p.y -= dy
-        }
-      }
-    }
-    this.lastOrigin = newOrigin
+    // Keep canvas anchored to viewport coordinates during continuous pan & zoom
+    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
   }
 
-  private onMoveEnd = () => {
+  private onResize = () => {
     this.reset()
   }
 
@@ -81,17 +71,23 @@ export class WindParticles {
     this.canvas.height = size.y * this.dpr
     this.canvas.style.width = `${size.x}px`
     this.canvas.style.height = `${size.y}px`
-    const origin = this.map.containerPointToLayerPoint([0, 0])
-    this.lastOrigin = origin
-    this.leaflet.DomUtil.setPosition(this.canvas, origin)
+    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
     const count = Math.min(4500, Math.round((size.x * size.y) / 380))
-    this.particles = Array.from({ length: count }, () => this.spawn({ x: 0, y: 0, age: 0, maxAge: 0 }, true))
+    this.particles = Array.from({ length: count }, () => this.spawn({ lat: 0, lon: 0, age: 0, maxAge: 0 }, true))
   }
 
   private spawn(p: Particle, randomAge = false) {
-    p.x = Math.random() * this.width
-    p.y = Math.random() * this.height
+    const bounds = this.map.getBounds()
+    const south = bounds.getSouth()
+    const north = bounds.getNorth()
+    const west = bounds.getWest()
+    const east = bounds.getEast()
+
+    const latSpan = north - south
+    const lonSpan = east - west
+    p.lat = south - 0.15 * latSpan + Math.random() * (latSpan * 1.3)
+    p.lon = west - 0.15 * lonSpan + Math.random() * (lonSpan * 1.3)
     p.maxAge = 60 + Math.random() * 80
     p.age = randomAge ? Math.random() * p.maxAge : 0
     return p
@@ -107,6 +103,7 @@ export class WindParticles {
     if (!this.sampler) return
 
     const zoom = this.map.getZoom()
+    // Original speed multiplier scaled dynamically to match zoom so particles move at natural velocity
     const scale = 0.045 * (1 + (zoom - 5) * 0.18)
     const paths: Path2D[] = SPEED_BUCKETS.map(() => new Path2D())
 
@@ -115,22 +112,41 @@ export class WindParticles {
         this.spawn(p)
         continue
       }
-      const ll = this.map.containerPointToLatLng([p.x, p.y])
-      const w = this.sampler(ll.lat, ((ll.lng + 540) % 360) - 180)
+
+      // Convert geographic location to screen coordinates for this frame
+      const currentPt = this.map.latLngToContainerPoint([p.lat, p.lon])
+      if (
+        currentPt.x < -40 ||
+        currentPt.y < -40 ||
+        currentPt.x > this.width + 40 ||
+        currentPt.y > this.height + 40
+      ) {
+        this.spawn(p)
+        continue
+      }
+
+      const normLon = ((p.lon + 540) % 360) - 180
+      const w = this.sampler(p.lat, normLon)
       if (!w) {
         this.spawn(p)
         continue
       }
+
+      // Compute next screen point using the authentic original fluid physics
+      const nextScreenX = currentPt.x + w[0] * scale
+      const nextScreenY = currentPt.y - w[1] * scale
+
+      // Convert back to geographic lat/lng so the particle stays locked to that physical point across pan & zoom
+      const nextLatLng = this.map.containerPointToLatLng([nextScreenX, nextScreenY])
+      p.lat = nextLatLng.lat
+      p.lon = nextLatLng.lng
+
       const speed = Math.hypot(w[0], w[1])
-      const nx = p.x + w[0] * scale
-      const ny = p.y - w[1] * scale
       let b = 0
       while (speed > SPEED_BUCKETS[b].max) b++
-      paths[b].moveTo(p.x, p.y)
-      paths[b].lineTo(nx, ny)
-      p.x = nx
-      p.y = ny
-      if (nx < 0 || ny < 0 || nx > this.width || ny > this.height) this.spawn(p)
+
+      paths[b].moveTo(currentPt.x, currentPt.y)
+      paths[b].lineTo(nextScreenX, nextScreenY)
     }
 
     ctx.lineWidth = 1.1
