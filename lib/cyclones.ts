@@ -267,6 +267,12 @@ export function warningStageIndex(hoursToLandfall: number) {
   return -1
 }
 
+export function formatCoords(lat: number, lon: number): string {
+  const latStr = `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}`
+  const lonStr = `${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`
+  return `${latStr} ${lonStr}`
+}
+
 const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
 export function compass(deg: number) {
   return COMPASS[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16]

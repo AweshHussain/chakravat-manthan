@@ -2,7 +2,7 @@
 
 import { BrainCircuit, Gauge, Navigation, ShieldAlert, Wind, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { IMD_CATEGORIES, IMD_WARNING_STAGES, categoryFor, compass, stageProbabilities } from '@/lib/cyclones'
+import { IMD_CATEGORIES, IMD_WARNING_STAGES, categoryFor, compass, formatCoords, stageProbabilities } from '@/lib/cyclones'
 
 export type CyclonePanelData = {
   kind: 'active' | 'archive'
@@ -154,12 +154,12 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                       <span className="ml-1 text-xs text-slate-400">km/h</span>
                     </>
                   ) : (
-                    `${data.lat.toFixed(1)}°N ${data.lon.toFixed(1)}°E`
+                    formatCoords(data.lat, data.lon)
                   )}
                 </dd>
                 {data.headingDeg !== null && (
                   <p className="mt-0.5 font-mono text-[11px] text-slate-400">
-                    {data.lat.toFixed(1)}°N {data.lon.toFixed(1)}°E
+                    {formatCoords(data.lat, data.lon)}
                   </p>
                 )}
               </div>
