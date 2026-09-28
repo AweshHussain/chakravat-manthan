@@ -11,7 +11,7 @@ const BUFFER_DB_KEY = process.env.BUFFER_DB_KEY || 'sb_publishable_Q9wAKpzrMvJjg
 const LIVE_DB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://etvcqmbqmdtiatrqfbxy.supabase.co'
 const LIVE_DB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_KJYaxY4yu7StdTOWyoX__A_sli7UVQt'
 
-export async function POST() {
+async function runCheck() {
   try {
     const sbBuffer = createClient(BUFFER_DB_URL, BUFFER_DB_KEY)
     const sbLive = createClient(LIVE_DB_URL, LIVE_DB_KEY)
@@ -97,4 +97,12 @@ export async function POST() {
       error: err?.message || 'Pipeline check failed',
     }, { status: 500 })
   }
+}
+
+export async function GET() {
+  return runCheck()
+}
+
+export async function POST() {
+  return runCheck()
 }
