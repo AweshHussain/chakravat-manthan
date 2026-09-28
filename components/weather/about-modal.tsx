@@ -35,6 +35,8 @@ const SYSTEM_PILLARS = [
     icon: Satellite,
     title: 'ISRO MOSDAC Satellite Ingestion',
     color: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+    glow: 'group-hover:border-amber-400/70 group-hover:shadow-[0_0_24px_rgba(251,191,36,0.35)]',
+    tagColor: 'text-amber-300',
     description:
       'Direct payload ingestion from INSAT-3D/3DR TIR-1 (10.8 µm) thermal infrared imagery over the North Indian Ocean basin, Arabian Sea, and Bay of Bengal.',
   },
@@ -42,6 +44,8 @@ const SYSTEM_PILLARS = [
     icon: Database,
     title: 'Decoupled Two-Database Architecture',
     color: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+    glow: 'group-hover:border-blue-400/70 group-hover:shadow-[0_0_24px_rgba(96,165,250,0.35)]',
+    tagColor: 'text-blue-300',
     description:
       'Private Ingestion Buffer (DB 1) guarantees zero-drop payload persistence, while Public Telemetry (DB 2) feeds the real-time Vercel Edge frontend via WebSockets.',
   },
@@ -49,6 +53,8 @@ const SYSTEM_PILLARS = [
     icon: BrainCircuit,
     title: 'PyTorch 4-Stage CNN + 2-Layer GRU',
     color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+    glow: 'group-hover:border-purple-400/70 group-hover:shadow-[0_0_24px_rgba(192,132,252,0.35)]',
+    tagColor: 'text-purple-300',
     description:
       'Custom multi-task spatio-temporal deep neural network classifying 8 IMD cyclone stages (TD → SuCS) with simultaneous regression of sustained wind (kt) and central pressure (hPa).',
   },
@@ -56,6 +62,8 @@ const SYSTEM_PILLARS = [
     icon: Wind,
     title: 'Rankine & Holland Vortex Physics',
     color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+    glow: 'group-hover:border-cyan-400/70 group-hover:shadow-[0_0_24px_rgba(34,211,238,0.4)]',
+    tagColor: 'text-cyan-300',
     description:
       'Continuous 3D atmospheric particle vectors dynamically coupled to neural cyclone coordinates, estimating gale-force convective swath (R34), CDO core, and eye diameter.',
   },
@@ -138,14 +146,26 @@ export function AboutModal({ open, onClose }: Props) {
               {SYSTEM_PILLARS.map((pillar) => {
                 const Icon = pillar.icon
                 return (
-                  <div key={pillar.title} className="clay-card p-3.5 border border-white/10">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className={cn('flex size-6 items-center justify-center rounded-lg border', pillar.color)}>
+                  <div
+                    key={pillar.title}
+                    className={cn(
+                      'group relative clay-card p-3.5 border border-white/10 transition-all duration-300 cursor-pointer overflow-hidden',
+                      'hover:-translate-y-1 hover:bg-slate-900/80',
+                      pillar.glow,
+                    )}
+                  >
+                    {/* Subtle ambient backlight on hover */}
+                    <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-white/5 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+                    
+                    <div className="relative flex items-center gap-2 mb-1.5">
+                      <span className={cn('flex size-6 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110 shadow-sm', pillar.color)}>
                         <Icon className="size-3.5" />
                       </span>
-                      <h4 className="text-xs font-semibold text-slate-100">{pillar.title}</h4>
+                      <h4 className={cn('text-xs font-semibold text-slate-100 transition-colors duration-200', `group-hover:${pillar.tagColor}`)}>
+                        {pillar.title}
+                      </h4>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-slate-400">
+                    <p className="relative text-[11px] leading-relaxed text-slate-400 group-hover:text-slate-300 transition-colors">
                       {pillar.description}
                     </p>
                   </div>
@@ -166,14 +186,18 @@ export function AboutModal({ open, onClose }: Props) {
               {TEAM_MEMBERS.map((member, idx) => (
                 <div
                   key={member.name}
-                  className="flex items-center gap-3 rounded-2xl bg-slate-900/50 border border-white/10 p-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]"
+                  className="group flex items-center gap-3 rounded-2xl bg-slate-900/50 border border-white/10 p-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.25)] cursor-default"
                 >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 border border-cyan-400/30 font-mono text-xs font-bold text-cyan-300">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 border border-cyan-400/30 font-mono text-xs font-bold text-cyan-300 transition-transform duration-200 group-hover:scale-110 group-hover:bg-cyan-400/25 group-hover:shadow-[0_0_10px_rgba(34,211,238,0.6)]">
                     {idx + 1}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-semibold text-slate-100 truncate">{member.name}</h4>
-                    <p className="text-[10px] text-slate-400 truncate">{member.role}</p>
+                    <h4 className="text-xs font-semibold text-slate-100 group-hover:text-cyan-200 transition-colors truncate">
+                      {member.name}
+                    </h4>
+                    <p className="text-[10px] text-slate-400 group-hover:text-slate-300 transition-colors truncate">
+                      {member.role}
+                    </p>
                   </div>
                 </div>
               ))}
