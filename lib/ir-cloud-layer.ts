@@ -4,16 +4,23 @@ export type IrMode = 'natural' | 'enhanced'
 
 const GREY_LOW = 145
 const GREY_HIGH = 240
-const LIMB_FADE_START = 62
-const LIMB_FADE_END = 72
+const LIMB_FADE_START = 60
+const LIMB_FADE_END = 73
 
 function limbAlpha(x: number, z: number): Float32Array {
   const col = new Float32Array(256)
   const worldPx = 256 * 2 ** z
   for (let px = 0; px < 256; px++) {
     const lon = ((x * 256 + px) / worldPx) * 360 - 180
-    const t = (lon - LIMB_FADE_START) / (LIMB_FADE_END - LIMB_FADE_START)
-    col[px] = Math.min(1, Math.max(0, t))
+    if (lon <= LIMB_FADE_START) {
+      col[px] = 0
+    } else if (lon >= LIMB_FADE_END) {
+      col[px] = 1
+    } else {
+      // Smooth Hermite / cosine S-curve for seamless alpha transition (no abrupt steps or comb lines)
+      const t = (lon - LIMB_FADE_START) / (LIMB_FADE_END - LIMB_FADE_START)
+      col[px] = t * t * (3 - 2 * t)
+    }
   }
   return col
 }
