@@ -1,7 +1,8 @@
 <div align="center">
 
 # 🌀 चक्रवात मंथन · CHAKRAVAT MANTHAN
-### *Next-Generation Autonomous Tropical Cyclone Intelligence & Spatio-Temporal AI Platform*
+### *By Cybernetic Crusaders*
+#### *Next-Generation Autonomous Tropical Cyclone Intelligence & Spatio-Temporal AI Platform*
 
 [![Live Production](https://img.shields.io/badge/LIVE%20PLATFORM-VERCEL%20EDGE-black?style=for-the-badge&logo=vercel&logoColor=white)](https://chakravat-manthan-live.vercel.app)
 [![Database](https://img.shields.io/badge/DATABASE-SUPABASE%20POSTGRESQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
@@ -12,7 +13,7 @@
 
 <br/>
 
-> **Chakravat Manthan (चक्रवात मंथन)** is a mission-critical meteorological intelligence engine engineered for the North Indian Ocean and Pan-Asian oceanic basins. Fusing direct geostationary satellite telemetry from **ISRO's INSAT-3DR** with a custom **4-Stage CNN + 2-Layer Temporal GRU Deep Learning Architecture**, it autonomously predicts cyclone intensity, continuous sustained wind speeds, central barometric pressure, and landfall trajectories with zero manual human bias.
+> **Chakravat Manthan (चक्रवात मंथन) by Cybernetic Crusaders** is a mission-critical meteorological intelligence engine engineered for the North Indian Ocean and Pan-Asian oceanic basins. Fusing direct geostationary satellite telemetry from **ISRO's INSAT-3DR** with a custom **4-Stage CNN + 2-Layer Temporal GRU Deep Learning Architecture**, it autonomously predicts cyclone intensity, continuous sustained wind speeds, central barometric pressure, and landfall trajectories with zero manual human bias.
 
 [Explore Live Map](https://chakravat-manthan-live.vercel.app) • [Read Whitepaper](backend/CHAKRAVAT_MANTHAN_ML_REPORT.md) • [Download PDF Report](backend/CHAKRAVAT_MANTHAN_ML_REPORT.pdf) • [Architecture Deep Dive](#-end-to-end-architecture)
 
@@ -20,7 +21,23 @@
 
 ---
 
-## ⚡ Interactive Feature Highlights
+## 🌟 Why Our Platform is Different from Others
+
+Most conventional meteorological portals and cyclone trackers only display static post-event maps, delayed bulleted forecasts, or disconnected point markers. **Chakravat Manthan** completely redefines cyclone observation and disaster preparation:
+
+1. **Full Genesis-to-Dissipation Interactive Lifecycle Simulation:**
+   - Instead of static breadcrumb markers, our engine calculates and renders the continuous mathematical simulation of **where the storm first started (oceanic genesis)**, its hour-by-hour trajectory path, and **how big it became over its entire lifecycle**.
+   - With an interactive temporal scrubber, emergency responders and researchers can trace the storm from a loose convective cluster, through deep depression, severe cyclonic storm, up to peak landfall intensity and inland decay.
+
+2. **100% Real, Grounded & Accurate According to Atmospheric Data:**
+   - Every stage of the simulation is physically parameterized using **real multi-decade IMD Best-Track telemetry and live ISRO INSAT-3DR infrared radiance**.
+   - Outer gale radii ($R_{34}$ / Total Swath Width), Central Dense Overcast (CDO) dimensions, and inner eye boundaries grow and shrink dynamically according to real physical fluid-dynamic laws and deep learning neural regression.
+
+3. **Autonomous Machine Learning with Zero Human Delay:**
+   - Real-time spatio-temporal AI (4-stage spatial CNN + 2-layer temporal GRU) analyzes satellite radiance tensors $(512 \times 512)$ without waiting for manual subjective Dvorak human assessments.
+
+4. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
+   - Real-time numerical wind streamlines dynamically blow across $40^\circ\text{E}$ to $145^\circ\text{E}$, accompanied by official IMD-colored district vulnerability polygons (Red, Orange, Yellow) along vulnerable coastlines.
 
 <div align="center">
 
@@ -264,6 +281,6 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details
 ---
 
 *Engineered with precision for life-saving operational meteorological intelligence.*  
-**Chakravat Manthan Team** · 2026
+**Chakravat Manthan by Cybernetic Crusaders** · 2026
 
 </div>
