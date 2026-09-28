@@ -65,7 +65,7 @@ export default function Dashboard() {
   // Basemap override: null = automatic diurnal sync with timeline (Day = Satellite, Night = Black Marble)
   const [basemapOverride, setBasemapOverride] = useState<'auto' | 'night' | 'satellite'>('auto')
   const [showRadar, setShowRadar] = useState(true)
-  const [showDistricts, setShowDistricts] = useState(true)
+  const [showDistricts, setShowDistricts] = useState(false)
   const [archiveId, setArchiveId] = useState<string | null>(null)
   const [simulatingId, setSimulatingId] = useState<string | null>(null)
   const [simProgress, setSimProgress] = useState(0)
