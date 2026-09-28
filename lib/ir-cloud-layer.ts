@@ -2,13 +2,15 @@ import type L from 'leaflet'
 
 export type IrMode = 'natural' | 'enhanced'
 
-const GREY_LOW = 168
+const GREY_LOW = 160
 const GREY_HIGH = 240
 
 // Himawari-8/9 Sub-satellite Point: 0.0°N, 140.7°E
+// True full-disk horizon from GEO is ~81.3°. Setting max to 81.5° ensures the entire Arabian Sea,
+// Western India, Lakshadweep, and Horn of Africa cloud formations are fully visible!
 const SAT_SUB_LON = 140.7
-const SAT_MAX_RADIUS_DEG = 76.0
-const SAT_FADE_START_DEG = 68.0
+const SAT_MAX_RADIUS_DEG = 81.5
+const SAT_FADE_START_DEG = 78.5
 
 function pixelLimbFactor(px: number, py: number, x: number, y: number, z: number): number {
   const worldPx = 256 * (2 ** z)
