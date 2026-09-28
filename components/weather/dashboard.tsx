@@ -30,6 +30,8 @@ import { ArchivePanel } from './archive-panel'
 import { PipelineTelemetryModal } from './pipeline-modal'
 import { SimulationScrubber } from './simulation-scrubber'
 
+import { supabase } from '@/lib/supabase'
+
 const MapView = dynamic(() => import('./map-view'), { ssr: false })
 
 type SatelliteInfo = { layer: string; latest: number; frames: number[] }
@@ -91,9 +93,30 @@ export default function Dashboard() {
   const { data: sat } = useSWR<SatelliteInfo>('/api/satellite', fetcher, { refreshInterval: 10 * 60 * 1000 })
   const { data: wind } = useSWR<WindData>('/api/wind', fetcher, { revalidateOnFocus: false })
   const { data: liveBackend, mutate: mutateLiveBackend } = useSWR<any>('/api/cyclone/current', fetcher, {
-    refreshInterval: 60 * 1000,
+    refreshInterval: 15 * 1000, // Automatic frequent background polling (15s)
     revalidateOnFocus: true,
+    revalidateOnReconnect: true,
   })
+
+  // Real-time WebSocket connection to Supabase: Instantly updates UI whenever DB changes
+  useEffect(() => {
+    if (!supabase) return
+
+    const channel = supabase
+      .channel('cyclone-live-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cyclone_live' },
+        () => {
+          mutateLiveBackend()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [mutateLiveBackend])
 
   const latestSat = sat?.latest ?? floorTo(now - HOUR, TEN_MIN)
   const minTime = sat?.frames[0] ?? latestSat - 3 * HOUR

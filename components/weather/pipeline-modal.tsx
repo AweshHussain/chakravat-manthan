@@ -210,7 +210,10 @@ export function PipelineTelemetryModal({
 
         {/* Footer info */}
         <div className="flex items-center justify-between border-t border-white/10 pt-3 text-[11px] text-slate-400">
-          <span>Continuous Polling: <strong className="text-cyan-300">60s Cycle (Auto)</strong></span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+            Live Sync: <strong className="text-cyan-300">Realtime WebSocket (Auto)</strong>
+          </span>
           <button
             onClick={() => {
               setRefreshing(true)
