@@ -131,51 +131,34 @@ export default function Dashboard() {
 
   const sampler = useMemo(() => {
     if (!wind) return null
+    // Only inject a rotating cyclone vortex if liveBackend has loaded AND confirms an actual active tropical storm (>28 kt)
+    if (!liveBackend) return createSampler(wind, time, null)
 
-    // 1. Archive Mode: If user is inspecting a historical cyclone (Amphan, Fani, Tauktae, Kyarr),
-    // inject its verified historical vortex centered at its peak coordinate
-    if (page === 'archive' && archiveCyclone) {
-      const peak = archiveCyclone.track.reduce((best, p) => (p.windKt > best.windKt ? p : best), archiveCyclone.track[0])
-      const vortex = {
-        lat: peak.lat,
-        lon: peak.lon,
-        vmaxKmh: Math.max(65, peak.windKt * 1.852 * 0.85),
-        rmwKm: peak.peakWindKt >= 64 ? 35 : 55,
-      }
-      return createSampler(wind, time, vortex)
-    }
-
-    // 2. Live Mode: Check active telemetric data from model / Supabase / synoptic state
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState?.windKt ?? 0
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
-
-    // Ground-truth verification: Only inject vortex if there is an active tropical disturbance (Depression >= 17 kt or Deep Depression / Cyclone)
-    const hasCirculation = (currentWind >= 17 || (stageCode && stageCode !== 'FAIR')) && activeState
-
-    const vortex = (systemActive && hasCirculation)
-      ? {
-          lat: activeState.lat,
-          lon: activeState.lon,
-          vmaxKmh: Math.max(45, currentWind * 1.852 * 0.9),
-          rmwKm: currentWind >= 64 ? 32 : 48,
-        }
+    const stormName = liveBackend?.storm || ''
+    const isStormActive = currentWind >= 28 && stageCode !== 'FAIR' && stageCode !== 'TD' && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')
+    
+    const vortex = (activeState && isStormActive)
+      ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
       : null
-
     return createSampler(wind, time, vortex)
-  }, [wind, time, activeState, systemActive, page, archiveCyclone, liveBackend])
+  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
     // If systemActive is toggled off or activeState is null, do not show
     if (!activeState || !liveBackend) return null
 
     // Strictly verify against satellite & neural model telemetry:
-    // Only display if actual cyclogenesis / depression (wind >= 17 kt / 31 km/h, not FAIR weather)
+    // Only display if actual cyclogenesis / deep depression (wind >= 28 kt, not FAIR or normal basin)
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const stageCode = liveBackend?.intensity_stage?.code
     const stormName = liveBackend?.storm || ''
     const isCycloneActive =
-      currentWind >= 17 &&
+      currentWind >= 28 &&
       stageCode !== 'FAIR' &&
+      stageCode !== 'TD' &&
+      !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
 
     // If ocean is calm / fair weather according to satellite data, do NOT render fake cyclone
@@ -252,7 +235,7 @@ export default function Dashboard() {
         }))
       }
 
-      const isFair = backendWind === undefined || backendWind < 17 || liveBackend?.intensity_stage?.code === 'FAIR'
+      const isFair = backendWind === undefined || backendWind <= 25 || liveBackend?.intensity_stage?.code === 'FAIR' || liveBackend?.intensity_stage?.code === 'D'
 
       return {
         kind: 'active',
