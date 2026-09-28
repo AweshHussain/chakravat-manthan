@@ -34,11 +34,13 @@ function ToggleChip({
   active,
   onClick,
   label,
+  shortName,
   icon: Icon,
 }: {
   active: boolean
   onClick: () => void
   label: string
+  shortName: string
   icon: typeof Cloud
 }) {
   return (
@@ -48,12 +50,14 @@ function ToggleChip({
       aria-pressed={active}
       title={label}
       className={cn(
-        'flex size-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70',
-        active ? 'bg-cyan-400/15 text-cyan-300 shadow-[0_0_12px_-2px_rgba(34,211,238,0.6)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200',
+        'flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 active:scale-95',
+        active
+          ? 'bg-cyan-400/15 text-cyan-300 shadow-[0_0_12px_-2px_rgba(34,211,238,0.5)] border border-cyan-400/30'
+          : 'text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200',
       )}
     >
-      <Icon className="size-4" aria-hidden="true" />
-      <span className="sr-only">{label}</span>
+      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+      <span className="whitespace-nowrap">{shortName}</span>
     </button>
   )
 }
@@ -73,41 +77,26 @@ export function TopDock(props: Props) {
       : Moon
 
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-3">
-      <div className="glass pointer-events-auto flex max-w-full items-center gap-1 rounded-full p-1.5 shadow-2xl">
-        <div
-          onTouchStart={(e) => {
-            // Secret mobile gesture: Long press (1.5 seconds) on logo unlocks admin monitor
-            const timer = setTimeout(() => {
-              props.onOpenPipeline?.()
-            }, 1400)
-            const cancel = () => clearTimeout(timer)
-            e.currentTarget.addEventListener('touchend', cancel, { once: true })
-            e.currentTarget.addEventListener('touchmove', cancel, { once: true })
+    <header className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex justify-center px-4">
+      <div className="glass pointer-events-auto flex max-w-[98vw] w-fit items-center gap-1.5 rounded-full p-1.5 shadow-2xl overflow-x-auto no-scrollbar">
+        {/* Clickable Brand Logo & Title: Refreshes page on click */}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.reload()
           }}
-          onClick={(e) => {
-            // Secret desktop/mobile gesture: 3 rapid clicks on the lightning icon within 1 second
-            const now = Date.now()
-            const target = e.currentTarget as any
-            const lastClicks = target._clicks || []
-            const recentClicks = [...lastClicks.filter((t: number) => now - t < 1000), now]
-            target._clicks = recentClicks
-            if (recentClicks.length >= 3) {
-              target._clicks = []
-              props.onOpenPipeline?.()
-            }
-          }}
-          className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-default active:scale-95 transition-transform"
+          title="Reload Chakravat Manthan"
+          className="flex items-center gap-2 pl-2 pr-3 text-left select-none cursor-pointer rounded-full hover:bg-white/[0.08] active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
         >
-          <span className="relative flex size-8 items-center justify-center rounded-full overflow-hidden shadow-[0_0_15px_-2px_rgba(34,211,238,0.5)]">
+          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-[0_0_15px_-2px_rgba(34,211,238,0.5)]">
             <img src="/logo.png" alt="Chakravat Manthan Logo" className="size-full object-contain" />
           </span>
-          <h1 className="hidden whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50 md:block">
+          <span className="hidden whitespace-nowrap text-sm font-semibold tracking-wide text-slate-50 md:block">
             Chakravat <span className="text-cyan-300">Manthan</span>
-          </h1>
-        </div>
+          </span>
+        </button>
 
-        <nav aria-label="Dashboard pages" className="flex items-center gap-1 rounded-full bg-slate-900/60 p-1">
+        <nav aria-label="Dashboard pages" className="flex shrink-0 items-center gap-1 rounded-full bg-slate-900/60 p-1">
           {PAGES.map(({ id, label, short, icon: Icon }) => (
             <button
               key={id}
@@ -133,7 +122,7 @@ export function TopDock(props: Props) {
           type="button"
           onClick={props.onCycleBasemap}
           title={basemapLabel}
-          className="flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-slate-200 transition hover:bg-white/[0.12] active:scale-95"
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-slate-200 transition hover:bg-white/[0.12] active:scale-95"
         >
           <BasemapIcon
             className={cn(
@@ -147,13 +136,13 @@ export function TopDock(props: Props) {
           </span>
         </button>
 
-        <div className="hidden items-center gap-0.5 sm:flex" role="group" aria-label="Map layers">
-          <ToggleChip active={props.showClouds} onClick={props.onToggleClouds} label="Infrared cloud layer" icon={Cloud} />
-          <ToggleChip active={props.enhancedIr} onClick={props.onToggleEnhanced} label="Enhanced IR colour palette" icon={Satellite} />
-          <ToggleChip active={props.showRadar} onClick={props.onToggleRadar} label="Live Doppler Radar & Precipitation" icon={Radar} />
-          <ToggleChip active={props.showWind} onClick={props.onToggleWind} label="Wind streamlines" icon={Wind} />
-          <ToggleChip active={props.showDistricts} onClick={props.onToggleDistricts} label="Coastal District Alert Boundaries" icon={ShieldAlert} />
-          <ToggleChip active={props.systemActive} onClick={props.onToggleSystem} label="Toggle Cyclone Track & Swath" icon={Radio} />
+        <div className="hidden shrink-0 items-center gap-1 sm:flex" role="group" aria-label="Map layers">
+          <ToggleChip active={props.showClouds} onClick={props.onToggleClouds} label="Infrared cloud layer (INSAT / Himawari)" shortName="Clouds" icon={Cloud} />
+          <ToggleChip active={props.enhancedIr} onClick={props.onToggleEnhanced} label="Enhanced IR color temperature palette" shortName="Enhanced IR" icon={Satellite} />
+          <ToggleChip active={props.showRadar} onClick={props.onToggleRadar} label="Live Doppler Radar & Precipitation (RainViewer)" shortName="Doppler Radar" icon={Radar} />
+          <ToggleChip active={props.showWind} onClick={props.onToggleWind} label="Real-time wind streamline particle vectors" shortName="Wind Flow" icon={Wind} />
+          <ToggleChip active={props.showDistricts} onClick={props.onToggleDistricts} label="Coastal District Alert Boundaries" shortName="Districts" icon={ShieldAlert} />
+          <ToggleChip active={props.systemActive} onClick={props.onToggleSystem} label="Toggle Cyclone Track & Observation Swath" shortName="Storm Swath" icon={Radio} />
         </div>
       </div>
     </header>
