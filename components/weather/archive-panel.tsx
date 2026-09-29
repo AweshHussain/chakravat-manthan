@@ -1,15 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Archive, ArrowRight, BrainCircuit, Cpu, Layers, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor } from '@/lib/cyclones'
+import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor, type ArchiveCyclone } from '@/lib/cyclones'
 
 type Props = {
   selectedId: string | null
   onSelect: (id: string) => void
   onSimulate?: (id: string) => void
   simulatingId?: string | null
+  extraArchives?: ArchiveCyclone[]
 }
 
 const PIPELINE = [
@@ -22,10 +23,21 @@ const PIPELINE = [
 // Real per-class recall from test_frames_expanded.csv evaluation
 const CLASS_RECALL = [0.96, 0.94, 0.91, 0.89, 0.88, 0.93, 0.91, 0.95]
 
-export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId }: Props) {
+export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, extraArchives = [] }: Props) {
   const [tab, setTab] = useState<'archive' | 'lab'>('archive')
   const [query, setQuery] = useState('')
-  const results = ARCHIVE_CYCLONES.filter((c) => `${c.name} ${c.year} ${c.basin}`.toLowerCase().includes(query.toLowerCase()))
+
+  const allCyclones = useMemo(() => {
+    const list = [...extraArchives]
+    for (const c of ARCHIVE_CYCLONES) {
+      if (!list.some((existing) => existing.id === c.id)) {
+        list.push(c)
+      }
+    }
+    return list
+  }, [extraArchives])
+
+  const results = allCyclones.filter((c) => `${c.name} ${c.year} ${c.basin}`.toLowerCase().includes(query.toLowerCase()))
 
   return (
     <section

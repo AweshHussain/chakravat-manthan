@@ -16,6 +16,10 @@ import {
   interpolateArchiveProgress,
   interpolateTrack,
   warningStageIndex,
+  getSavedArchivedCyclones,
+  saveArchivedCyclone,
+  buildLifecycleArchiveFromTrack,
+  type ArchiveCyclone,
   type TrackPoint,
 } from '@/lib/cyclones'
 import { createSampler, type WindData } from '@/lib/wind-field'
@@ -161,9 +165,57 @@ export default function Dashboard() {
     return activeTrack(now)
   }, [now, liveBackend?.track_points])
 
-  const activeState = systemActive ? interpolateTrack(track, time) : null
+  const [savedArchives, setSavedArchives] = useState<ArchiveCyclone[]>([])
 
-  const archiveCyclone = page === 'archive' ? (ARCHIVE_CYCLONES.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
+  // Load saved historical systems from browser persistence
+  useEffect(() => {
+    setSavedArchives(getSavedArchivedCyclones())
+  }, [])
+
+  // Auto-Archive Lifecycle Completion:
+  // When an active cyclone has completed its life cycle (dissipated inland/over ocean, wind < 17 kt, stage FAIR or EXPIRED),
+  // automatically archive its full track history from inception to dissipation.
+  useEffect(() => {
+    if (!liveBackend) return
+    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || ACTIVE_NAME
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+    const lifecycleStatus = liveBackend?.lifecycle_status || ''
+
+    const isSystemFinished =
+      lifecycleStatus === 'DISSIPATED' ||
+      lifecycleStatus === 'COMPLETED' ||
+      stageCode === 'FAIR' ||
+      (currentWind < 17 && (stageCode === 'REMNT' || stageCode === 'WML' || stageCode === 'DISSIPATED'))
+
+    // Only archive if the system was a real named cyclone that has completed its cycle
+    if (isSystemFinished && track && track.length >= 2 && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')) {
+      const completedArchive = buildLifecycleArchiveFromTrack(
+        stormName,
+        track,
+        ACTIVE_LANDFALL_PLACE,
+        'Bay of Bengal'
+      )
+      const saved = saveArchivedCyclone(completedArchive)
+      if (saved) {
+        setSavedArchives(getSavedArchivedCyclones())
+      }
+    }
+  }, [liveBackend, track])
+
+  const allAvailableArchives = useMemo(() => {
+    const list = [...savedArchives]
+    for (const c of ARCHIVE_CYCLONES) {
+      if (!list.some((existing) => existing.id === c.id)) {
+        list.push(c)
+      }
+    }
+    return list
+  }, [savedArchives])
+
+  const archiveCyclone = page === 'archive' ? (allAvailableArchives.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
+
+  const activeState = systemActive ? interpolateTrack(track, time) : null
 
   const simInterpolation = useMemo(() => {
     if (!archiveCyclone || !simulatingId) return null
@@ -592,6 +644,7 @@ export default function Dashboard() {
             }
           }}
           simulatingId={simulatingId}
+          extraArchives={savedArchives}
           onSimulate={(id) => {
             setArchiveId(id)
             if (simulatingId === id) {

@@ -280,3 +280,78 @@ const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', '
 export function compass(deg: number) {
   return COMPASS[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16]
 }
+
+/**
+ * Builds a full historical ArchiveCyclone entry from a completed system's trajectory.
+ * Used to preserve active cyclones into the permanent archives after they have completely finished / dissipated.
+ */
+export function buildLifecycleArchiveFromTrack(
+  name: string,
+  track: TrackPoint[],
+  landfallPlace: string,
+  basin: 'Bay of Bengal' | 'Arabian Sea' = 'Bay of Bengal'
+): ArchiveCyclone {
+  const peakWindKt = track.reduce((max, pt) => Math.max(max, pt.windKt), 0)
+  const minPressure = pressureFromWind(peakWindKt)
+  const durationHours = track.length > 1
+    ? Math.round((Math.max(...track.map((p) => p.t ?? 0)) - Math.min(...track.map((p) => p.t ?? 0))) / HOUR)
+    : 72
+
+  // Normalize track times to 0-based relative hour offsets for the simulation engine
+  const startT = track[0]?.t ?? 0
+  const normalizedTrack = track.map((p) => ({
+    lat: p.lat,
+    lon: p.lon,
+    windKt: p.windKt,
+    t: p.t !== undefined ? Math.round((p.t - startT) / HOUR) : 0,
+  }))
+
+  const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${new Date().getFullYear()}`
+
+  return {
+    id,
+    name,
+    year: new Date().getFullYear(),
+    basin,
+    peakWindKt,
+    minPressure,
+    landfall: landfallPlace,
+    durationHours: Math.max(24, durationHours),
+    startDate: new Date(startT || Date.now()).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }) + ', 00:00 UTC',
+    track: normalizedTrack,
+  }
+}
+
+const STORAGE_KEY = 'chakravat_saved_archives'
+
+export function getSavedArchivedCyclones(): ArchiveCyclone[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const current = getSavedArchivedCyclones()
+    const exists = current.some((c) => c.id === cyclone.id)
+    if (!exists) {
+      current.unshift(cyclone)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current))
+      return true
+    }
+  } catch {
+    // LocalStorage quota or access error
+  }
+  return false
+}
