@@ -191,28 +191,49 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
   }
 }
 
-/** Real-world synoptic trajectory: Genesis from Gulf of Thailand / southern Myanmar coast (16.4°N, 97.3°E) into the Andaman Sea and north Bay of Bengal. */
-const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [
-  [-72, 13.8, 99.2, 18],  // 27 Sep 00:00 UTC - Initial depression precursor over Gulf of Thailand / Isthmus of Kra
-  [-66, 14.3, 98.7, 20],  // 27 Sep 06:00 UTC - Low Pressure Area emerging into coastal Andaman Sea
-  [-60, 14.8, 98.2, 22],  // 27 Sep 12:00 UTC - Southern Myanmar / Andaman Sea genesis
-  [-48, 15.6, 97.6, 26],  // 28 Sep 00:00 UTC - Mawlamyine approach & intensification
-  [-36, 16.4, 97.3, 30],  // 28 Sep 12:00 UTC - North Andaman Sea / Gulf of Martaban (Deep Depression)
-  [-28, 17.3, 97.0, 32],  // 28 Sep 20:00 UTC - Landfall near Kyaikto (28 Sep night, 19:30-21:30 IST)
-  [-24, 17.6, 96.8, 28],  // 29 Sep 00:00 UTC - Crossing inland over coastal Myanmar (post-landfall)
-  [-18, 18.1, 96.6, 26],  // 29 Sep 06:00 UTC - Land depression moving NNW
-  [-12, 18.5, 96.4, 24],  // 29 Sep 12:00 UTC - Inland, approaching Bago region
-  [-6,  18.9, 96.2, 22],  // 29 Sep 18:00 UTC - Over central Myanmar, weakening
-  [0,   19.2, 96.0, 20],  // 30 Sep 00:00 UTC - CURRENT CENTER: Central Myanmar, weakening inland
-  [6,   19.7, 95.7, 18],  // 30 Sep 06:00 UTC - Moving NNW across interior Myanmar / Magway
-  [12,  20.3, 95.3, 16],  // 30 Sep 12:00 UTC - Approaching Magway / Rakhine hill ranges
-  [24,  21.3, 94.2, 14],  // 01 Oct 00:00 UTC - Remnant low over central Myanmar hills
-  [36,  22.2, 93.0, 12],  // 01 Oct 12:00 UTC - Crossing toward Chin hills / SE Bangladesh border
-  [48,  23.0, 91.8, 10],  // 02 Oct 00:00 UTC - Remnants dissipating over northeast borders
-  [60,  23.5, 90.5,  8],  // 02 Oct 12:00 UTC - Fully dissipated / well-marked low
+/**
+ * Real-world synoptic trajectory with absolute UTC calendar timestamps.
+ * Genesis from the Andaman Sea (27 Sep) -> Landfall near Kyaikto (28 Sep night)
+ * -> NNW progression inland across Bago to Nay Pyi Taw (29 Sep 18:00 UTC = 20.0°N)
+ * -> Progression north into Magway & Upper Myanmar (30 Sep)
+ * -> Dissipation into remnant low over Myanmar-India-Bangladesh hill ranges (01-02 Oct).
+ */
+export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
+  // 27 Sep 2026 - Precursor low & Genesis in Andaman Sea
+  { lat: 13.8, lon: 99.2, windKt: 18, t: Date.UTC(2026, 8, 27, 0, 0, 0) },   // 27 Sep 00:00 UTC
+  { lat: 14.3, lon: 98.7, windKt: 20, t: Date.UTC(2026, 8, 27, 6, 0, 0) },   // 27 Sep 06:00 UTC
+  { lat: 14.8, lon: 98.2, windKt: 22, t: Date.UTC(2026, 8, 27, 12, 0, 0) },  // 27 Sep 12:00 UTC
+  { lat: 15.3, lon: 97.8, windKt: 25, t: Date.UTC(2026, 8, 27, 18, 0, 0) },  // 27 Sep 18:00 UTC
+
+  // 28 Sep 2026 - Intensification to Deep Depression & Landfall
+  { lat: 15.8, lon: 97.5, windKt: 28, t: Date.UTC(2026, 8, 28, 0, 0, 0) },   // 28 Sep 00:00 UTC
+  { lat: 16.4, lon: 97.3, windKt: 32, t: Date.UTC(2026, 8, 28, 6, 0, 0) },   // 28 Sep 06:00 UTC
+  { lat: 16.8, lon: 97.2, windKt: 35, t: Date.UTC(2026, 8, 28, 12, 0, 0) },  // 28 Sep 12:00 UTC
+  { lat: 17.3, lon: 97.0, windKt: 32, t: Date.UTC(2026, 8, 28, 15, 0, 0) },  // 28 Sep 15:00 UTC - Landfall near Kyaikto (20:30 IST)
+  { lat: 17.6, lon: 96.8, windKt: 28, t: Date.UTC(2026, 8, 28, 21, 0, 0) },  // 28 Sep 21:00 UTC - Crossing inland
+
+  // 29 Sep 2026 - Inland trek NNW across Bago to Nay Pyi Taw
+  { lat: 18.0, lon: 96.6, windKt: 26, t: Date.UTC(2026, 8, 29, 3, 0, 0) },   // 29 Sep 03:00 UTC
+  { lat: 18.6, lon: 96.3, windKt: 24, t: Date.UTC(2026, 8, 29, 9, 0, 0) },   // 29 Sep 09:00 UTC (Pyu / Toungoo)
+  { lat: 19.3, lon: 96.0, windKt: 22, t: Date.UTC(2026, 8, 29, 14, 0, 0) },  // 29 Sep 14:00 UTC
+  { lat: 20.0, lon: 95.8, windKt: 20, t: Date.UTC(2026, 8, 29, 18, 0, 0) },  // 29 Sep 18:00 UTC (23:30 IST - RIGHT NOW: exactly 20.0°N at Nay Pyi Taw)
+
+  // 30 Sep 2026 - Progression north into Magway & Upper Myanmar (4-24h forward tracking)
+  { lat: 20.5, lon: 95.5, windKt: 18, t: Date.UTC(2026, 8, 29, 23, 0, 0) },  // +5 hours: 29 Sep 23:00 UTC (04:30 IST)
+  { lat: 21.0, lon: 95.1, windKt: 16, t: Date.UTC(2026, 8, 30, 6, 0, 0) },   // +12 hours: 30 Sep 06:00 UTC
+  { lat: 21.6, lon: 94.6, windKt: 15, t: Date.UTC(2026, 8, 30, 14, 0, 0) },  // +20 hours: 30 Sep 14:00 UTC
+  { lat: 22.2, lon: 94.0, windKt: 14, t: Date.UTC(2026, 8, 30, 22, 0, 0) },  // +28 hours: 30 Sep 22:00 UTC
+
+  // 01 Oct 2026 - Remnants moving over Chin Hills toward SE Bangladesh / NE India
+  { lat: 22.8, lon: 93.2, windKt: 12, t: Date.UTC(2026, 9, 1, 8, 0, 0) },   // 01 Oct 08:00 UTC
+  { lat: 23.3, lon: 92.2, windKt: 10, t: Date.UTC(2026, 9, 1, 18, 0, 0) },  // 01 Oct 18:00 UTC
+
+  // 02 Oct 2026 - Final Dissipation into Well Marked Low
+  { lat: 23.7, lon: 91.2, windKt: 8,  t: Date.UTC(2026, 9, 2, 6, 0, 0) },   // 02 Oct 06:00 UTC
 ]
 
-export const ACTIVE_NAME = 'Cyclone Arnab (Dissipated — Weakening over Myanmar)'
+export const ACTIVE_NAME = 'Cyclone Arnab (Deep Depression — Inland over Myanmar)'
+export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 8, 28, 15, 0, 0) // 28 Sep 15:00 UTC (20:30 IST)
 export const ACTIVE_LANDFALL_OFFSET_H = -28
 export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'
 
@@ -220,9 +241,8 @@ export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)
 }
 
-export function activeTrack(now: number): TrackPoint[] {
-  const base = activeCycleBase(now)
-  return ACTIVE_TRACK_OFFSETS.map(([h, lat, lon, windKt]) => ({ lat, lon, windKt, t: base + h * HOUR }))
+export function activeTrack(_now?: number): TrackPoint[] {
+  return ACTIVE_TRACK_POINTS
 }
 
 export type CycloneState = {

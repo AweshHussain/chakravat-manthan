@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import {
+  ACTIVE_LANDFALL_TIME,
   ACTIVE_LANDFALL_OFFSET_H,
   ACTIVE_LANDFALL_PLACE,
   ACTIVE_NAME,
@@ -253,19 +254,11 @@ export default function Dashboard() {
       !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
     
-    // Synchronize cyclone vortex center coordinates:
-    // If user is viewing real-time / current window (within 45 mins of latestSat) and backend gives an explicit fix, use it.
-    // When user scrubs timeline to past or future forecast, use the interpolated track coordinates activeState.
-    const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
-    const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
-      ? liveBackend.coordinates.lat
-      : activeState?.lat
-    const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
-      ? liveBackend.coordinates.lon
-      : activeState?.lon
-
-    const vortex = (activeState && isStormActive && stormCenterLat != null && stormCenterLon != null)
-      ? { lat: stormCenterLat, lon: stormCenterLon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
+    // Real-time continuous cyclone vortex center:
+    // Tracks continuously along the synoptic track activeState without static database locking,
+    // so the physical wind vortex moves forward in real time.
+    const vortex = (activeState && isStormActive)
+      ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
       : null
     return createSampler(wind, time, vortex)
   }, [wind, time, latestSat, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation])
@@ -287,24 +280,9 @@ export default function Dashboard() {
 
     if (isExplicitlyFair) return null
 
-    // Strictly match the exact coordinate used by the wind vortex sampler
-    const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
-    const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
-      ? liveBackend.coordinates.lat
-      : activeState.lat
-    const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
-      ? liveBackend.coordinates.lon
-      : activeState.lon
-
-    const finalState = {
-      ...activeState,
-      lat: stormCenterLat,
-      lon: stormCenterLon,
-    }
-
     return {
       name: stormName,
-      state: finalState,
+      state: activeState,
       track,
       now: time,
       geometry: liveBackend?.aerial_top_view_geometry
@@ -319,7 +297,7 @@ export default function Dashboard() {
             eyeRadiusKm: activeState.windKt >= 64 ? 18 : 0,
           },
     }
-  }, [activeState, track, time, latestSat, liveBackend, page])
+  }, [activeState, track, time, liveBackend, page])
 
   // Playback timer for interactive archive simulation
   useEffect(() => {
@@ -390,7 +368,7 @@ export default function Dashboard() {
       }
     }
     if (page === 'live' && activeState) {
-      const landfallAt = activeCycleBase(now) + ACTIVE_LANDFALL_OFFSET_H * HOUR
+      const landfallAt = ACTIVE_LANDFALL_TIME ?? (activeCycleBase(now) + ACTIVE_LANDFALL_OFFSET_H * HOUR)
       const hoursTo = (landfallAt - time) / HOUR
       const idx = hoursTo < 0 ? 3 : warningStageIndex(hoursTo)
       const stage = idx >= 0 ? IMD_WARNING_STAGES[idx as 0 | 1 | 2 | 3] : null
@@ -419,14 +397,6 @@ export default function Dashboard() {
         (backendWind !== undefined ? backendWind < 17 : false)
       )
 
-      const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
-      const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
-        ? liveBackend.coordinates.lat
-        : activeState.lat
-      const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
-        ? liveBackend.coordinates.lon
-        : activeState.lon
-
       return {
         kind: 'active',
         name: backendStorm,
@@ -435,8 +405,8 @@ export default function Dashboard() {
           : liveBackend?.intensity_trend || `North Indian Ocean · Active Cyclone · heading ${compass(activeState.headingDeg)}`,
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
-        lat: isFair ? 16.5 : stormCenterLat,
-        lon: isFair ? 86.5 : stormCenterLon,
+        lat: isFair ? 16.5 : activeState.lat,
+        lon: isFair ? 86.5 : activeState.lon,
         headingDeg: isFair ? null : activeState.headingDeg,
         speedKmh: isFair ? null : activeState.speedKmh,
         warningIndex: isFair ? -1 : idx,
