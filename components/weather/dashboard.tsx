@@ -122,7 +122,9 @@ export default function Dashboard() {
   }, [mutateLiveBackend])
 
   const latestSat = sat?.latest ?? floorTo(now - HOUR, TEN_MIN)
-  const minTime = sat?.frames[0] ?? latestSat - 3 * HOUR
+  // Ensure timeline history starts from 27 September (covering historical weather, wind flow, and cyclone track)
+  const defaultHistoryStart = now - 2.5 * DAY // ~60 hours of real past observations (27 September)
+  const minTime = wind?.times?.length ? Math.min(wind.times[0], defaultHistoryStart) : defaultHistoryStart
   const maxTime = wind ? Math.min(wind.times[wind.times.length - 1], now + 4.75 * DAY) : now + 4.5 * DAY
   const time = timeState ?? latestSat
 

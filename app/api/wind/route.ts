@@ -21,7 +21,7 @@ export async function GET() {
   }
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat.join(',')}&longitude=${lon.join(',')}` +
-    '&hourly=wind_speed_10m,wind_direction_10m&past_days=1&forecast_days=5&timezone=UTC&wind_speed_unit=kmh'
+    '&hourly=wind_speed_10m,wind_direction_10m&past_days=3&forecast_days=5&timezone=UTC&wind_speed_unit=kmh'
 
   try {
     const controller = new AbortController()

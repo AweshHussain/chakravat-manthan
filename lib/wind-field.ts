@@ -77,7 +77,14 @@ export function createSampler(data: WindData, time: number, vortex: Vortex | nul
  * Provides a 100% resilient zero-delay fallback when upstream Open-Meteo APIs are blocked or timing out on cloud hosts.
  */
 export function generateSynopticWindField(lats: number[], lons: number[], baseTime = Date.now()): WindData {
-  const times = [baseTime - 3600000 * 24, baseTime, baseTime + 3600000 * 24, baseTime + 3600000 * 48]
+  const times = [
+    baseTime - 3600000 * 72,
+    baseTime - 3600000 * 48,
+    baseTime - 3600000 * 24,
+    baseTime,
+    baseTime + 3600000 * 24,
+    baseTime + 3600000 * 48,
+  ]
   const u: number[][] = []
   const v: number[][] = []
 
