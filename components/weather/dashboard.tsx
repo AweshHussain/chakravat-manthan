@@ -194,11 +194,22 @@ export default function Dashboard() {
       !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
     
-    const vortex = (activeState && isStormActive)
-      ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
+    // Synchronize cyclone vortex center coordinates:
+    // If user is viewing real-time / current window (within 45 mins of latestSat) and backend gives an explicit fix, use it.
+    // When user scrubs timeline to past or future forecast, use the interpolated track coordinates activeState.
+    const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
+    const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
+      ? liveBackend.coordinates.lat
+      : activeState?.lat
+    const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
+      ? liveBackend.coordinates.lon
+      : activeState?.lon
+
+    const vortex = (activeState && isStormActive && stormCenterLat != null && stormCenterLon != null)
+      ? { lat: stormCenterLat, lon: stormCenterLon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
       : null
     return createSampler(wind, time, vortex)
-  }, [wind, time, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation])
+  }, [wind, time, latestSat, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
     // If on archive page, or systemActive is toggled off, or activeState is null, do not show live cyclone
@@ -217,13 +228,20 @@ export default function Dashboard() {
 
     if (isExplicitlyFair) return null
 
-    const finalState = (liveBackend?.coordinates?.lat && liveBackend?.coordinates?.lon)
-      ? {
-          ...activeState,
-          lat: liveBackend.coordinates.lat,
-          lon: liveBackend.coordinates.lon,
-        }
-      : activeState
+    // Strictly match the exact coordinate used by the wind vortex sampler
+    const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
+    const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
+      ? liveBackend.coordinates.lat
+      : activeState.lat
+    const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
+      ? liveBackend.coordinates.lon
+      : activeState.lon
+
+    const finalState = {
+      ...activeState,
+      lat: stormCenterLat,
+      lon: stormCenterLon,
+    }
 
     return {
       name: stormName,
@@ -242,7 +260,7 @@ export default function Dashboard() {
             eyeRadiusKm: activeState.windKt >= 64 ? 18 : 0,
           },
     }
-  }, [activeState, track, time, liveBackend, page])
+  }, [activeState, track, time, latestSat, liveBackend, page])
 
   // Playback timer for interactive archive simulation
   useEffect(() => {
@@ -342,6 +360,14 @@ export default function Dashboard() {
         (backendWind !== undefined ? backendWind < 17 : false)
       )
 
+      const isLiveWindow = Math.abs(time - latestSat) <= 45 * 60 * 1000
+      const stormCenterLat = (isLiveWindow && liveBackend?.coordinates?.lat != null)
+        ? liveBackend.coordinates.lat
+        : activeState.lat
+      const stormCenterLon = (isLiveWindow && liveBackend?.coordinates?.lon != null)
+        ? liveBackend.coordinates.lon
+        : activeState.lon
+
       return {
         kind: 'active',
         name: backendStorm,
@@ -350,8 +376,8 @@ export default function Dashboard() {
           : liveBackend?.intensity_trend || `North Indian Ocean · Active Cyclone · heading ${compass(activeState.headingDeg)}`,
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
-        lat: isFair ? 16.5 : (liveBackend?.coordinates?.lat ?? activeState.lat),
-        lon: isFair ? 86.5 : (liveBackend?.coordinates?.lon ?? activeState.lon),
+        lat: isFair ? 16.5 : stormCenterLat,
+        lon: isFair ? 86.5 : stormCenterLon,
         headingDeg: isFair ? null : activeState.headingDeg,
         speedKmh: isFair ? null : activeState.speedKmh,
         warningIndex: isFair ? -1 : idx,
