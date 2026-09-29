@@ -47,28 +47,6 @@ export function PipelineTelemetryModal({
     pendingCount?: number
   } | null>(null)
 
-  // Automatically query Database 1 ingestion queue whenever modal opens
-  useEffect(() => {
-    if (!open) return
-    let active = true
-    fetch('/api/pipeline/check')
-      .then((r) => r.ok ? r.json() : null)
-      .then((payload) => {
-        if (active && payload?.db1_status) {
-          setDb1Info({
-            passId: payload.db1_status.latest_pass_id,
-            acquiredAt: payload.db1_status.acquired_at,
-            status: payload.db1_status.status,
-            pendingCount: payload.db1_status.pending_count,
-          })
-        }
-      })
-      .catch(() => {})
-    return () => {
-      active = false
-    }
-  }, [open])
-
   if (!open) return null
 
   const handleUnlock = (e: React.FormEvent) => {
