@@ -232,7 +232,15 @@ export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
   { lat: 23.7, lon: 91.2, windKt: 8,  t: Date.UTC(2026, 9, 2, 6, 0, 0) },   // 02 Oct 06:00 UTC
 ]
 
-export const ACTIVE_NAME = 'Depression (Inland over Central Myanmar)'
+export function dynamicSystemTitle(windKt: number, lat?: number, lon?: number): string {
+  const cat = categoryFor(windKt)
+  if (cat.code === 'FAIR') return 'Fair Weather (Normal Basin)'
+  const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 17.0 && lon > 96.0) : false
+  const loc = isPostLandfall ? 'Inland over Myanmar' : 'North Indian Ocean Basin'
+  return `${cat.name} (${loc})`
+}
+
+export const ACTIVE_NAME = 'Depression (Inland over Central Myanmar)' // Deprecated fallback
 export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 8, 28, 15, 0, 0) // 28 Sep 15:00 UTC (20:30 IST)
 export const ACTIVE_LANDFALL_OFFSET_H = -28
 export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'

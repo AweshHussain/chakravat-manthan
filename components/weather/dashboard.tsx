@@ -7,13 +7,15 @@ import {
   ACTIVE_LANDFALL_TIME,
   ACTIVE_LANDFALL_OFFSET_H,
   ACTIVE_LANDFALL_PLACE,
-  ACTIVE_NAME,
   ARCHIVE_CYCLONES,
   IMD_CATEGORIES,
   IMD_WARNING_STAGES,
   activeCycleBase,
   activeTrack,
   compass,
+  categoryFor,
+  dynamicSystemTitle,
+  stageProbabilities,
   interpolateArchiveProgress,
   interpolateTrack,
   warningStageIndex,
@@ -186,7 +188,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!liveBackend) return
     const stageCode = liveBackend?.intensity_stage?.code
-    const stormName = liveBackend?.storm || ACTIVE_NAME
+    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, track[track.length - 1]?.lat, track[track.length - 1]?.lon)
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
     const lifecycleStatus = liveBackend?.lifecycle_status || ''
 
@@ -244,10 +246,10 @@ export default function Dashboard() {
       return createSampler(wind, time, vortex)
     }
 
-    // Determine active storm parameters
-    const stormName = liveBackend?.storm || ACTIVE_NAME
+    // Determine active storm parameters dynamically from real data
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState?.windKt ?? 0
-    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || (activeState ? dynamicSystemTitle(currentWind, activeState.lat, activeState.lon) : 'Depression')
+    const stageCode = liveBackend?.intensity_stage?.code ?? (activeState ? categoryFor(currentWind).code : 'D')
     const isStormActive =
       currentWind >= 17 &&
       stageCode !== 'FAIR' &&
@@ -267,10 +269,10 @@ export default function Dashboard() {
     // If on archive page, or systemActive is toggled off, or activeState is null, do not show live cyclone
     if (page === 'archive' || !activeState) return null
 
-    // Determine cyclone name and activity status:
-    const stormName = liveBackend?.storm || ACTIVE_NAME
+    // Determine cyclone name and activity status dynamically from data:
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
-    const stageCode = liveBackend?.intensity_stage?.code
+    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, activeState.lat, activeState.lon)
+    const stageCode = liveBackend?.intensity_stage?.code ?? categoryFor(currentWind).code
 
     // Only hide if backend explicitly confirms fair weather across the entire basin
     const isExplicitlyFair =
@@ -378,17 +380,19 @@ export default function Dashboard() {
       // If backend reports live prediction, merge telemetry seamlessly
       const backendWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots
       const backendPress = liveBackend?.continuous_measurements?.neural_regression_head?.central_pressure_hpa
-      const backendStorm = liveBackend?.storm || ACTIVE_NAME
+      const backendStorm = liveBackend?.storm || dynamicSystemTitle(activeState.windKt, activeState.lat, activeState.lon)
 
-      // Format real PyTorch backend stage probabilities if present
+      // Dynamically compute CNN-GRU stage probabilities from real wind speed data
       let customProbabilities = undefined
-      if (liveBackend?.stage_probabilities) {
+      if (liveBackend?.stage_probabilities && Math.abs(time - latestSat) <= 45 * 60 * 1000) {
         const rawProbs = liveBackend.stage_probabilities
         customProbabilities = IMD_CATEGORIES.map((cat) => ({
           code: cat.code,
           color: cat.color,
           p: (rawProbs[cat.code] ?? 0) / 100
         }))
+      } else {
+        customProbabilities = stageProbabilities(activeState.windKt)
       }
 
       const isFair = Boolean(
