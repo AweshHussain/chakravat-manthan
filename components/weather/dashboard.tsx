@@ -352,7 +352,7 @@ export default function Dashboard() {
             : `${stage ? stage.label : 'Monitoring'} in effect. Expected landfall in ~${Math.round(hoursTo)} h. Fishermen advised not to venture into the sea.`,
         series: track.map((p: TrackPoint) => p.windKt),
         seriesIndex: ((time - first) / (last - first)) * (track.length - 1),
-        landfall: isFair ? 'No Impending Landfall' : `${ACTIVE_LANDFALL_PLACE} (forecast)`,
+        landfall: isFair ? 'No Impending Landfall' : hoursTo < 0 ? ACTIVE_LANDFALL_PLACE : `${ACTIVE_LANDFALL_PLACE} (forecast)`,
         customProbabilities,
         geometry: isFair
           ? { outerRadiusKm: 0, cdoRadiusKm: 0, eyeRadiusKm: 0 }

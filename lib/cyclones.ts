@@ -193,22 +193,23 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
 
 /** Real-world synoptic trajectory: Genesis from Gulf of Thailand / southern Myanmar coast (16.4°N, 97.3°E) into the Andaman Sea and north Bay of Bengal. */
 const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [
-  [-48, 12.8, 100.5, 18], // Gulf of Thailand convective origin
-  [-36, 13.8, 99.4, 22],  // Tenasserim border crossing
-  [-24, 14.8, 98.2, 25],  // Southern Myanmar coastal entry
-  [-12, 15.6, 97.6, 28],  // Mawlamyine intensification
-  [0, 16.4, 97.3, 30],    // Current center (North Andaman Sea / Myanmar coast Deep Depression)
-  [12, 17.2, 96.6, 32],   // Approaching Yangon estuary
-  [24, 18.2, 95.8, 28],   // Coastal Myanmar tracking
-  [36, 19.4, 94.6, 25],   // Crossing into northeast Bay of Bengal
-  [48, 20.6, 93.4, 22],   // Rakhine coast
-  [60, 21.8, 92.2, 18],   // Bangladesh border landfall decay
-  [72, 22.8, 91.5, 14],   // Inland dissipation
+  [-48, 14.8, 98.2, 22],  // Southern Myanmar / Andaman Sea genesis
+  [-36, 15.6, 97.6, 26],  // Mawlamyine approach & intensification
+  [-24, 16.4, 97.3, 30],  // North Andaman Sea / Gulf of Martaban (Deep Depression)
+  [-16, 17.3, 97.0, 32],  // Landfall near Kyaikto (28 Sep night, 19:30-21:30 IST)
+  [-12, 17.6, 96.8, 28],  // Crossing inland over coastal Myanmar (post-landfall)
+  [-6, 18.1, 96.6, 26],   // Land depression moving NNW (29 Sep 05:30 IST)
+  [0, 18.7, 96.4, 24],    // Current center: Over coastal Myanmar inland (29 Sep 11:30-14:00 IST)
+  [12, 19.6, 95.8, 20],   // Moving NNW across interior Myanmar
+  [24, 20.6, 94.8, 18],   // Approaching Magway / Rakhine borders
+  [36, 21.6, 93.8, 16],   // Re-entering border fringes toward NE Bay / SE Bangladesh
+  [48, 22.4, 92.8, 14],   // Weakening into well-marked low
+  [60, 23.2, 91.8, 12],   // Remnants dissipating over northeast borders
 ]
 
-export const ACTIVE_NAME = 'Deep Depression (Andaman Sea / Myanmar Coast)'
-export const ACTIVE_LANDFALL_OFFSET_H = 48
-export const ACTIVE_LANDFALL_PLACE = 'Myanmar Coast'
+export const ACTIVE_NAME = 'Deep Depression (Crossed Myanmar Coast / Weakening Inland)'
+export const ACTIVE_LANDFALL_OFFSET_H = -16
+export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'
 
 export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)
