@@ -215,9 +215,17 @@ export default function Dashboard() {
 
     if (isExplicitlyFair) return null
 
+    const finalState = (liveBackend?.coordinates?.lat && liveBackend?.coordinates?.lon)
+      ? {
+          ...activeState,
+          lat: liveBackend.coordinates.lat,
+          lon: liveBackend.coordinates.lon,
+        }
+      : activeState
+
     return {
       name: stormName,
-      state: activeState,
+      state: finalState,
       track,
       now: time,
       geometry: liveBackend?.aerial_top_view_geometry
@@ -340,8 +348,8 @@ export default function Dashboard() {
           : liveBackend?.intensity_trend || `North Indian Ocean · Active System · heading ${compass(activeState.headingDeg)}`,
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
-        lat: isFair ? 16.5 : activeState.lat,
-        lon: isFair ? 86.5 : activeState.lon,
+        lat: isFair ? 16.5 : (liveBackend?.coordinates?.lat ?? activeState.lat),
+        lon: isFair ? 86.5 : (liveBackend?.coordinates?.lon ?? activeState.lon),
         headingDeg: isFair ? null : activeState.headingDeg,
         speedKmh: isFair ? null : activeState.speedKmh,
         warningIndex: isFair ? -1 : idx,
