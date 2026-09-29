@@ -85,7 +85,7 @@ export function CyclonePanel({ open, data, onClose }: Props) {
                   {data.kind === 'active' ? (
                     <>
                       <span className="size-1.5 animate-pulse rounded-full bg-red-400" aria-hidden="true" />
-                      Active system
+                      Active cyclone
                     </>
                   ) : (
                     'Archive record'

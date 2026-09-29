@@ -345,7 +345,7 @@ export default function Dashboard() {
         name: backendStorm,
         subtitle: isFair
           ? 'Bay of Bengal & Arabian Sea · Fair Weather · No Active Cyclone'
-          : liveBackend?.intensity_trend || `North Indian Ocean · Active System · heading ${compass(activeState.headingDeg)}`,
+          : liveBackend?.intensity_trend || `North Indian Ocean · Active Cyclone · heading ${compass(activeState.headingDeg)}`,
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
         lat: isFair ? 16.5 : (liveBackend?.coordinates?.lat ?? activeState.lat),
@@ -592,7 +592,6 @@ export default function Dashboard() {
             setSimPlaying(false)
           } else {
             setActiveDismissed(true)
-            setSystemActive(false)
           }
         }}
       />
