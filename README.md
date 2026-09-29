@@ -29,14 +29,20 @@ Most conventional meteorological portals and cyclone trackers only display stati
    - Instead of static breadcrumb markers, our engine calculates and renders the continuous mathematical simulation of **where the storm first started (oceanic genesis)**, its hour-by-hour trajectory path, and **how big it became over its entire lifecycle**.
    - With an interactive temporal scrubber, emergency responders and researchers can trace the storm from a loose convective cluster, through deep depression, severe cyclonic storm, up to peak landfall intensity and inland decay.
 
-2. **100% Real, Grounded & Accurate According to Atmospheric Data:**
-   - Every stage of the simulation is physically parameterized using **real multi-decade IMD Best-Track telemetry and live ISRO INSAT-3DR infrared radiance**.
-   - Outer gale radii ($R_{34}$ / Total Swath Width), Central Dense Overcast (CDO) dimensions, and inner eye boundaries grow and shrink dynamically according to real physical fluid-dynamic laws and deep learning neural regression.
+2. **Automated Post-Dissipation Archival (Never Lost, Never Premature):**
+   - Active systems in the Asian / North Indian Ocean basins stay dynamic and live on the observation dashboard while operational.
+   - The moment an active system **completely finishes its lifecycle** (crosses inland, dissipates, or weakens into a remnant low below $17\text{ kt}$), the platform automatically compiles its **real start-to-end formation data** into the permanent historical archives.
+   - Evaluators and meteorologists can inspect where it started, the synoptic track points, peak wind/pressure records, landfall timeline, and replay its entire lifetime in the interactive simulation engine.
 
-3. **Autonomous Machine Learning with Zero Human Delay:**
+3. **100% Real, Grounded & Accurate Atmospheric Data:**
+   - Every stage of the simulation is physically parameterized using **real multi-decade IMD Best-Track telemetry, synoptic trajectory nodes, and live ISRO INSAT-3DR infrared radiance**.
+   - Outer gale radii ($R_{34}$ / Total Swath Width), Central Dense Overcast (CDO) dimensions, and inner eye boundaries grow and shrink dynamically according to real physical fluid-dynamic laws and deep learning neural regression.
+   - Zero spatial gaps: The streamline vortex eye, convective CDO core, and telemetry coordinate fix are strictly mathematically coupled.
+
+4. **Autonomous Machine Learning with Zero Human Delay:**
    - Real-time spatio-temporal AI (4-stage spatial CNN + 2-layer temporal GRU) analyzes satellite radiance tensors $(512 \times 512)$ without waiting for manual subjective Dvorak human assessments.
 
-4. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
+5. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
    - Real-time numerical wind streamlines dynamically blow across $40^\circ\text{E}$ to $145^\circ\text{E}$, accompanied by official IMD-colored district vulnerability polygons (Red, Orange, Yellow) along vulnerable coastlines.
 
 <div align="center">
@@ -188,6 +194,7 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 * **Live Doppler Weather Radar:** Multi-station Doppler Radar network delivering real-time rain reflectivity (dBZ) down to municipal resolutions.
 * **Geostationary Thermal Clouds:** Instantaneous infrared brightness temperatures draped over night-lights base imagery.
 * **Particle Wind Engine:** 4,500+ animated streamlines rendered on GPU-accelerated HTML5 Canvas with cyclostrophic vortex blending.
+* **Permanent Finished Cyclone Preservation:** Full genesis-to-dissipation telemetry (from precursor origins in the Gulf of Thailand / Andaman Sea across coastal landfalls into interior decay) is permanently archived into client and database storage with interactive playback simulation (`▶ Simulate`).
 
 ---
 
