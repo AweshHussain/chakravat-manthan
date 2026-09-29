@@ -188,8 +188,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!liveBackend) return
     const stageCode = liveBackend?.intensity_stage?.code
-    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, track[track.length - 1]?.lat, track[track.length - 1]?.lon)
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
+    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, track[track.length - 1]?.lat, track[track.length - 1]?.lon)
     const lifecycleStatus = liveBackend?.lifecycle_status || ''
 
     const isSystemFinished =
