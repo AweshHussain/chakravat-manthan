@@ -147,8 +147,7 @@ def get_live_genesis_risk():
 def get_live_mosdac_feed():
     """
     Automatically ingests the latest satellite pass from MOSDAC (ISRO).
-    Accurately reflects that Cyclone Arnab made landfall on the Odisha coast
-    and has dissipated as a remnant low pressure system over Chhattisgarh.
+    Reflects synoptic inland progression and dissipation.
     """
     mosdac_info = fetch_latest_mosdac_pass()
     

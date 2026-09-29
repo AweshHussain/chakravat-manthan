@@ -11,7 +11,7 @@ export type DistrictAlert = {
 
 // Key vulnerable coastal districts across Indian ocean cyclone tracks
 export const COASTAL_DISTRICT_ALERTS: DistrictAlert[] = [
-  // --- ODISHA COAST (Arnab / Fani / Titli impact zone) ---
+  // --- ODISHA COAST (Fani / Titli impact zone) ---
   {
     id: 'od-puri',
     name: 'Puri District',
