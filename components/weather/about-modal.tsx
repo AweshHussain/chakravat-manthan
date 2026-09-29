@@ -86,18 +86,39 @@ export function AboutModal({ open, onClose }: Props) {
         <div className="relative border-b border-white/10 px-6 py-5 bg-gradient-to-b from-slate-900/90 to-slate-950/70">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-[0_0_20px_-2px_rgba(34,211,238,0.5)] bg-slate-950 border border-cyan-400/40">
+              <span className="relative flex size-11 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-[0_0_20px_-2px_rgba(34,211,238,0.55)] bg-slate-950 border border-cyan-400/50">
                 <img
                   src="/logo.png"
                   alt="Chakravat Manthan Logo"
+                  width={44}
+                  height={44}
                   className="size-full object-contain animate-[spin_12s_linear_infinite]"
+                  loading="eager"
+                  onError={(e) => {
+                    // Fallback in case browser blocks or delays image loading
+                    const target = e.currentTarget
+                    target.style.display = 'none'
+                    const parent = target.parentElement
+                    if (parent && !parent.querySelector('.cm-fallback-icon')) {
+                      const fallback = document.createElement('div')
+                      fallback.className = 'cm-fallback-icon flex size-full items-center justify-center text-cyan-300 font-bold text-sm bg-gradient-to-tr from-cyan-600 to-blue-500 rounded-full'
+                      fallback.innerText = 'CM'
+                      parent.appendChild(fallback)
+                    }
+                  }}
                 />
               </span>
               <div>
-                <h2 id="about-title" className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                  Chakravat <span className="text-cyan-300">Manthan</span>
-                </h2>
-                <p className="text-[11px] font-mono tracking-wider uppercase text-cyan-400/90 font-medium">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 id="about-title" className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                    Chakravat <span className="text-cyan-300">Manthan</span>
+                  </h2>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+                    <Sparkles className="size-3 text-amber-300" />
+                    Built for SIH
+                  </span>
+                </div>
+                <p className="text-[11px] font-mono tracking-wider uppercase text-cyan-400/90 font-medium mt-0.5">
                   by Cybernetic Crusaders
                 </p>
               </div>
@@ -118,16 +139,21 @@ export function AboutModal({ open, onClose }: Props) {
           </p>
         </div>
 
-        {/* Scrollable Content Body */}
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5 no-scrollbar">
+        {/* Scrollable Content Body with Smooth Scrolling */}
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5 smooth-scroll custom-modal-scrollbar">
           
-          {/* Section: Project Mission & Overview */}
+          {/* Section: Project Mission & SIH Overview */}
           <div>
             <div className="flex items-center gap-2 mb-2.5">
               <Sparkles className="size-4 text-cyan-300" />
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-                Project Overview & Core Mission
+                Project Overview & Smart India Hackathon (SIH)
               </h3>
+            </div>
+            <div className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.04] p-3.5 mb-3 shadow-[inset_0_1px_2px_rgba(251,191,36,0.1)]">
+              <p className="text-xs leading-relaxed text-amber-100 font-medium">
+                🏆 <strong className="text-amber-300">Built for Smart India Hackathon (SIH)</strong> — Innovating for Disaster Management, Meteorological Intelligence, and Space Technology for India.
+              </p>
             </div>
             <p className="text-xs leading-relaxed text-slate-300/90">
               Developed by <strong className="text-white">Cybernetic Crusaders</strong>, <strong className="text-cyan-300">Chakravat Manthan</strong> bridges raw space-borne geostationary earth observation with autonomous artificial intelligence. The system automates the multi-hour manual subjective Dvorak analysis pipeline into an instantaneous, objective, probabilistic inference workflow—ensuring zero data drops and automated disaster warning dissemination.
@@ -208,10 +234,15 @@ export function AboutModal({ open, onClose }: Props) {
 
         {/* Modal Footer */}
         <div className="flex items-center justify-between border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1.5 font-mono">
-            <ShieldCheck className="size-3.5 text-emerald-400" />
-            Operational AI · India Meteorological Domain
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 font-mono">
+              <ShieldCheck className="size-3.5 text-emerald-400" />
+              Operational AI · India Meteorological Domain
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-mono text-amber-300/90 font-medium">
+              • Built for Smart India Hackathon (SIH)
+            </span>
+          </div>
           <button
             type="button"
             onClick={onClose}

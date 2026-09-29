@@ -409,3 +409,36 @@
   border-top-color: rgba(15, 23, 42, 0.92) !important;
 }
 
+/* Smooth modal scrolling and sleek glass scrollbar */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.custom-modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-modal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.4);
+  border-radius: 9999px;
+  margin: 6px 0;
+}
+
+.custom-modal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.28);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease;
+}
+
+.custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.55);
+}
+
+.custom-modal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.35) rgba(2, 6, 23, 0.4);
+}
+
