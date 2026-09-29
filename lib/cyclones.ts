@@ -232,7 +232,7 @@ export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
   { lat: 23.7, lon: 91.2, windKt: 8,  t: Date.UTC(2026, 9, 2, 6, 0, 0) },   // 02 Oct 06:00 UTC
 ]
 
-export const ACTIVE_NAME = 'Cyclone Arnab (Deep Depression — Inland over Myanmar)'
+export const ACTIVE_NAME = 'Cyclone Arnab (Depression — Inland over Myanmar)'
 export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 8, 28, 15, 0, 0) // 28 Sep 15:00 UTC (20:30 IST)
 export const ACTIVE_LANDFALL_OFFSET_H = -28
 export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'

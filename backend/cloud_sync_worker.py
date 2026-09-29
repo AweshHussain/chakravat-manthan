@@ -167,8 +167,8 @@ def stage_3_publish_live_telemetry(pass_id: str):
     payload = {
         "id": "active_primary",
         "name": "Deep Depression (Crossed Myanmar Coast / Weakening Inland)",
-        "stage_code": "DD",
-        "category_name": "Deep Depression (Weakening Inland over Central Myanmar)",
+        "stage_code": "D",
+        "category_name": "Depression (Weakening Inland over Central Myanmar)",
         "confidence_pct": 92.5,
         "wind_kt": 20.0,
         "wind_kmh": 37.0,
