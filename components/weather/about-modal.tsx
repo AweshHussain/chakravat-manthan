@@ -233,8 +233,8 @@ export function AboutModal({ open, onClose }: Props) {
         </div>
 
         {/* Modal Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 w-full text-center sm:text-left sm:justify-start">
             <span className="font-semibold text-slate-200">
               Chakravat <span className="text-cyan-300">Manthan</span> <span className="font-normal text-cyan-400/90 font-mono text-[10px]">by Cybernetic Crusaders</span>
             </span>
@@ -248,13 +248,6 @@ export function AboutModal({ open, onClose }: Props) {
               Built for Smart India Hackathon (SIH)
             </span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="clay-btn rounded-xl px-4 py-1.5 text-xs font-semibold text-white"
-          >
-            Close
-          </button>
         </div>
 
       </div>
