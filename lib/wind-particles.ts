@@ -4,11 +4,11 @@ import type { WindSampler } from './wind-field'
 type Particle = { x: number; y: number; age: number; maxAge: number }
 
 const SPEED_BUCKETS = [
-  { max: 12, style: 'rgba(148, 163, 184, 0.45)' },
-  { max: 25, style: 'rgba(203, 213, 225, 0.6)' },
-  { max: 45, style: 'rgba(226, 232, 240, 0.78)' },
-  { max: 70, style: 'rgba(165, 243, 252, 0.9)' },
-  { max: Infinity, style: 'rgba(103, 232, 249, 1)' },
+  { max: 12, style: 'rgba(186, 230, 253, 0.55)' },
+  { max: 25, style: 'rgba(125, 211, 252, 0.72)' },
+  { max: 45, style: 'rgba(56, 189, 248, 0.88)' },
+  { max: 70, style: 'rgba(6, 182, 212, 0.96)' },
+  { max: Infinity, style: 'rgba(103, 232, 249, 1.0)' },
 ]
 
 export class WindParticles {
@@ -33,7 +33,8 @@ export class WindParticles {
     pane.appendChild(this.canvas)
     this.ctx = this.canvas.getContext('2d')!
     map.on('movestart zoomstart', this.onMoveStart)
-    map.on('moveend zoomend resize', this.onMoveEnd)
+    map.on('moveend zoomend viewreset resize', this.onMoveEnd)
+    map.on('move', this.onMove)
     this.reset()
     this.loop()
   }
@@ -45,13 +46,18 @@ export class WindParticles {
   destroy() {
     cancelAnimationFrame(this.frame)
     this.map.off('movestart zoomstart', this.onMoveStart)
-    this.map.off('moveend zoomend resize', this.onMoveEnd)
+    this.map.off('moveend zoomend viewreset resize', this.onMoveEnd)
+    this.map.off('move', this.onMove)
     this.canvas.remove()
   }
 
   private onMoveStart = () => {
     this.moving = true
     this.ctx.clearRect(0, 0, this.width, this.height)
+  }
+
+  private onMove = () => {
+    this.leaflet.DomUtil.setPosition(this.canvas, this.map.containerPointToLayerPoint([0, 0]))
   }
 
   private onMoveEnd = () => {
@@ -87,7 +93,7 @@ export class WindParticles {
     if (this.moving) return
     const ctx = this.ctx
     ctx.globalCompositeOperation = 'destination-in'
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.93)'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.96)'
     ctx.fillRect(0, 0, this.width, this.height)
     ctx.globalCompositeOperation = 'source-over'
     if (!this.sampler) return
@@ -119,7 +125,7 @@ export class WindParticles {
       if (nx < 0 || ny < 0 || nx > this.width || ny > this.height) this.spawn(p)
     }
 
-    ctx.lineWidth = 1.1
+    ctx.lineWidth = 1.35
     ctx.lineCap = 'round'
     paths.forEach((path, i) => {
       ctx.strokeStyle = SPEED_BUCKETS[i].style
