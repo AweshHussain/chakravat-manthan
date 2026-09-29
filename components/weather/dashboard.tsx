@@ -60,7 +60,14 @@ const fetcher = async <T,>(url: string): Promise<T> => {
 const toIso = (ms: number) => new Date(ms).toISOString().replace('.000Z', 'Z')
 
 export default function Dashboard() {
-  const [now] = useState(() => Date.now())
+  const [now, setNow] = useState(() => Date.now())
+
+  // Advance the live clock every 60 seconds so the cyclone position and track window
+  // always reflect the current real-world time rather than staying frozen at mount time.
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000)
+    return () => window.clearInterval(id)
+  }, [])
   const [page, setPage] = useState<Page>('live')
   const [timeState, setTimeState] = useState<number | null>(null)
   const [playing, setPlaying] = useState(false)

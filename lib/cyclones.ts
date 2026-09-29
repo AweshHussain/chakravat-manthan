@@ -193,24 +193,27 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
 
 /** Real-world synoptic trajectory: Genesis from Gulf of Thailand / southern Myanmar coast (16.4°N, 97.3°E) into the Andaman Sea and north Bay of Bengal. */
 const ACTIVE_TRACK_OFFSETS: [number, number, number, number][] = [
-  [-60, 13.8, 99.2, 18],  // 27 Sep 00:00 UTC - Initial depression precursor over Gulf of Thailand / Isthmus of Kra
-  [-54, 14.3, 98.7, 20],  // 27 Sep 06:00 UTC - Low Pressure Area emerging into coastal Andaman Sea
-  [-48, 14.8, 98.2, 22],  // 27 Sep 12:00 UTC - Southern Myanmar / Andaman Sea genesis
-  [-36, 15.6, 97.6, 26],  // 27 Sep 24:00 UTC (28 Sep) - Mawlamyine approach & intensification
-  [-24, 16.4, 97.3, 30],  // 28 Sep 12:00 UTC - North Andaman Sea / Gulf of Martaban (Deep Depression)
-  [-16, 17.3, 97.0, 32],  // 28 Sep 20:00 UTC - Landfall near Kyaikto (28 Sep night, 19:30-21:30 IST)
-  [-12, 17.6, 96.8, 28],  // 29 Sep 00:00 UTC - Crossing inland over coastal Myanmar (post-landfall)
-  [-6, 18.1, 96.6, 26],   // 29 Sep 06:00 UTC - Land depression moving NNW
-  [0, 18.7, 96.4, 24],    // 29 Sep 12:00 UTC - Current center: Over coastal Myanmar inland
-  [12, 19.6, 95.8, 20],   // Moving NNW across interior Myanmar
-  [24, 20.6, 94.8, 18],   // Approaching Magway / Rakhine borders
-  [36, 21.6, 93.8, 16],   // Re-entering border fringes toward NE Bay / SE Bangladesh
-  [48, 22.4, 92.8, 14],   // Weakening into well-marked low
-  [60, 23.2, 91.8, 12],   // Remnants dissipating over northeast borders
+  [-72, 13.8, 99.2, 18],  // 27 Sep 00:00 UTC - Initial depression precursor over Gulf of Thailand / Isthmus of Kra
+  [-66, 14.3, 98.7, 20],  // 27 Sep 06:00 UTC - Low Pressure Area emerging into coastal Andaman Sea
+  [-60, 14.8, 98.2, 22],  // 27 Sep 12:00 UTC - Southern Myanmar / Andaman Sea genesis
+  [-48, 15.6, 97.6, 26],  // 28 Sep 00:00 UTC - Mawlamyine approach & intensification
+  [-36, 16.4, 97.3, 30],  // 28 Sep 12:00 UTC - North Andaman Sea / Gulf of Martaban (Deep Depression)
+  [-28, 17.3, 97.0, 32],  // 28 Sep 20:00 UTC - Landfall near Kyaikto (28 Sep night, 19:30-21:30 IST)
+  [-24, 17.6, 96.8, 28],  // 29 Sep 00:00 UTC - Crossing inland over coastal Myanmar (post-landfall)
+  [-18, 18.1, 96.6, 26],  // 29 Sep 06:00 UTC - Land depression moving NNW
+  [-12, 18.5, 96.4, 24],  // 29 Sep 12:00 UTC - Inland, approaching Bago region
+  [-6,  18.9, 96.2, 22],  // 29 Sep 18:00 UTC - Over central Myanmar, weakening
+  [0,   19.2, 96.0, 20],  // 30 Sep 00:00 UTC - CURRENT CENTER: Central Myanmar, weakening inland
+  [6,   19.7, 95.7, 18],  // 30 Sep 06:00 UTC - Moving NNW across interior Myanmar / Magway
+  [12,  20.3, 95.3, 16],  // 30 Sep 12:00 UTC - Approaching Magway / Rakhine hill ranges
+  [24,  21.3, 94.2, 14],  // 01 Oct 00:00 UTC - Remnant low over central Myanmar hills
+  [36,  22.2, 93.0, 12],  // 01 Oct 12:00 UTC - Crossing toward Chin hills / SE Bangladesh border
+  [48,  23.0, 91.8, 10],  // 02 Oct 00:00 UTC - Remnants dissipating over northeast borders
+  [60,  23.5, 90.5,  8],  // 02 Oct 12:00 UTC - Fully dissipated / well-marked low
 ]
 
-export const ACTIVE_NAME = 'Deep Depression (Crossed Myanmar Coast / Weakening Inland)'
-export const ACTIVE_LANDFALL_OFFSET_H = -16
+export const ACTIVE_NAME = 'Cyclone Arnab (Dissipated — Weakening over Myanmar)'
+export const ACTIVE_LANDFALL_OFFSET_H = -28
 export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'
 
 export function activeCycleBase(now: number) {
