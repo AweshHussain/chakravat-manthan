@@ -233,14 +233,19 @@ export function AboutModal({ open, onClose }: Props) {
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 font-mono">
-              <ShieldCheck className="size-3.5 text-emerald-400" />
-              Operational AI · India Meteorological Domain
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span className="font-semibold text-slate-200">
+              Chakravat <span className="text-cyan-300">Manthan</span> <span className="font-normal text-cyan-400/90 font-mono text-[10px]">by Cybernetic Crusaders</span>
             </span>
-            <span className="hidden sm:inline-block text-[10px] font-mono text-amber-300/90 font-medium">
-              • Built for Smart India Hackathon (SIH)
+            <span className="text-white/20 hidden sm:inline" aria-hidden="true">•</span>
+            <span className="flex items-center gap-1.5 font-mono text-slate-400">
+              <ShieldCheck className="size-3.5 text-emerald-400" />
+              Operational AI
+            </span>
+            <span className="text-white/20 hidden sm:inline" aria-hidden="true">•</span>
+            <span className="text-[10px] font-mono text-amber-300/90 font-medium">
+              Built for Smart India Hackathon (SIH)
             </span>
           </div>
           <button
