@@ -65,8 +65,12 @@ const pinIconHtml = (label: string | null, dirDeg: number | null) => `
     }</span>
   </div>`
 
-function forecastCone(track: TrackPoint[], now: number) {
-  const future = track.filter((p) => p.t! >= now)
+function forecastCone(track: TrackPoint[], now: number, currPos?: L.LatLngTuple) {
+  const futurePoints = track.filter((p) => p.t! >= now)
+  const future: TrackPoint[] = currPos
+    ? [{ lat: currPos[0], lon: currPos[1], windKt: futurePoints[0]?.windKt ?? 25, t: now }, ...futurePoints]
+    : futurePoints
+
   if (future.length < 2) return null
   const left: L.LatLngTuple[] = []
   const right: L.LatLngTuple[] = []
@@ -76,7 +80,7 @@ function forecastCone(track: TrackPoint[], now: number) {
     const dx = (next.lon - prev.lon) * Math.cos((p.lat * Math.PI) / 180)
     const dy = next.lat - prev.lat
     const len = Math.hypot(dx, dy) || 1
-    const radiusDeg = (40 + ((p.t! - now) / 3_600_000) * 3.4) / 111
+    const radiusDeg = (30 + ((p.t! - now) / 3_600_000) * 3.4) / 111
     const nx = (-dy / len) * radiusDeg
     const ny = (dx / len) * radiusDeg
     left.push([p.lat + ny, p.lon + nx / Math.cos((p.lat * Math.PI) / 180)])
@@ -311,7 +315,8 @@ export default function MapView(props: Props) {
     const cyclone = props.activeCyclone
     if (!cyclone) return
     const { track, now, state } = cyclone
-    const cone = forecastCone(track, now)
+    const currPos: L.LatLngTuple = [state.lat, state.lon]
+    const cone = forecastCone(track, now, currPos)
     if (cone) {
       L.polygon(cone, {
         color: '#67e8f9',
@@ -323,12 +328,21 @@ export default function MapView(props: Props) {
         interactive: false,
       }).addTo(group)
     }
-    const past = track.filter((p) => p.t! <= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
-    const future = track.filter((p) => p.t! >= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
-    if (past.length > 1) L.polyline(past, { color: '#fbbf24', weight: 3, opacity: 0.95, interactive: false }).addTo(group)
-    if (future.length > 1)
-      L.polyline(future, { color: '#38bdf8', weight: 3, opacity: 0.95, dashArray: '6 6', interactive: false }).addTo(group)
-    // Prominent connected track nodes like user's screenshot (purple/magenta intensity markers)
+    const pastPts = track.filter((p) => p.t! <= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
+    const futurePts = track.filter((p) => p.t! >= now).map((p) => [p.lat, p.lon] as L.LatLngTuple)
+
+    // Seamlessly connect the track through the exact current position of the cyclone
+    const pastPoly: L.LatLngTuple[] = [...pastPts, currPos]
+    const futurePoly: L.LatLngTuple[] = [currPos, ...futurePts]
+
+    if (pastPoly.length > 1) {
+      L.polyline(pastPoly, { color: '#fbbf24', weight: 3, opacity: 0.95, interactive: false }).addTo(group)
+    }
+    if (futurePoly.length > 1) {
+      L.polyline(futurePoly, { color: '#38bdf8', weight: 3, opacity: 0.95, dashArray: '6 6', interactive: false }).addTo(group)
+    }
+
+    // Prominent connected track nodes like IMD official bulletins (intensity color-coded nodes)
     track.forEach((p) => {
       L.circleMarker([p.lat, p.lon], {
         radius: 6,
@@ -339,6 +353,16 @@ export default function MapView(props: Props) {
         interactive: false,
       }).addTo(group)
     })
+
+    // Also place a node at the current interpolated/live cyclone position so the track line visibly anchors here
+    L.circleMarker(currPos, {
+      radius: 6.5,
+      color: '#ffffff',
+      weight: 2,
+      fillColor: categoryFor(state.windKt).color || '#06b6d4',
+      fillOpacity: 1,
+      interactive: false,
+    }).addTo(group)
     // Render real-time spatial cyclone swath circles (Outer Extent, CDO, Eye)
     const geom = cyclone.geometry || {
       outerRadiusKm: Math.max(120, state.windKt * 3.2),
