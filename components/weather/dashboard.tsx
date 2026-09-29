@@ -102,9 +102,10 @@ export default function Dashboard() {
 
   // Real-time WebSocket connection to Supabase: Instantly updates UI whenever DB changes
   useEffect(() => {
-    if (!supabase) return
+    const client = supabase
+    if (!client) return
 
-    const channel = supabase
+    const channel = client
       .channel('cyclone-live-realtime')
       .on(
         'postgres_changes',
@@ -116,7 +117,7 @@ export default function Dashboard() {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      client.removeChannel(channel)
     }
   }, [mutateLiveBackend])
 
