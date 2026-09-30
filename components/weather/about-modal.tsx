@@ -10,7 +10,6 @@ import {
   Satellite,
   ShieldCheck,
   Sparkles,
-  Users,
   Wind,
   X,
 } from 'lucide-react'
@@ -21,13 +20,39 @@ type Props = {
   onClose: () => void
 }
 
-const TEAM_MEMBERS = [
-  { name: 'Awesh Hussain', role: 'AI Architecture & Deep Learning (CNN-GRU)' },
-  { name: 'Adeeb Razi', role: 'Geospatial Engineering & Satellite Ingestion' },
-  { name: 'Samia Sayeed', role: 'Meteorological Data Analysis & IMD Verification' },
-  { name: 'Sania Khan', role: 'Full-Stack Integration & Cloud Pipelines' },
-  { name: 'Syed Mohammad Sohaib Hussain', role: 'Pipeline Optimization & Real-Time Sync' },
-  { name: 'Syed Mohammad Zaid Iqbal', role: 'UI/UX Design Systems & Visual Telemetry' },
+const DATA_RESEARCH_SOURCES = [
+  {
+    id: 'isro',
+    name: 'ISRO MOSDAC / INSAT-3DR',
+    fullTitle: 'Space Applications Centre · Multi-Spectral L1C Geostationary Imager',
+    logo: '/sources/isro_mosdac.png',
+    accent: 'hover:border-emerald-400/60 hover:shadow-[0_0_20px_rgba(52,211,153,0.25)]',
+    dividerColor: 'bg-emerald-400/50',
+  },
+  {
+    id: 'imd',
+    name: 'IMD',
+    fullTitle: 'India Meteorological Department · Ministry of Earth Sciences',
+    logo: '/sources/imd.png',
+    accent: 'hover:border-amber-400/60 hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]',
+    dividerColor: 'bg-amber-400/50',
+  },
+  {
+    id: 'noaa',
+    name: 'NOAA IBTrACS',
+    fullTitle: 'International Best Track Archive for Climate Stewardship',
+    logo: '/sources/noaa.png',
+    accent: 'hover:border-cyan-400/60 hover:shadow-[0_0_20px_rgba(34,211,238,0.25)]',
+    dividerColor: 'bg-cyan-400/50',
+  },
+  {
+    id: 'nasa',
+    name: 'NASA GIBS',
+    fullTitle: 'Global Imagery Browse Services · Near Real-Time Earth Observation',
+    logo: '/sources/nasa.png',
+    accent: 'hover:border-sky-400/60 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)]',
+    dividerColor: 'bg-sky-400/50',
+  },
 ]
 
 const SYSTEM_PILLARS = [
@@ -95,7 +120,6 @@ export function AboutModal({ open, onClose }: Props) {
                   className="size-full object-contain animate-[spin_12s_linear_infinite]"
                   loading="eager"
                   onError={(e) => {
-                    // Fallback in case browser blocks or delays image loading
                     const target = e.currentTarget
                     target.style.display = 'none'
                     const parent = target.parentElement
@@ -119,7 +143,7 @@ export function AboutModal({ open, onClose }: Props) {
                   </span>
                 </div>
                 <p className="text-[11px] font-mono tracking-wider uppercase text-cyan-400/90 font-medium mt-0.5">
-                  by Cybernetic Crusaders
+                  Meteorological Intelligence & Space Technology Platform
                 </p>
               </div>
             </div>
@@ -142,25 +166,7 @@ export function AboutModal({ open, onClose }: Props) {
         {/* Scrollable Content Body with Smooth Scrolling */}
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5 smooth-scroll custom-modal-scrollbar">
           
-          {/* Section: Project Mission & SIH Overview */}
-          <div>
-            <div className="flex items-center gap-2 mb-2.5">
-              <Sparkles className="size-4 text-cyan-300" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-                Project Overview & Smart India Hackathon (SIH)
-              </h3>
-            </div>
-            <div className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.04] p-3.5 mb-3 shadow-[inset_0_1px_2px_rgba(251,191,36,0.1)]">
-              <p className="text-xs leading-relaxed text-amber-100 font-medium">
-                🏆 <strong className="text-amber-300">Built for Smart India Hackathon (SIH)</strong> — Innovating for Disaster Management, Meteorological Intelligence, and Space Technology for India.
-              </p>
-            </div>
-            <p className="text-xs leading-relaxed text-slate-300/90">
-              Developed by <strong className="text-white">Cybernetic Crusaders</strong>, <strong className="text-cyan-300">Chakravat Manthan</strong> bridges raw space-borne geostationary earth observation with autonomous artificial intelligence. The system automates the multi-hour manual subjective Dvorak analysis pipeline into an instantaneous, objective, probabilistic inference workflow—ensuring zero data drops and automated disaster warning dissemination.
-            </p>
-          </div>
-
-          {/* Section: Technical Architecture & Working */}
+          {/* Section 1: Technical Architecture & Working */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Cpu className="size-4 text-cyan-300" />
@@ -200,52 +206,155 @@ export function AboutModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          {/* Section: Team Members */}
+          {/* Section 2: Data, Satellite & Research Sources (4 Logos: ISRO, IMD, NOAA, NASA + Normal text ECMWF/GFS) */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Users className="size-4 text-cyan-300" />
+              <Globe2 className="size-4 text-cyan-300" />
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-                Team Members — Cybernetic Crusaders
+                Operational Data & Meteorological Research Sources
               </h3>
             </div>
+            
+            {/* 2x2 Grid of 4 Official Logos */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {TEAM_MEMBERS.map((member, idx) => (
+              {DATA_RESEARCH_SOURCES.map((source) => (
                 <div
-                  key={member.name}
-                  className="group flex items-center gap-3 rounded-2xl bg-slate-900/50 border border-white/10 p-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.25)] cursor-default"
+                  key={source.id}
+                  className={cn(
+                    'group relative flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-white/10 p-3 shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+                    'hover:-translate-y-1 hover:bg-slate-900/90',
+                    source.accent,
+                  )}
                 >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 border border-cyan-400/30 font-mono text-xs font-bold text-cyan-300 transition-transform duration-200 group-hover:scale-110 group-hover:bg-cyan-400/25 group-hover:shadow-[0_0_10px_rgba(34,211,238,0.6)]">
-                    {idx + 1}
-                  </span>
+                  {/* Logo Element Box with Hover Animation */}
+                  <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-slate-950 border border-white/10 p-1.5 transition-transform duration-300 group-hover:scale-110 shadow-sm">
+                    <img
+                      src={source.logo}
+                      alt={`${source.name} logo`}
+                      className="size-full object-contain filter drop-shadow"
+                    />
+                  </div>
+
+                  {/* Vertical Divider Line */}
+                  <div className={cn('h-8 w-[2px] rounded-full transition-opacity opacity-60 group-hover:opacity-100', source.dividerColor)} />
+
+                  {/* Label & Details */}
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-semibold text-slate-100 group-hover:text-cyan-200 transition-colors truncate">
-                      {member.name}
+                    <h4 className="text-xs font-bold tracking-wide text-slate-100 group-hover:text-white transition-colors truncate">
+                      {source.name}
                     </h4>
                     <p className="text-[10px] text-slate-400 group-hover:text-slate-300 transition-colors truncate">
-                      {member.role}
+                      {source.fullTitle}
                     </p>
                   </div>
                 </div>
               ))}
+
+              {/* ECMWF & GFS in Normal Text without image logo */}
+              <div className="col-span-1 sm:col-span-2 group relative flex items-center gap-3 rounded-2xl bg-slate-900/50 border border-white/10 p-3 shadow-md transition-all duration-300 hover:border-cyan-400/40 hover:bg-slate-900/80">
+                <div className="relative flex h-10 px-3 shrink-0 items-center justify-center rounded-xl bg-slate-950 border border-white/10 font-mono text-xs font-bold text-slate-200 shadow-sm">
+                  ECMWF & GFS
+                </div>
+                <div className="h-8 w-[2px] rounded-full bg-slate-600/60 transition-opacity opacity-60 group-hover:opacity-100" />
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold tracking-wide text-slate-100 group-hover:text-cyan-200 transition-colors">
+                    Global Numerical Weather Prediction Models
+                  </h4>
+                  <p className="text-[10px] text-slate-400 group-hover:text-slate-300 transition-colors">
+                    Atmospheric wind steering, humidity profiles & pressure reanalysis (ECMWF & NOAA GFS)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Smart India Hackathon (SIH) Initiative (Beneath Research Logos) */}
+          <div>
+            <div className="flex items-center gap-2 mb-2.5">
+              <Sparkles className="size-4 text-amber-300" />
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Smart India Hackathon (SIH) Initiative
+              </h3>
+            </div>
+            
+            {/* SIH Banner with Official Provided SIH Logo & Amber Border Glow */}
+            <div className="group relative overflow-hidden rounded-2xl border border-amber-400/35 bg-gradient-to-r from-amber-500/[0.08] via-slate-950/80 to-amber-500/[0.04] p-4 shadow-[inset_0_1px_2px_rgba(251,191,36,0.15)] transition-all duration-300 hover:border-amber-400/70 hover:shadow-[0_0_24px_rgba(245,158,11,0.25)]">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                
+                {/* Official Provided SIH Logo Element Box */}
+                <div className="relative flex shrink-0 items-center justify-center rounded-xl bg-slate-950/90 border border-amber-400/30 p-2.5 shadow-md transition-transform duration-300 group-hover:scale-105">
+                  <img
+                    src="/sih_logo.png"
+                    alt="Smart India Hackathon 2026 Logo"
+                    className="h-12 w-auto max-w-[130px] object-contain drop-shadow"
+                  />
+                </div>
+
+                {/* Text Content */}
+                <div className="flex-1 text-center sm:text-left">
+                  <p className="text-xs leading-relaxed text-amber-100 font-medium">
+                    🏆 <strong className="text-amber-300">Built for Smart India Hackathon (SIH)</strong> — Innovating for Disaster Management, Meteorological Intelligence, and Space Technology for India.
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-300/80">
+                    Empowering national disaster response with automated, objective satellite intelligence and real-time intensity tracking.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Engineered & Developed By (Placed Directly Beneath SIH Section, Not in Footer) */}
+          <div>
+            <div className="group relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-gradient-to-r from-cyan-950/50 via-slate-950/80 to-slate-900/60 p-4 shadow-lg transition-all duration-300 hover:border-cyan-400/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.25)]">
+              <div className="flex items-center gap-4">
+                
+                {/* Team Shield Logo with Cyan Glow */}
+                <div className="relative group/logo shrink-0">
+                  <div className="absolute -inset-1 rounded-2xl bg-cyan-400/40 opacity-70 blur-sm group-hover/logo:opacity-100 transition duration-300" />
+                  <img
+                    src="/cybernetic_crusaders_logo.jpg"
+                    alt="Cybernetic Crusaders Logo"
+                    className="relative size-14 rounded-2xl object-cover border-2 border-cyan-400/60 shadow-md transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Team Typography matching provided image */}
+                <div>
+                  <p className="text-[10px] font-mono font-bold tracking-widest uppercase text-cyan-400">
+                    ENGINEERED & DEVELOPED BY
+                  </p>
+                  <h4 className="text-lg font-extrabold tracking-wide text-white drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">
+                    Cybernetic Crusaders
+                  </h4>
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    Advanced Deep Learning & Space Telemetry Architecture
+                  </p>
+                </div>
+
+              </div>
             </div>
           </div>
 
         </div>
 
-        {/* Modal Footer */}
-        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 border-t border-white/10 px-6 py-3 bg-slate-950/80 text-[11px] text-slate-400">
-          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 w-full text-center sm:text-left sm:justify-start">
+        {/* Clean Modal Footer (Status Bar Only, Team Info Moved Above) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 px-6 py-3 bg-slate-950/90 text-[11px] text-slate-400">
+          <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-200">
-              Chakravat <span className="text-cyan-300">Manthan</span> <span className="font-normal text-cyan-400/90 font-mono text-[10px]">by Cybernetic Crusaders</span>
+              Chakravat <span className="text-cyan-300">Manthan</span>
             </span>
             <span className="text-white/20 hidden sm:inline" aria-hidden="true">•</span>
-            <span className="flex items-center gap-1.5 font-mono text-slate-400">
-              <ShieldCheck className="size-3.5 text-emerald-400" />
+            <span className="text-[10px] font-mono text-slate-400">Operational Meteorological Platform</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-400 rounded-full bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-0.5">
+              <ShieldCheck className="size-3 text-emerald-400" />
               Operational AI
             </span>
-            <span className="text-white/20 hidden sm:inline" aria-hidden="true">•</span>
-            <span className="text-[10px] font-mono text-amber-300/90 font-medium">
-              Built for Smart India Hackathon (SIH)
+            <span className="font-mono text-[10px] text-amber-300/90 rounded-full bg-amber-950/40 border border-amber-500/30 px-2.5 py-0.5">
+              SIH 2026
             </span>
           </div>
         </div>
