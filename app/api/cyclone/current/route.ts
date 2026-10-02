@@ -14,12 +14,25 @@ export async function GET() {
         .single()
 
       if (!error && data) {
+        const windKt = Number(data.wind_kt)
+        const isGenesisOrFormation = data.lifecycle_status === 'FORMATION' || data.lifecycle_status === 'GENESIS' || data.lifecycle_status === 'DEVELOPING'
+        const isDissipated = !isGenesisOrFormation && (
+          data.lifecycle_status === 'DISSIPATED' ||
+          data.lifecycle_status === 'COMPLETED' ||
+          data.stage_code === 'REMNT' ||
+          data.stage_code === 'WML' ||
+          (windKt < 17 && (data.lifecycle_status === 'DECAYING' || data.lifecycle_status === 'POST_LANDFALL'))
+        )
+        const dynamicLifecycle = isDissipated
+          ? 'DISSIPATED'
+          : (data.lifecycle_status || (windKt >= 17 ? 'ACTIVE_OBSERVATION' : 'FORMATION'))
+
         return Response.json({
           status: 'live_supabase',
           satellite_pass: data.sat_pass_id,
           storm: data.name,
           source: 'ISRO MOSDAC INSAT-3DR L1C Payload',
-          lifecycle_status: 'ACTIVE_DEVELOPING',
+          lifecycle_status: dynamicLifecycle,
           intensity_stage: {
             code: data.stage_code,
             full_name: data.category_name,
@@ -72,37 +85,37 @@ export async function GET() {
   return Response.json(
     {
       status: 'baseline',
-      lifecycle_status: 'ACTIVE_OBSERVATION',
-      storm: 'Cyclone Dana',
+      lifecycle_status: 'DISSIPATED',
+      storm: 'Myanmar Cyclone (Remnants / Dissipated)',
       intensity_stage: {
-        code: 'VSCS',
-        full_name: 'Very Severe Cyclonic Storm',
-        confidence_pct: 89.4,
+        code: 'LPA',
+        full_name: 'Low Pressure Area (Dissipated)',
+        confidence_pct: 95.0,
       },
       continuous_measurements: {
         neural_regression_head: {
-          wind_speed_knots: 75.0,
-          wind_speed_kmh: 139.0,
-          central_pressure_hpa: 982.0,
+          wind_speed_knots: 12.0,
+          wind_speed_kmh: 22.2,
+          central_pressure_hpa: 1004.0,
         },
       },
       stage_probabilities: {
-        D: 1.2,
-        DD: 2.5,
-        CS: 5.1,
-        SCS: 11.4,
-        VSCS: 72.8,
-        ESCS: 6.8,
-        SuCS: 0.2,
+        D: 8.5,
+        DD: 1.2,
+        CS: 0.2,
+        SCS: 0.1,
+        VSCS: 0.0,
+        ESCS: 0.0,
+        SuCS: 0.0,
       },
       spatial_radii: {
-        outer_radius_km: 240,
-        cdo_radius_km: 90,
-        eye_radius_km: 18,
+        outer_radius_km: 80,
+        cdo_radius_km: 25,
+        eye_radius_km: 0,
       },
       coordinates: {
-        lat: 16.2,
-        lon: 88.5,
+        lat: 23.7,
+        lon: 91.2,
       },
     },
     { status: 200 },

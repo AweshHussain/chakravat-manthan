@@ -9,7 +9,7 @@ export type ImdCategory = {
 
 export const IMD_CATEGORIES: ImdCategory[] = [
   { code: 'FAIR', name: 'Fair Weather / Normal Basin', minKt: 0, color: '#34d399' },
-  { code: 'TD', name: 'Tropical Depression', minKt: 12, color: '#38bdf8' },
+  { code: 'LPA', name: 'Low Pressure Area (Precursor Low)', minKt: 10, color: '#38bdf8' },
   { code: 'D', name: 'Depression', minKt: 17, color: '#67e8f9' },
   { code: 'DD', name: 'Deep Depression', minKt: 28, color: '#22d3ee' },
   { code: 'CS', name: 'Cyclonic Storm', minKt: 34, color: '#a3e635' },
@@ -25,14 +25,27 @@ export function categoryFor(windKt: number): ImdCategory {
   return result
 }
 
-const CLASS_CENTERS = [22.5, 30.5, 41, 56, 77, 105, 132]
+const STAGE_CENTERS: Record<string, number> = {
+  LPA: 13.5,
+  D: 22.5,
+  DD: 30.5,
+  CS: 41,
+  SCS: 56,
+  VSCS: 77,
+  ESCS: 105,
+  SuCS: 132,
+}
 
 /** Mirrors the softmax output of the CNN-GRU stage classifier for a given intensity estimate. */
 export function stageProbabilities(windKt: number) {
-  const sigma = 11
-  const raw = CLASS_CENTERS.map((c) => Math.exp(-(((windKt - c) / sigma) ** 2)) + 0.004)
+  const sigma = 10
+  const activeStages = IMD_CATEGORIES.filter((c) => c.code !== 'FAIR')
+  const raw = activeStages.map((cat) => {
+    const center = STAGE_CENTERS[cat.code] ?? 20
+    return Math.exp(-(((windKt - center) / sigma) ** 2)) + 0.003
+  })
   const total = raw.reduce((a, b) => a + b, 0)
-  return IMD_CATEGORIES.map((cat, i) => ({ code: cat.code, color: cat.color, p: raw[i] / total }))
+  return activeStages.map((cat, i) => ({ code: cat.code, color: cat.color, p: raw[i] / total }))
 }
 
 export function pressureFromWind(windKt: number) {
@@ -145,6 +158,39 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
       tp(24.0, 72.8, 25, 84),
     ],
   },
+  {
+    id: 'myanmar-2026',
+    name: 'Myanmar Cyclone',
+    year: 2026,
+    basin: 'Bay of Bengal',
+    peakWindKt: 35,
+    minPressure: 994,
+    landfall: 'Crossed near Kyaikto, Myanmar · 28 Sep',
+    durationHours: 126,
+    startDate: '27 Sep 2026, 00:00 UTC',
+    track: [
+      tp(13.8, 99.2, 18, 0),
+      tp(14.3, 98.7, 20, 6),
+      tp(14.8, 98.2, 22, 12),
+      tp(15.3, 97.8, 25, 18),
+      tp(15.8, 97.5, 28, 24),
+      tp(16.4, 97.3, 32, 30),
+      tp(16.8, 97.2, 35, 36),
+      tp(17.3, 97.0, 32, 39),
+      tp(17.6, 96.8, 28, 45),
+      tp(18.0, 96.6, 26, 51),
+      tp(18.6, 96.3, 24, 57),
+      tp(19.3, 96.0, 22, 62),
+      tp(20.0, 95.8, 20, 66),
+      tp(20.5, 95.5, 18, 71),
+      tp(21.0, 95.1, 16, 78),
+      tp(21.6, 94.6, 15, 86),
+      tp(22.2, 94.0, 14, 94),
+      tp(22.8, 93.2, 12, 104),
+      tp(23.3, 92.2, 10, 114),
+      tp(23.7, 91.2, 8, 126),
+    ],
+  },
 ]
 
 /**
@@ -232,10 +278,23 @@ export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
   { lat: 23.7, lon: 91.2, windKt: 8,  t: Date.UTC(2026, 9, 2, 6, 0, 0) },   // 02 Oct 06:00 UTC
 ]
 
-export function dynamicSystemTitle(windKt: number, lat?: number, lon?: number): string {
+export function dynamicSystemTitle(
+  windKt: number,
+  lat?: number,
+  lon?: number,
+  hasBeenCyclonic: boolean = false
+): string {
   const cat = categoryFor(windKt)
   if (cat.code === 'FAIR') return 'Fair Weather (Normal Basin)'
   const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 17.0 && lon > 96.0) : false
+
+  if (cat.code === 'LPA') {
+    if (hasBeenCyclonic || isPostLandfall) {
+      return 'Low Pressure Area (Inland Decay / Remnants)'
+    }
+    return 'Low Pressure Area (Active Formation)'
+  }
+
   const loc = isPostLandfall ? 'Inland over Myanmar' : 'North Indian Ocean Basin'
   return `${cat.name} (${loc})`
 }
@@ -365,7 +424,23 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
+    if (!Array.isArray(parsed)) return []
+
+    // Prune stale scratch test entries and duplicates from previous runs
+    const sanitized = parsed.filter(
+      (c) =>
+        c &&
+        c.id !== 'dana-2026' &&
+        c.id !== 'myanmar-2026' &&
+        !c.id.includes('arnab') &&
+        !c.id.startsWith('depression-') &&
+        !c.name.toLowerCase().includes('inland over') &&
+        !ARCHIVE_CYCLONES.some((def) => def.id === c.id || def.name.toLowerCase() === c.name.toLowerCase())
+    )
+    if (sanitized.length !== parsed.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized))
+    }
+    return sanitized
   } catch {
     return []
   }
@@ -374,8 +449,12 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
 export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
   if (typeof window === 'undefined') return false
   try {
+    // If already in standard archives, no need to duplicate in localStorage
+    if (ARCHIVE_CYCLONES.some((def) => def.id === cyclone.id || def.name.toLowerCase() === cyclone.name.toLowerCase())) {
+      return false
+    }
     const current = getSavedArchivedCyclones()
-    const exists = current.some((c) => c.id === cyclone.id)
+    const exists = current.some((c) => c.id === cyclone.id || c.name.toLowerCase() === cyclone.name.toLowerCase())
     if (!exists) {
       current.unshift(cyclone)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(current))

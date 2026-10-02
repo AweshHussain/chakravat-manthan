@@ -17,11 +17,11 @@ def test_full_pipeline_sync():
     
     sb = get_supabase_client()
     
-    # 1. Prepare simulated live inference update (e.g. Cyclone Dana active telemetry)
+    # 1. Prepare simulated live inference update (e.g. Myanmar Cyclone telemetry)
     now_iso = datetime.now(timezone.utc).isoformat()
     payload = {
         "id": "active_primary",
-        "name": "Dana",
+        "name": "Myanmar Cyclone",
         "stage_code": "VSCS",
         "category_name": "Very Severe Cyclonic Storm",
         "confidence_pct": 91.2,

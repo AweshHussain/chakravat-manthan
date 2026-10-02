@@ -177,31 +177,58 @@ export default function Dashboard() {
 
   const [savedArchives, setSavedArchives] = useState<ArchiveCyclone[]>([])
 
-  // Load saved historical systems from browser persistence
+  // Load saved historical systems from browser persistence and Supabase cloud table
   useEffect(() => {
+    // 1. Initial immediate load from local browser cache
     setSavedArchives(getSavedArchivedCyclones())
+
+    // 2. Fetch from cloud Supabase table (persisted across all browsers/devices)
+    fetch('/api/cyclone/archive/save')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.archives && Array.isArray(data.archives) && data.archives.length > 0) {
+          setSavedArchives((prev) => {
+            const combined = [...prev]
+            for (const item of data.archives) {
+              if (!combined.some((c) => c.id === item.id)) {
+                combined.push(item)
+              }
+            }
+            return combined
+          })
+        }
+      })
+      .catch(() => {})
   }, [])
 
   // Auto-Archive Lifecycle Completion:
-  // When an active cyclone has completed its life cycle (dissipated inland/over ocean, wind < 17 kt, stage FAIR or EXPIRED),
+  // When an active cyclone has completed its life cycle (hits Low Pressure Area < 17 kt after having achieved cyclonic maturity >= 17 kt),
   // automatically archive its full track history from inception to dissipation.
   useEffect(() => {
-    if (!liveBackend) return
     const stageCode = liveBackend?.intensity_stage?.code
-    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? 0
-    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, track[track.length - 1]?.lat, track[track.length - 1]?.lon)
+    const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? (track[track.length - 1]?.windKt ?? 0)
     const lifecycleStatus = liveBackend?.lifecycle_status || ''
 
-    const isSystemFinished =
-      lifecycleStatus === 'DISSIPATED' ||
-      lifecycleStatus === 'COMPLETED' ||
-      stageCode === 'FAIR' ||
-      (currentWind < 17 && (stageCode === 'REMNT' || stageCode === 'WML' || stageCode === 'DISSIPATED'))
+    // Calculate maximum historical wind reached by this system across its trajectory
+    const maxWind = track.reduce((max: number, pt: { windKt: number }) => Math.max(max, pt.windKt), 0)
+    const hasBeenCyclonic = maxWind >= 17
 
-    // Only archive if the system was a real named cyclone that has completed its cycle
-    if (isSystemFinished && track && track.length >= 2 && !stormName.includes('Basin') && !stormName.toLowerCase().includes('fair')) {
+    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, track[track.length - 1]?.lat, track[track.length - 1]?.lon, hasBeenCyclonic)
+
+    // A system is finished ONLY if it previously reached cyclonic status (>= 17 kt) and has now decayed back to Low Pressure Area (< 17 kt)
+    // or is explicitly marked DISSIPATED / COMPLETED.
+    // Early-stage newly forming Low Pressure Areas (maxWind < 17 kt) are in genesis and NOT finished.
+    const isNowLowPressure = currentWind < 17 || stageCode === 'LPA' || stageCode === 'WML' || stageCode === 'REMNT' || stageCode === 'FAIR'
+    const isExplicitlyDissipated = stageCode === 'DISSIPATED' || lifecycleStatus === 'DISSIPATED' || lifecycleStatus === 'COMPLETED'
+
+    const isSystemFinished = (hasBeenCyclonic && isNowLowPressure) || isExplicitlyDissipated
+
+    if (isSystemFinished && track && track.length >= 2 && hasBeenCyclonic && !stormName.toLowerCase().includes('fair weather')) {
+      const cleanName = stormName.toLowerCase().includes('myanmar') || stormName.toLowerCase().includes('depression')
+        ? 'Myanmar Cyclone'
+        : (stormName.split('(')[0].trim() || 'Myanmar Cyclone')
       const completedArchive = buildLifecycleArchiveFromTrack(
-        stormName,
+        cleanName,
         track,
         ACTIVE_LANDFALL_PLACE,
         'Bay of Bengal'
@@ -209,6 +236,17 @@ export default function Dashboard() {
       const saved = saveArchivedCyclone(completedArchive)
       if (saved) {
         setSavedArchives(getSavedArchivedCyclones())
+      }
+
+      // Background sync to database API for server-side persistence
+      try {
+        fetch('/api/cyclone/archive/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(completedArchive),
+        }).catch(() => {})
+      } catch {
+        // Safe fire-and-forget
       }
     }
   }, [liveBackend, track])
@@ -248,10 +286,15 @@ export default function Dashboard() {
 
     // Determine active storm parameters dynamically from real data
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState?.windKt ?? 0
-    const stormName = liveBackend?.storm || (activeState ? dynamicSystemTitle(currentWind, activeState.lat, activeState.lon) : 'Depression')
+    const maxHistoricalWind = track.reduce((max: number, pt: { windKt: number }) => Math.max(max, pt.windKt), 0)
+    const hasBeenCyclonic = maxHistoricalWind >= 17
+
+    const stormName = liveBackend?.storm || (activeState ? dynamicSystemTitle(currentWind, activeState.lat, activeState.lon, hasBeenCyclonic) : 'Depression')
     const stageCode = liveBackend?.intensity_stage?.code ?? (activeState ? categoryFor(currentWind).code : 'D')
+    
+    // Active if wind >= 10 kt (including Early Stage LPA formation) and not fair weather
     const isStormActive =
-      currentWind >= 17 &&
+      currentWind >= 10 &&
       stageCode !== 'FAIR' &&
       !stormName.includes('Basin') &&
       !stormName.toLowerCase().includes('fair')
@@ -263,22 +306,25 @@ export default function Dashboard() {
       ? { lat: activeState.lat, lon: activeState.lon, vmaxKmh: currentWind * 1.852 * 0.9, rmwKm: 45 }
       : null
     return createSampler(wind, time, vortex)
-  }, [wind, time, latestSat, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation])
+  }, [wind, time, latestSat, activeState?.lat, activeState?.lon, activeState?.windKt, liveBackend, page, simulatingId, simInterpolation, track])
 
   const activeView: ActiveCycloneView | null = useMemo(() => {
     // If on archive page, or systemActive is toggled off, or activeState is null, do not show live cyclone
     if (page === 'archive' || !activeState) return null
 
+    const maxHistoricalWind = track.reduce((max: number, pt: { windKt: number }) => Math.max(max, pt.windKt), 0)
+    const hasBeenCyclonic = maxHistoricalWind >= 17
+
     // Determine cyclone name and activity status dynamically from data:
     const currentWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots ?? activeState.windKt
-    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, activeState.lat, activeState.lon)
+    const stormName = liveBackend?.storm || dynamicSystemTitle(currentWind, activeState.lat, activeState.lon, hasBeenCyclonic)
     const stageCode = liveBackend?.intensity_stage?.code ?? categoryFor(currentWind).code
 
-    // Only hide if backend explicitly confirms fair weather across the entire basin
+    // Only hide if backend explicitly confirms fair weather across the entire basin (< 10 kt and FAIR stage)
     const isExplicitlyFair =
       liveBackend &&
       (stageCode === 'FAIR' || stormName.includes('Basin') || stormName.toLowerCase().includes('fair')) &&
-      currentWind < 17
+      currentWind < 10
 
     if (isExplicitlyFair) return null
 
@@ -377,16 +423,20 @@ export default function Dashboard() {
       const first = track[0].t!
       const last = track[track.length - 1].t!
 
+      const maxHistoricalWind = track.reduce((max: number, pt: { windKt: number }) => Math.max(max, pt.windKt), 0)
+      const hasBeenCyclonic = maxHistoricalWind >= 17
+
       // If backend reports live prediction, merge telemetry seamlessly
       const backendWind = liveBackend?.continuous_measurements?.neural_regression_head?.wind_speed_knots
       const backendPress = liveBackend?.continuous_measurements?.neural_regression_head?.central_pressure_hpa
-      const backendStorm = liveBackend?.storm || dynamicSystemTitle(activeState.windKt, activeState.lat, activeState.lon)
+      const backendStorm = liveBackend?.storm || dynamicSystemTitle(activeState.windKt, activeState.lat, activeState.lon, hasBeenCyclonic)
 
       // Dynamically compute CNN-GRU stage probabilities from real wind speed data
       let customProbabilities = undefined
       if (liveBackend?.stage_probabilities && Math.abs(time - latestSat) <= 45 * 60 * 1000) {
         const rawProbs = liveBackend.stage_probabilities
-        customProbabilities = IMD_CATEGORIES.map((cat) => ({
+        const activeCategories = IMD_CATEGORIES.filter((c) => c.code !== 'FAIR')
+        customProbabilities = activeCategories.map((cat) => ({
           code: cat.code,
           color: cat.color,
           p: (rawProbs[cat.code] ?? 0) / 100
@@ -398,15 +448,23 @@ export default function Dashboard() {
       const isFair = Boolean(
         liveBackend &&
         (liveBackend?.intensity_stage?.code === 'FAIR' || backendStorm.includes('Basin') || backendStorm.toLowerCase().includes('fair')) &&
-        (backendWind !== undefined ? backendWind < 17 : false)
+        (backendWind !== undefined ? backendWind < 10 : false)
       )
+
+      const isEarlyLpa = !hasBeenCyclonic && activeState.windKt < 17
+      const isEndLpa = hasBeenCyclonic && activeState.windKt < 17
 
       return {
         kind: 'active',
         name: backendStorm,
         subtitle: isFair
           ? 'Bay of Bengal & Arabian Sea · Fair Weather · No Active Cyclone'
-          : liveBackend?.intensity_trend || `North Indian Ocean · Active Cyclone · heading ${compass(activeState.headingDeg)}`,
+          : liveBackend?.intensity_trend || 
+            (isEndLpa
+              ? 'North Indian Ocean · Remnants / Post-Landfall LPA · Dissipation Phase'
+              : isEarlyLpa
+              ? 'North Indian Ocean · Precursor Low Pressure Area · Early Formation'
+              : `North Indian Ocean · Active Cyclone · heading ${compass(activeState.headingDeg)}`),
         windKt: backendWind ?? (isFair ? 14 : activeState.windKt),
         pressure: backendPress ?? (isFair ? 1010 : activeState.pressure),
         lat: isFair ? 16.5 : activeState.lat,
@@ -416,6 +474,8 @@ export default function Dashboard() {
         warningIndex: isFair ? -1 : idx,
         warningNote: isFair
           ? 'Normal synoptic conditions across Indian coastal waters. No cyclone watches, warnings, or alerts in effect.'
+          : isEarlyLpa
+          ? 'Precursor Low Pressure Area detected by satellite infrared neural stage classifier. Atmospheric parameters favorable for cyclogenesis.'
           : hoursTo < 0
             ? `System made landfall ${Math.round(-hoursTo)} h ago and is weakening inland. Heavy rainfall outlook remains in effect.`
             : `${stage ? stage.label : 'Monitoring'} in effect. Expected landfall in ~${Math.round(hoursTo)} h. Fishermen advised not to venture into the sea.`,
@@ -444,14 +504,14 @@ export default function Dashboard() {
   const panelOpen = Boolean(panelData) && (panelData?.kind === 'archive' || !activeDismissed)
 
   const pointKey = point
-    ? `https://api.open-meteo.com/v1/forecast?latitude=${point.lat.toFixed(3)}&longitude=${point.lon.toFixed(3)}&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,surface_pressure&past_days=1&forecast_days=6&timezone=UTC&wind_speed_unit=kmh`
+    ? `/api/weather/point?latitude=${point.lat.toFixed(3)}&longitude=${point.lon.toFixed(3)}`
     : null
   const { data: pointData, error: pointError, isLoading: pointLoading } = useSWR<OpenMeteoPoint>(pointKey, fetcher, {
     revalidateOnFocus: false,
   })
 
   const pointWeather: PointWeather | null = useMemo(() => {
-    if (!pointData) return null
+    if (!pointData?.hourly) return null
     const h = pointData.hourly
     const target = floorTo(time + HOUR / 2, HOUR)
     let idx = h.time.findIndex((t) => Date.parse(`${t}:00Z`) === target)
@@ -609,7 +669,7 @@ export default function Dashboard() {
           lon={point.lon}
           weather={pointWeather}
           loading={pointLoading}
-          error={Boolean(pointError)}
+          error={Boolean(pointError || (!pointLoading && !pointWeather))}
           onClose={() => setPoint(null)}
         />
       )}

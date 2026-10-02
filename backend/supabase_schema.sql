@@ -4,23 +4,23 @@
 -- 1. Active Cyclone Live Telemetry
 CREATE TABLE IF NOT EXISTS public.cyclone_live (
     id TEXT PRIMARY KEY DEFAULT 'active_primary',
-    name TEXT NOT NULL DEFAULT 'Dana',
-    stage_code TEXT NOT NULL DEFAULT 'VSCS',
-    category_name TEXT NOT NULL DEFAULT 'Very Severe Cyclonic Storm',
-    confidence_pct NUMERIC NOT NULL DEFAULT 89.4,
-    wind_kt NUMERIC NOT NULL DEFAULT 75.0,
-    wind_kmh NUMERIC NOT NULL DEFAULT 139.0,
-    pressure_hpa NUMERIC NOT NULL DEFAULT 982.0,
-    lat NUMERIC NOT NULL DEFAULT 16.2,
-    lon NUMERIC NOT NULL DEFAULT 88.5,
-    movement_speed_kmh NUMERIC NOT NULL DEFAULT 14.5,
+    name TEXT NOT NULL DEFAULT 'Myanmar Cyclone',
+    stage_code TEXT NOT NULL DEFAULT 'LPA',
+    category_name TEXT NOT NULL DEFAULT 'Low Pressure Area (Dissipated)',
+    confidence_pct NUMERIC NOT NULL DEFAULT 95.0,
+    wind_kt NUMERIC NOT NULL DEFAULT 12.0,
+    wind_kmh NUMERIC NOT NULL DEFAULT 22.2,
+    pressure_hpa NUMERIC NOT NULL DEFAULT 1004.0,
+    lat NUMERIC NOT NULL DEFAULT 23.7,
+    lon NUMERIC NOT NULL DEFAULT 91.2,
+    movement_speed_kmh NUMERIC NOT NULL DEFAULT 12.0,
     movement_dir TEXT NOT NULL DEFAULT 'NNW',
-    outer_radius_km NUMERIC NOT NULL DEFAULT 240.0,
-    cdo_radius_km NUMERIC NOT NULL DEFAULT 90.0,
-    eye_radius_km NUMERIC NOT NULL DEFAULT 18.0,
-    sat_pass_id TEXT DEFAULT '3RIMG_26SEP2026_2215_L1C_ASIA_MER_V01R00.h5',
+    outer_radius_km NUMERIC NOT NULL DEFAULT 80.0,
+    cdo_radius_km NUMERIC NOT NULL DEFAULT 25.0,
+    eye_radius_km NUMERIC NOT NULL DEFAULT 0.0,
+    sat_pass_id TEXT DEFAULT '3RIMG_02OCT2026_0600_L1C_ASIA_MER_V01R00.h5',
     sat_timestamp TIMESTAMPTZ DEFAULT NOW(),
-    stage_probabilities JSONB DEFAULT '{"D": 1.2, "DD": 2.5, "CS": 5.1, "SCS": 11.4, "VSCS": 72.8, "ESCS": 6.8, "SuCS": 0.2}',
+    stage_probabilities JSONB DEFAULT '{"D": 8.5, "DD": 1.2, "CS": 0.2, "SCS": 0.1, "VSCS": 0.0, "ESCS": 0.0, "SuCS": 0.0}',
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -50,16 +50,16 @@ CREATE TABLE IF NOT EXISTS public.district_alerts (
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Seed Initial Real Active State (Cyclone Dana baseline)
+-- Seed Initial Real Active State (Myanmar Cyclone baseline)
 INSERT INTO public.cyclone_live (
     id, name, stage_code, category_name, confidence_pct, wind_kt, wind_kmh, pressure_hpa,
     lat, lon, movement_speed_kmh, movement_dir, outer_radius_km, cdo_radius_km, eye_radius_km,
     sat_pass_id, sat_timestamp, stage_probabilities, last_updated
 ) VALUES (
-    'active_primary', 'Dana', 'VSCS', 'Very Severe Cyclonic Storm', 89.4, 75.0, 139.0, 982.0,
-    16.2, 88.5, 14.5, 'NNW', 240.0, 90.0, 18.0,
-    '3RIMG_26SEP2026_2215_L1C_ASIA_MER_V01R00.h5', NOW(),
-    '{"D": 1.2, "DD": 2.5, "CS": 5.1, "SCS": 11.4, "VSCS": 72.8, "ESCS": 6.8, "SuCS": 0.2}',
+    'active_primary', 'Myanmar Cyclone', 'LPA', 'Low Pressure Area (Dissipated)', 95.0, 12.0, 22.2, 1004.0,
+    23.7, 91.2, 12.0, 'NNW', 80.0, 25.0, 0.0,
+    '3RIMG_02OCT2026_0600_L1C_ASIA_MER_V01R00.h5', NOW(),
+    '{"D": 8.5, "DD": 1.2, "CS": 0.2, "SCS": 0.1, "VSCS": 0.0, "ESCS": 0.0, "SuCS": 0.0}',
     NOW()
 )
 ON CONFLICT (id) DO UPDATE SET
