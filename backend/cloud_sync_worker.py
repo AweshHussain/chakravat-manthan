@@ -35,7 +35,7 @@ LIVE_DB_KEY   = os.environ.get("SUPABASE_KEY", "sb_publishable_KJYaxY4yu7StdTOWy
 
 # ISRO MOSDAC Credentials
 MOSDAC_USER   = os.environ.get("MOSDAC_USER", "awesh_21")
-MOSDAC_PASS   = os.environ.get("MOSDAC_PASS", "AH_Since_2006@")
+MOSDAC_PASS   = os.environ.get("MOSDAC_PASS", "")
 
 def get_buffer_db():
     from supabase import create_client

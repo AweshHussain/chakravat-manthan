@@ -270,18 +270,53 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
                   formData.append('latitudes', lats)
                   formData.append('longitudes', lons)
 
+                  let totalBytes = 0
                   for (const file of customFiles) {
                     formData.append('files', file)
+                    totalBytes += file.size
+                  }
+                  const totalMB = (totalBytes / (1024 * 1024)).toFixed(1)
+
+                  // 1. Direct high-speed local inference:
+                  // Full-resolution INSAT-3DR HDF5 sequences can easily be 50-150MB. Cloud serverless proxies (Vercel)
+                  // enforce a hard 4.5MB ceiling (HTTP 413). Attempting direct connection to http://127.0.0.1:8000
+                  // bypasses proxy size limits, running directly on the local CUDA GPU.
+                  let res: Response | null = null
+                  let directConnected = false
+
+                  try {
+                    const directController = new AbortController()
+                    const directTimeout = setTimeout(() => directController.abort(), 60000)
+                    const directRes = await fetch('http://127.0.0.1:8000/predict/sequence', {
+                      method: 'POST',
+                      body: formData,
+                      signal: directController.signal,
+                    })
+                    clearTimeout(directTimeout)
+                    if (directRes.ok) {
+                      res = directRes
+                      directConnected = true
+                    }
+                  } catch {
+                    // Local port 8000 unreachable or offline
                   }
 
-                  const res = await fetch('/api/cyclone/predict', {
-                    method: 'POST',
-                    body: formData,
-                  })
+                  // 2. Fall back to same-origin route handler proxy if direct local connection failed
+                  if (!directConnected) {
+                    res = await fetch('/api/cyclone/predict', {
+                      method: 'POST',
+                      body: formData,
+                    })
+                  }
 
-                  if (!res.ok) {
-                    const errData = await res.json().catch(() => null)
-                    throw new Error(errData?.error || `Inference API returned HTTP ${res.status}`)
+                  if (!res || !res.ok) {
+                    if (res?.status === 413) {
+                      throw new Error(
+                        `Payload Too Large (HTTP 413): The staged satellite frames (${totalMB} MB) exceed cloud serverless proxy limits (4.5 MB). To run inference on full HDF5 datasets, ensure the local PyTorch server is running (python -m uvicorn api_server:app --port 8000) for direct GPU processing, or upload fewer/smaller frames.`
+                      )
+                    }
+                    const errData = await res?.json().catch(() => null)
+                    throw new Error(errData?.error || errData?.detail || `Inference API returned HTTP ${res?.status || 503}`)
                   }
 
                   const json = await res.json()
