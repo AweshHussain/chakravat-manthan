@@ -42,7 +42,11 @@ Most conventional meteorological portals and cyclone trackers only display stati
 4. **Autonomous Machine Learning with Zero Human Delay:**
    - Real-time spatio-temporal AI (4-stage spatial CNN + 2-layer temporal GRU) analyzes satellite radiance tensors $(512 \times 512)$ without waiting for manual subjective Dvorak human assessments.
 
-5. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
+5. **100% Real Physical NWP Weather Engine (Zero Mock / Zero Synthetic Data):**
+   - Click-to-inspect point weather queries authentic physical Numerical Weather Prediction (NWP) models (**DWD ICON $\rightarrow$ NOAA GFS 0.25° $\rightarrow$ ECMWF IFS**) with an automated multi-model failover chain.
+   - High-concurrency server-side caching (`revalidate: 600`) eliminates public free-tier traffic congestion (HTTP 429 rate limits), CORS drops, and client-side browser ad-blocker blocks.
+
+6. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
    - Real-time numerical wind streamlines dynamically blow across $40^\circ\text{E}$ to $145^\circ\text{E}$, accompanied by official IMD-colored district vulnerability polygons (Red, Orange, Yellow) along vulnerable coastlines.
 
 <div align="center">
@@ -51,9 +55,9 @@ Most conventional meteorological portals and cyclone trackers only display stati
 |:---:|:---:|:---:|
 | Direct API integration with ISRO MOSDAC. Live TIR-1 (10.8 µm) thermal radiance passes day and night. | Custom 4-stage convolutional encoder + 2-layer recurrent GRU trained from scratch (98.90% safety accuracy). | Real-time numerical vector streamlines ($u, v$) flowing across the entire Asian continent (40°E–145°E). |
 
-| ☀️ **Dynamic Diurnal Basemap** | 🔄 **Decoupled Buffer Queue** | 🌀 **Precision Cyclone Physics** |
+| ☀️ **Dynamic Diurnal Basemap** | 🛡️ **Real NWP Proxy (Zero Mock)** | 🌀 **Precision Cyclone Physics** |
 |:---:|:---:|:---:|
-| Seamless diurnal day/night cycle. Auto-switches to True-Color Daylight Earth (06:00–18:30 IST) and NASA Black Marble at night. | 2-database buffer architecture preventing packet dropouts during CI/CD delays or server spikes. | Deep-learning coupled eye rings, CDO radius swaths, and multi-node intensity tracks grounded strictly in satellite telemetry. |
+| Seamless diurnal day/night cycle. Auto-switches to True-Color Daylight Earth (06:00–18:30 IST) and NASA Black Marble at night. | Multi-model failover (DWD ICON $\rightarrow$ NOAA GFS $\rightarrow$ ECMWF IFS) with zero synthetic math approximations. | Deep-learning coupled eye rings, CDO radius swaths, and multi-node intensity tracks grounded strictly in satellite telemetry. |
 
 </div>
 
@@ -189,12 +193,13 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 </div>
 
 * **Full Pan-Asia Domain:** Encompasses $40.0^\circ\text{E}$ to $145.0^\circ\text{E}$ and $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$, providing synoptic coverage from the Arabian Peninsula and Red Sea through the Bay of Bengal, South China Sea, and Sea of Japan.
+* **Separation of Concerns (AI vs Global Weather):** Our AI detection head operates on ISRO MOSDAC INSAT-3DR satellite passes ($40^\circ\text{E} - 105^\circ\text{E}$ over the North Indian Ocean), while the interactive weather canvas and point-inspection proxy query global NWP models (NOAA GFS / ECMWF / DWD) providing physical weather telemetry worldwide.
 * **Dynamic Diurnal Solar Basemap:** Synchronizes directly with the interactive time scrubber. Daylight hours (~06:00 to 18:30 IST) automatically project high-resolution True-Color Daylight Earth Imagery (`Esri World_Imagery`), while nighttime hours automatically transition into NASA VIIRS Black Marble Night Lights. Includes manual cycling controls (`Auto` / `Daylight` / `Night Lights` / `Canvas Dark`).
 * **Deep Zoom with District Alert Boundaries:** Crisp vector tiles up to street level ($Z=16$) without "Zoom Level Not Supported" tile clipping, showing administrative district alert boundaries and IMD evacuation readiness zones.
 * **Live Doppler Weather Radar:** Multi-station Doppler Radar network delivering real-time rain reflectivity (dBZ) down to municipal resolutions.
 * **Geostationary Thermal Clouds:** Instantaneous infrared brightness temperatures draped over night-lights base imagery.
 * **Particle Wind Engine:** 4,500+ animated streamlines rendered on GPU-accelerated HTML5 Canvas with cyclostrophic vortex blending.
-* **Permanent Finished Cyclone Preservation:** Full genesis-to-dissipation telemetry (from precursor origins in the Gulf of Thailand / Andaman Sea across coastal landfalls into interior decay) is permanently archived into client and database storage with interactive playback simulation (`▶ Simulate`).
+* **Permanent Finished Cyclone Preservation:** Full genesis-to-dissipation telemetry (from precursor origins across coastal landfalls into interior decay) is permanently archived into client and database storage (`cyclone_archives` table) with interactive playback simulation (`▶ Simulate`).
 
 ---
 
@@ -204,6 +209,9 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 chakravat-manthan/
 ├── 🌐 app/                              # Next.js 16 Web Application
 │   ├── api/cyclone/current/             # Dual-mode Supabase/FastAPI route handler
+│   ├── api/cyclone/archive/save/        # Cloud historical archive sync API
+│   ├── api/cyclone/predict/             # Gateway proxy for satellite neural inference
+│   ├── api/weather/point/               # Multi-model NWP proxy (DWD -> GFS -> ECMWF)
 │   ├── api/satellite/                   # Real-time satellite cloud provider
 │   ├── api/wind/                        # Pan-Asia dynamic wind streamline API
 │   ├── globals.css                      # Tailwind v4 & glassmorphism theme
@@ -212,13 +220,17 @@ chakravat-manthan/
 ├── 🎨 components/weather/               # Interactive React Components
 │   ├── dashboard.tsx                    # Master coordinator & state machine
 │   ├── map-view.tsx                     # Leaflet GIS canvas & satellite renderer
+│   ├── point-card.tsx                   # Real-time NWP physical weather inspection
 │   ├── cyclone-panel.tsx                # Real-time intensity, sparkline & odds
+│   ├── archive-panel.tsx                # Historical system simulation selector
 │   ├── day-selector.tsx                 # Collapsible touch-friendly forecast control
 │   ├── top-dock.tsx                     # Floating glass navigation & layer switches
 │   └── pipeline-modal.tsx               # Hidden mission-control telemetry modal
 │
 ├── 🧠 backend/                          # Deep Learning & Cloud Infrastructure
 │   ├── checkpoints/                     # Trained PyTorch model weights (.pt)
+│   ├── cyclone_archives_table.sql       # PostgreSQL schema for cloud lifecycle archives
+│   ├── supabase_schema.sql              # Supabase tables & RLS security rules
 │   ├── finetune_cnn_gru_v1_expanded.py  # Spatio-Temporal PyTorch neural architecture
 │   ├── cloud_sync_worker.py             # Decoupled 2-database background sync worker
 │   ├── api_server.py                    # Real-time FastAPI inference server
