@@ -62,7 +62,7 @@ export function PipelineTelemetryModal({
   const handleForceRefresh = async () => {
     setRefreshing(true)
     try {
-      const res = await fetch('/api/pipeline/check', { method: 'POST' })
+      const res = await fetch('/api/pipeline/check?force=true', { method: 'POST' })
       if (res.ok) {
         const payload = await res.json()
         if (payload?.db1_status) {

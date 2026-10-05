@@ -114,6 +114,22 @@ export default function Dashboard() {
     revalidateOnReconnect: true,
   })
 
+  // Automatic 30-minute Satellite Pipeline Sync Worker
+  useEffect(() => {
+    const runAutoSync = async () => {
+      try {
+        await fetch('/api/pipeline/check', { method: 'POST' })
+        mutateLiveBackend()
+      } catch (e) {
+        // Silently handle network retry
+      }
+    }
+    // Trigger on initial load and every 30 minutes
+    runAutoSync()
+    const interval = setInterval(runAutoSync, 30 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [mutateLiveBackend])
+
   // Real-time WebSocket connection to Supabase: Instantly updates UI whenever DB changes
   useEffect(() => {
     const client = supabase
