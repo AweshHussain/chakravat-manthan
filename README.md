@@ -32,23 +32,23 @@ Most conventional meteorological portals and cyclone trackers only display stati
 
 2. **Automated Post-Dissipation Archival (Never Lost, Never Premature):**
    - Active systems in the Asian / North Indian Ocean basins stay dynamic and live on the observation dashboard while operational.
-   - The moment an active system **completely finishes its lifecycle** (crosses inland, dissipates, or weakens into a remnant low below $17\text{ kt}$), the platform automatically compiles its **real start-to-end formation data** into the permanent historical archives.
+   - The moment an active system **completely finishes its lifecycle** (crosses inland, dissipates, or weakens into a remnant low below **17 kt**), the platform automatically compiles its **real start-to-end formation data** into the permanent historical archives.
    - Evaluators and meteorologists can inspect where it started, the synoptic track points, peak wind/pressure records, landfall timeline, and replay its entire lifetime in the interactive simulation engine.
 
 3. **100% Real, Grounded & Accurate Atmospheric Data:**
    - Every stage of the simulation is physically parameterized using **real multi-decade IMD Best-Track telemetry, synoptic trajectory nodes, and live ISRO INSAT-3DR infrared radiance**.
-   - Outer gale radii ($R_{34}$ / Total Swath Width), Central Dense Overcast (CDO) dimensions, and inner eye boundaries grow and shrink dynamically according to real physical fluid-dynamic laws and deep learning neural regression.
+   - Outer gale radii (**R<sub>34</sub>** / Total Swath Width), Central Dense Overcast (CDO) dimensions, and inner eye boundaries grow and shrink dynamically according to real physical fluid-dynamic laws and deep learning neural regression.
    - Zero spatial gaps: The streamline vortex eye, convective CDO core, and telemetry coordinate fix are strictly mathematically coupled.
 
 4. **Autonomous Machine Learning with Zero Human Delay:**
-   - Real-time spatio-temporal AI (4-stage spatial CNN + 2-layer temporal GRU) analyzes satellite radiance tensors $(512 \times 512)$ without waiting for manual subjective Dvorak human assessments.
+   - Real-time spatio-temporal AI (4-stage spatial CNN + 2-layer temporal GRU) analyzes satellite radiance tensors **(512 × 512)** without waiting for manual subjective Dvorak human assessments.
 
 5. **100% Real Physical NWP Weather Engine (Zero Mock / Zero Synthetic Data):**
    - Click-to-inspect point weather queries authentic physical Numerical Weather Prediction (NWP) models (**DWD ICON $\rightarrow$ NOAA GFS 0.25° $\rightarrow$ ECMWF IFS**) with an automated multi-model failover chain.
    - High-concurrency server-side caching (`revalidate: 600`) eliminates public free-tier traffic congestion (HTTP 429 rate limits), CORS drops, and client-side browser ad-blocker blocks.
 
 6. **Live Pan-Asia Synoptic Wind Vectors & Coastal Warning Zones:**
-   - Real-time numerical wind streamlines dynamically blow across $40^\circ\text{E}$ to $145^\circ\text{E}$, accompanied by official IMD-colored district vulnerability polygons (Red, Orange, Yellow) along vulnerable coastlines.
+   - Real-time numerical wind streamlines dynamically blow across **40°E to 145°E**, accompanied by official IMD-colored district vulnerability polygons (Red, Orange, Yellow) along vulnerable coastlines.
 
 <div align="center">
 
@@ -124,16 +124,26 @@ Unlike conventional computer vision models that treat weather forecasting as sta
 <summary><b>📐 Mathematical Formulation & Loss Function</b></summary>
 
 ### 1. Spatio-Temporal Input Tensors
-The model consumes chronological satellite crop sequences $(T=4 \text{ to } 8 \text{ frames})$:
-$$\mathbf{X} = \{ \mathbf{x}_{t-3}, \mathbf{x}_{t-2}, \mathbf{x}_{t-1}, \mathbf{x}_t \} \quad \text{where } \mathbf{x}_i \in \mathbb{R}^{1 \times 512 \times 512}$$
+The model consumes chronological satellite crop sequences (**T = 4 to 8 frames**):
+
+```
+Input Sequence  :  X = { x_{t-3}, x_{t-2}, x_{t-1}, x_t }
+Tensor Shape    :  x_i ∈ ℝ^(1 × 512 × 512)  [Batch × Channels × Height × Width]
+```
 
 ### 2. Multi-Class Focal Loss
-To counteract the acute class imbalance between common Depressions ($>65\%$) and rare Super Cyclonic Storms ($<3\%$), we apply Generalized Focal Loss with $\gamma = 2.0$:
-$$\mathcal{L}_{\text{Focal}} = -\alpha_t (1 - p_t)^\gamma \log(p_t)$$
+To counteract the acute class imbalance between common Depressions (> 65%) and rare Super Cyclonic Storms (< 3%), we apply Generalized Focal Loss (**γ = 2.0**):
+
+```
+L_Focal = - α_t · (1 - p_t)^γ · log(p_t)
+```
 
 ### 3. Physical Wind-Pressure Coupler
-Central barometric pressure $P_{\min}$ is derived through calibrated cyclostrophic pressure deficit formulations:
-$$P_{\min} = 1010 - \left(\frac{V_{\max}}{2.3}\right)^{1.33} \quad [\text{hPa}]$$
+Central barometric pressure (**P_min**) is derived through calibrated cyclostrophic pressure deficit formulations:
+
+```
+P_min = 1010 - ( V_max / 2.3 )^1.33   [hPa]
+```
 
 </details>
 
@@ -143,7 +153,7 @@ $$P_{\min} = 1010 - \left(\frac{V_{\max}}{2.3}\right)^{1.33} \quad [\text{hPa}]$
 | Component | Architecture Specifics | Operational Purpose |
 | :--- | :--- | :--- |
 | **Spatial Encoder** | 4-Stage CNN (Conv2D $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ MaxPool) | Extracts spiral cloud bands, convective central dense overcast (CDO), and eye features. |
-| **Recurrent Core** | 2-Layer Temporal GRU (128 Hidden Units, Dropout = 0.2) | Tracks rates of intensification ($\frac{dI}{dt}$), eyewall replacement cycles, and movement vectors. |
+| **Recurrent Core** | 2-Layer Temporal GRU (128 Hidden Units, Dropout = 0.2) | Tracks rates of intensification (**dI / dt**), eyewall replacement cycles, and movement vectors. |
 | **Intensity Head** | Dense Linear $\rightarrow$ Softmax (8 Classes: TD to SuCS) | Yields calibrated probabilistic uncertainty distributions for disaster management. |
 | **Regression Head** | Dense Linear $\rightarrow$ Smooth L1 Loss | Continuously estimates peak sustained 1-minute/3-minute winds in knots. |
 
@@ -194,10 +204,10 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 
 </div>
 
-* **Full Pan-Asia Domain:** Encompasses $40.0^\circ\text{E}$ to $145.0^\circ\text{E}$ and $-10.0^\circ\text{S}$ to $48.0^\circ\text{N}$, providing synoptic coverage from the Arabian Peninsula and Red Sea through the Bay of Bengal, South China Sea, and Sea of Japan.
-* **Separation of Concerns (AI vs Global Weather):** Our AI detection head operates on ISRO MOSDAC INSAT-3DR satellite passes ($40^\circ\text{E} - 105^\circ\text{E}$ over the North Indian Ocean), while the interactive weather canvas and point-inspection proxy query global NWP models (NOAA GFS / ECMWF / DWD) providing physical weather telemetry worldwide.
+* **Full Pan-Asia Domain:** Encompasses **40.0°E to 145.0°E** and **-10.0°S to 48.0°N**, providing synoptic coverage from the Arabian Peninsula and Red Sea through the Bay of Bengal, South China Sea, and Sea of Japan.
+* **Separation of Concerns (AI vs Global Weather):** Our AI detection head operates on ISRO MOSDAC INSAT-3DR satellite passes (**40°E – 105°E** over the North Indian Ocean), while the interactive weather canvas and point-inspection proxy query global NWP models (NOAA GFS / ECMWF / DWD) providing physical weather telemetry worldwide.
 * **Dynamic Diurnal Solar Basemap:** Synchronizes directly with the interactive time scrubber. Daylight hours (~06:00 to 18:30 IST) automatically project high-resolution True-Color Daylight Earth Imagery (`Esri World_Imagery`), while nighttime hours automatically transition into NASA VIIRS Black Marble Night Lights. Includes manual cycling controls (`Auto` / `Daylight` / `Night Lights` / `Canvas Dark`).
-* **Deep Zoom with District Alert Boundaries:** Crisp vector tiles up to street level ($Z=16$) without "Zoom Level Not Supported" tile clipping, showing administrative district alert boundaries and IMD evacuation readiness zones.
+* **Deep Zoom with District Alert Boundaries:** Crisp vector tiles up to street level (**Z = 16**) without "Zoom Level Not Supported" tile clipping, showing administrative district alert boundaries and IMD evacuation readiness zones.
 * **Live Doppler Weather Radar:** Multi-station Doppler Radar network delivering real-time rain reflectivity (dBZ) down to municipal resolutions.
 * **Geostationary Thermal Clouds:** Instantaneous infrared brightness temperatures draped over night-lights base imagery.
 * **Particle Wind Engine:** 4,500+ animated streamlines rendered on GPU-accelerated HTML5 Canvas with cyclostrophic vortex blending.
