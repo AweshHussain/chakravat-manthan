@@ -54,7 +54,7 @@ Most conventional meteorological portals and cyclone trackers only display stati
 
 | 🛰️ **ISRO Satellite Telemetry** | 🧠 **Spatio-Temporal CNN-GRU** | 🌊 **Pan-Asia Dynamic Winds** |
 |:---:|:---:|:---:|
-| Direct API integration with ISRO MOSDAC. Live TIR-1 (10.8 µm) thermal radiance passes day and night. | Custom 4-stage convolutional encoder + 2-layer recurrent GRU trained from scratch (98.90% safety accuracy). | Real-time numerical vector streamlines ($u, v$) flowing across the entire Asian continent (40°E–145°E). |
+| Direct API integration with ISRO MOSDAC. Live TIR-1 (10.8 µm) thermal radiance passes day and night. | Custom 4-stage convolutional encoder + 2-layer recurrent GRU trained from scratch (98.90% adjacent accuracy). | Real-time numerical vector streamlines ($u, v$) flowing across the entire Asian continent (40°E–145°E). |
 
 | ☀️ **Dynamic Diurnal Basemap** | 🛡️ **Real NWP Proxy (Zero Mock)** | 🌀 **Precision Cyclone Physics** |
 |:---:|:---:|:---:|
