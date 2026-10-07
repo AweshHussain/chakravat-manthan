@@ -7,13 +7,14 @@
 [![Live Production](https://img.shields.io/badge/LIVE%20PLATFORM-VERCEL%20EDGE-black?style=for-the-badge&logo=vercel&logoColor=white)](https://chakravat-manthan-live.vercel.app)
 [![Database](https://img.shields.io/badge/DATABASE-SUPABASE%20POSTGRESQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 [![PyTorch](https://img.shields.io/badge/AI%20CORE-PYTORCH%20CNN--GRU-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
+[![Dataset](https://img.shields.io/badge/DATASET-40%2B%20GB%20SATELLITE%20TELEMETRY-purple?style=for-the-badge)](#-model-benchmarks--performance)
 [![Satellite](https://img.shields.io/badge/SATELLITE-ISRO%20MOSDAC%20INSAT--3DR-FF9933?style=for-the-badge)](https://mosdac.gov.in)
 [![Accuracy](https://img.shields.io/badge/ACCURACY-98.90%25%20ADJACENT-brightgreen?style=for-the-badge)](#-model-benchmarks--performance)
 [![License](https://img.shields.io/badge/LICENSE-MIT-blue?style=for-the-badge)](#-license)
 
 <br/>
 
-> **Chakravat Manthan (चक्रवात मंथन) by Cybernetic Crusaders** is a mission-critical meteorological intelligence engine engineered for the North Indian Ocean and Pan-Asian oceanic basins. Fusing direct geostationary satellite telemetry from **ISRO's INSAT-3DR** with a custom **4-Stage CNN + 2-Layer Temporal GRU Deep Learning Architecture**, it autonomously predicts cyclone intensity, continuous sustained wind speeds, central barometric pressure, and landfall trajectories with zero manual human bias.
+> **Chakravat Manthan (चक्रवात मंथन) by Cybernetic Crusaders** is a mission-critical meteorological intelligence engine engineered for the North Indian Ocean and Pan-Asian oceanic basins. Fusing direct geostationary satellite telemetry from **ISRO's INSAT-3DR** (trained on **40+ GB** of real multi-spectral satellite imagery) with a custom **4-Stage CNN + 2-Layer Temporal GRU Deep Learning Architecture**, it autonomously predicts cyclone intensity, continuous sustained wind speeds, central barometric pressure, and landfall trajectories with zero manual human bias.
 
 [Explore Live Map](https://chakravat-manthan-live.vercel.app) • [Read Whitepaper](backend/CHAKRAVAT_MANTHAN_ML_REPORT.md) • [Download PDF Report](backend/CHAKRAVAT_MANTHAN_ML_REPORT.pdf) • [Architecture Deep Dive](#-end-to-end-architecture)
 
@@ -165,6 +166,7 @@ CPU Inference Latency    :  64 ms (Edge Deployable without GPU)
 
 | Evaluation Metric | Score | Operational Safety Significance |
 | :--- | :---: | :--- |
+| **Training Dataset Volume** | **40+ GB** | 4,000+ real multi-spectral ISRO INSAT-3DR HDF5 satellite frames |
 | **Exact Category Accuracy** | **91.94%** | Correctly predicts exact IMD classification out of 8 stages |
 | **Adjacent Category Accuracy** | **98.90%** | Guarantees error never jumps more than 1 class (prevents false panics) |
 | **Mean Absolute Error (Wind)** | **4.2 kt** | Outperforms standard operational numerical weather predictions |
