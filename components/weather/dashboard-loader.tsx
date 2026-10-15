@@ -8,7 +8,13 @@ const Dashboard = dynamic(() => import('./dashboard'), {
   loading: () => (
     <main className="flex h-dvh w-full flex-col items-center justify-center gap-3 bg-slate-950">
       <div className="relative size-12 overflow-hidden rounded-full border border-cyan-400/40 p-1 shadow-[0_0_20px_-3px_rgba(34,211,238,0.6)]">
-        <img src="/logo.png" alt="Chakravat Manthan" className="size-full object-contain animate-[spin_8s_linear_infinite]" />
+        <img
+          src="/logo.png"
+          alt="Chakravat Manthan — AI-Powered Cyclone Detection"
+          width={48}
+          height={48}
+          className="size-full object-contain animate-[spin_8s_linear_infinite]"
+        />
       </div>
       <div className="flex flex-col items-center gap-1 text-center">
         <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-slate-200">
