@@ -239,43 +239,39 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
 
 /**
  * Real-world synoptic trajectory with absolute UTC calendar timestamps.
- * Genesis from the Andaman Sea (27 Sep) -> Landfall near Kyaikto (28 Sep night)
- * -> NNW progression inland across Bago to Nay Pyi Taw (29 Sep 18:00 UTC = 20.0°N)
- * -> Progression north into Magway & Upper Myanmar (30 Sep)
- * -> Dissipation into remnant low over Myanmar-India-Bangladesh hill ranges (01-02 Oct).
+ * Genesis from the East-Central Bay of Bengal (24 Oct) -> Deep Depression (25 Oct)
+ * -> Intensification to Cyclonic Storm (26 Oct) -> Severe / Very Severe Cyclonic Storm (27 Oct)
+ * -> Landfall between Bapatla and Visakhapatnam, Andhra Pradesh (28 Oct forenoon)
+ * -> Inland decay across Andhra Pradesh / Telangana borders (29 Oct).
  */
 export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
-  // 27 Sep 2026 - Precursor low & Genesis in Andaman Sea
-  { lat: 13.8, lon: 99.2, windKt: 18, t: Date.UTC(2026, 8, 27, 0, 0, 0) },   // 27 Sep 00:00 UTC
-  { lat: 14.3, lon: 98.7, windKt: 20, t: Date.UTC(2026, 8, 27, 6, 0, 0) },   // 27 Sep 06:00 UTC
-  { lat: 14.8, lon: 98.2, windKt: 22, t: Date.UTC(2026, 8, 27, 12, 0, 0) },  // 27 Sep 12:00 UTC
-  { lat: 15.3, lon: 97.8, windKt: 25, t: Date.UTC(2026, 8, 27, 18, 0, 0) },  // 27 Sep 18:00 UTC
+  // 24 Oct 2026 - Formation & Low Pressure Area over Bay of Bengal
+  { lat: 13.5, lon: 93.0, windKt: 15, t: Date.UTC(2026, 9, 24, 0, 0, 0) },
+  { lat: 14.0, lon: 92.2, windKt: 18, t: Date.UTC(2026, 9, 24, 12, 0, 0) },
 
-  // 28 Sep 2026 - Intensification to Deep Depression & Landfall
-  { lat: 15.8, lon: 97.5, windKt: 28, t: Date.UTC(2026, 8, 28, 0, 0, 0) },   // 28 Sep 00:00 UTC
-  { lat: 16.4, lon: 97.3, windKt: 32, t: Date.UTC(2026, 8, 28, 6, 0, 0) },   // 28 Sep 06:00 UTC
-  { lat: 16.8, lon: 97.2, windKt: 35, t: Date.UTC(2026, 8, 28, 12, 0, 0) },  // 28 Sep 12:00 UTC
-  { lat: 17.3, lon: 97.0, windKt: 32, t: Date.UTC(2026, 8, 28, 15, 0, 0) },  // 28 Sep 15:00 UTC - Landfall near Kyaikto (20:30 IST)
-  { lat: 17.6, lon: 96.8, windKt: 28, t: Date.UTC(2026, 8, 28, 21, 0, 0) },  // 28 Sep 21:00 UTC - Crossing inland
+  // 25 Oct 2026 - Depression to Deep Depression
+  { lat: 15.3, lon: 91.2, windKt: 25, t: Date.UTC(2026, 9, 25, 3, 0, 0) },   // 25 Oct 03:00 UTC (08:30 IST)
+  { lat: 15.1, lon: 91.0, windKt: 30, t: Date.UTC(2026, 9, 25, 6, 0, 0) },   // 25 Oct 06:00 UTC (11:30 IST)
+  { lat: 14.9, lon: 90.5, windKt: 32, t: Date.UTC(2026, 9, 25, 12, 0, 0) },  // 25 Oct 12:00 UTC (17:30 IST)
+  { lat: 14.8, lon: 90.1, windKt: 34, t: Date.UTC(2026, 9, 25, 18, 0, 0) },  // 25 Oct 18:00 UTC (23:30 IST - CURRENT TIME)
 
-  // 29 Sep 2026 - Inland trek NNW across Bago to Nay Pyi Taw
-  { lat: 18.0, lon: 96.6, windKt: 26, t: Date.UTC(2026, 8, 29, 3, 0, 0) },   // 29 Sep 03:00 UTC
-  { lat: 18.6, lon: 96.3, windKt: 24, t: Date.UTC(2026, 8, 29, 9, 0, 0) },   // 29 Sep 09:00 UTC (Pyu / Toungoo)
-  { lat: 19.3, lon: 96.0, windKt: 22, t: Date.UTC(2026, 8, 29, 14, 0, 0) },  // 29 Sep 14:00 UTC
-  { lat: 20.0, lon: 95.8, windKt: 20, t: Date.UTC(2026, 8, 29, 18, 0, 0) },  // 29 Sep 18:00 UTC (23:30 IST - RIGHT NOW: exactly 20.0°N at Nay Pyi Taw)
+  // 26 Oct 2026 - Intensification into Cyclonic Storm moving WNW
+  { lat: 14.9, lon: 89.3, windKt: 38, t: Date.UTC(2026, 9, 26, 0, 0, 0) },   // 26 Oct 00:00 UTC
+  { lat: 15.0, lon: 88.4, windKt: 42, t: Date.UTC(2026, 9, 26, 6, 0, 0) },   // 26 Oct 06:00 UTC
+  { lat: 15.2, lon: 87.5, windKt: 46, t: Date.UTC(2026, 9, 26, 12, 0, 0) },  // 26 Oct 12:00 UTC
+  { lat: 15.4, lon: 86.6, windKt: 52, t: Date.UTC(2026, 9, 26, 18, 0, 0) },  // 26 Oct 18:00 UTC
 
-  // 30 Sep 2026 - Progression north into Magway & Upper Myanmar (4-24h forward tracking)
-  { lat: 20.5, lon: 95.5, windKt: 18, t: Date.UTC(2026, 8, 29, 23, 0, 0) },  // +5 hours: 29 Sep 23:00 UTC (04:30 IST)
-  { lat: 21.0, lon: 95.1, windKt: 16, t: Date.UTC(2026, 8, 30, 6, 0, 0) },   // +12 hours: 30 Sep 06:00 UTC
-  { lat: 21.6, lon: 94.6, windKt: 15, t: Date.UTC(2026, 8, 30, 14, 0, 0) },  // +20 hours: 30 Sep 14:00 UTC
-  { lat: 22.2, lon: 94.0, windKt: 14, t: Date.UTC(2026, 8, 30, 22, 0, 0) },  // +28 hours: 30 Sep 22:00 UTC
+  // 27 Oct 2026 - Severe Cyclonic Storm & Peak Intensification
+  { lat: 15.7, lon: 85.0, windKt: 60, t: Date.UTC(2026, 9, 27, 6, 0, 0) },   // 27 Oct 06:00 UTC
+  { lat: 16.0, lon: 83.5, windKt: 65, t: Date.UTC(2026, 9, 27, 18, 0, 0) },  // 27 Oct 18:00 UTC
 
-  // 01 Oct 2026 - Remnants moving over Chin Hills toward SE Bangladesh / NE India
-  { lat: 22.8, lon: 93.2, windKt: 12, t: Date.UTC(2026, 9, 1, 8, 0, 0) },   // 01 Oct 08:00 UTC
-  { lat: 23.3, lon: 92.2, windKt: 10, t: Date.UTC(2026, 9, 1, 18, 0, 0) },  // 01 Oct 18:00 UTC
+  // 28 Oct 2026 - Landfall on Andhra Pradesh / Yanam Coast
+  { lat: 16.3, lon: 82.2, windKt: 65, t: Date.UTC(2026, 9, 28, 6, 0, 0) },   // 28 Oct 06:00 UTC - Landfall (forenoon)
+  { lat: 16.8, lon: 81.2, windKt: 35, t: Date.UTC(2026, 9, 28, 18, 0, 0) },  // 28 Oct 18:00 UTC - Inland over AP
 
-  // 02 Oct 2026 - Final Dissipation into Well Marked Low
-  { lat: 23.7, lon: 91.2, windKt: 8,  t: Date.UTC(2026, 9, 2, 6, 0, 0) },   // 02 Oct 06:00 UTC
+  // 29 Oct 2026 - Inland Decay
+  { lat: 17.5, lon: 80.2, windKt: 22, t: Date.UTC(2026, 9, 29, 6, 0, 0) },   // 29 Oct 06:00 UTC
+  { lat: 18.2, lon: 79.5, windKt: 14, t: Date.UTC(2026, 9, 29, 18, 0, 0) },  // 29 Oct 18:00 UTC
 ]
 
 export function dynamicSystemTitle(
@@ -286,7 +282,7 @@ export function dynamicSystemTitle(
 ): string {
   const cat = categoryFor(windKt)
   if (cat.code === 'FAIR') return 'Fair Weather (Normal Basin)'
-  const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 17.0 && lon > 96.0) : false
+  const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 16.2 && lon < 82.2) : false
 
   if (cat.code === 'LPA') {
     if (hasBeenCyclonic || isPostLandfall) {
@@ -295,14 +291,14 @@ export function dynamicSystemTitle(
     return 'Low Pressure Area (Active Formation)'
   }
 
-  const loc = isPostLandfall ? 'Inland over Myanmar' : 'North Indian Ocean Basin'
+  const loc = isPostLandfall ? 'Inland over Andhra Pradesh' : 'Bay of Bengal'
   return `${cat.name} (${loc})`
 }
 
-export const ACTIVE_NAME = 'Depression (Inland over Central Myanmar)' // Deprecated fallback
-export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 8, 28, 15, 0, 0) // 28 Sep 15:00 UTC (20:30 IST)
-export const ACTIVE_LANDFALL_OFFSET_H = -28
-export const ACTIVE_LANDFALL_PLACE = 'Crossed near Kyaikto, Myanmar'
+export const ACTIVE_NAME = 'Deep Depression (Bay of Bengal)'
+export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 9, 28, 6, 0, 0) // 28 Oct 06:00 UTC (11:30 IST)
+export const ACTIVE_LANDFALL_OFFSET_H = 56
+export const ACTIVE_LANDFALL_PLACE = 'Andhra Pradesh Coast (between Bapatla & Visakhapatnam)'
 
 export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)

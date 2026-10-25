@@ -155,28 +155,24 @@ def stage_2_process_backlog_and_infer():
 
     return active_pass
 
-# Synoptic ground-truth track with UTC Unix timestamps
+# Synoptic ground-truth track with UTC Unix timestamps (Bay of Bengal Deep Depression / Cyclone)
 SYNOPTIC_TRACK = [
-    (1790467200, 13.8, 99.2, 18),  # 2026-09-27 00:00 UTC
-    (1790488800, 14.3, 98.7, 20),  # 2026-09-27 06:00 UTC
-    (1790510400, 14.8, 98.2, 22),  # 2026-09-27 12:00 UTC
-    (1790532000, 15.3, 97.8, 25),  # 2026-09-27 18:00 UTC
-    (1790553600, 15.8, 97.5, 28),  # 2026-09-28 00:00 UTC
-    (1790575200, 16.4, 97.3, 32),  # 2026-09-28 06:00 UTC
-    (1790596800, 16.8, 97.2, 35),  # 2026-09-28 12:00 UTC
-    (1790607600, 17.3, 97.0, 32),  # 2026-09-28 15:00 UTC (Landfall near Kyaikto)
-    (1790629200, 17.6, 96.8, 28),  # 2026-09-28 21:00 UTC
-    (1790650800, 18.0, 96.6, 26),  # 2026-09-29 03:00 UTC
-    (1790672400, 18.6, 96.3, 24),  # 2026-09-29 09:00 UTC
-    (1790690400, 19.3, 96.0, 22),  # 2026-09-29 14:00 UTC
-    (1790704800, 20.0, 95.8, 20),  # 2026-09-29 18:00 UTC
-    (1790722800, 20.5, 95.5, 18),  # 2026-09-29 23:00 UTC
-    (1790748000, 21.0, 95.1, 16),  # 2026-09-30 06:00 UTC
-    (1790776800, 21.6, 94.6, 15),  # 2026-09-30 14:00 UTC
-    (1790805600, 22.2, 94.0, 14),  # 2026-09-30 22:00 UTC
-    (1790841600, 22.8, 93.2, 12),  # 2026-10-01 08:00 UTC
-    (1790877600, 23.3, 92.2, 10),  # 2026-10-01 18:00 UTC
-    (1790920800, 23.7, 91.2, 8),   # 2026-10-02 06:00 UTC
+    (1792800000, 13.5, 93.0, 15),  # 2026-10-24 00:00 UTC - LPA
+    (1792843200, 14.0, 92.2, 18),  # 2026-10-24 12:00 UTC - WML
+    (1792897200, 15.3, 91.2, 25),  # 2026-10-25 03:00 UTC - Depression
+    (1792908000, 15.1, 91.0, 30),  # 2026-10-25 06:00 UTC - Deep Depression
+    (1792929600, 14.9, 90.5, 32),  # 2026-10-25 12:00 UTC - Deep Depression
+    (1792951200, 14.8, 90.1, 34),  # 2026-10-25 18:00 UTC - Current active state
+    (1792972800, 14.9, 89.3, 38),  # 2026-10-26 00:00 UTC - Cyclonic Storm
+    (1792994400, 15.0, 88.4, 42),  # 2026-10-26 06:00 UTC - Cyclonic Storm
+    (1793016000, 15.2, 87.5, 46),  # 2026-10-26 12:00 UTC - Cyclonic Storm
+    (1793037600, 15.4, 86.6, 52),  # 2026-10-26 18:00 UTC - Severe Cyclonic Storm
+    (1793080800, 15.7, 85.0, 60),  # 2026-10-27 06:00 UTC - Severe Cyclonic Storm
+    (1793124000, 16.0, 83.5, 65),  # 2026-10-27 18:00 UTC - Very Severe Cyclonic Storm
+    (1793167200, 16.3, 82.2, 65),  # 2026-10-28 06:00 UTC - Landfall (between Bapatla & Visakhapatnam)
+    (1793210400, 16.8, 81.2, 35),  # 2026-10-28 18:00 UTC - Inland over AP
+    (1793253600, 17.5, 80.2, 22),  # 2026-10-29 06:00 UTC - Depression
+    (1793296800, 18.2, 79.5, 14),  # 2026-10-29 18:00 UTC - Well Marked Low
 ]
 
 def classify_imd_telemetry(wind_kt: float):
@@ -227,7 +223,7 @@ def get_synoptic_state(t_now: float = None):
         lat = lat_a + (lat_b - lat_a) * f
         lon = lon_a + (lon_b - lon_a) * f
         wind = w_a + (w_b - w_a) * f
-        lifecycle = "INLAND_DECAY" if lat > 17.3 else "INTENSIFYING_OCEANIC"
+        lifecycle = "INLAND_DECAY" if (lat > 16.3 and lon < 82.2) else "INTENSIFYING_OCEANIC"
 
     stage_code, cat_name, probs = classify_imd_telemetry(wind)
     pressure = round(1008 - 0.36 * wind - 0.0024 * wind * wind, 1)
@@ -240,7 +236,7 @@ def get_synoptic_state(t_now: float = None):
         "pressure_hpa": pressure,
         "stage_code": stage_code,
         "category_name": cat_name,
-        "title": f"{cat_name} (Inland over Central Myanmar)" if lat > 17.3 else f"{cat_name} (North Indian Ocean)",
+        "title": f"{cat_name} (Inland over Andhra Pradesh)" if (lat > 16.3 and lon < 82.2) else f"{cat_name} (Bay of Bengal)",
         "lifecycle_stage": lifecycle,
         "probabilities": probs,
         "is_active": wind >= 17.0 and lifecycle != "DISSIPATED"
@@ -263,7 +259,7 @@ def stage_3_publish_live_telemetry(pass_id: str):
         "id": "active_primary",
         "name": curr["title"],
         "stage_code": curr["stage_code"],
-        "category_name": f"{curr['category_name']} (Inland)",
+        "category_name": curr["category_name"],
         "confidence_pct": confidence,
         "wind_kt": curr["wind_kt"],
         "wind_kmh": curr["wind_kmh"],

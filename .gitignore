@@ -18,6 +18,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# System
+# System & Python
 .DS_Store
-*.tsbuildinfo
+*.tsbuildinfo
+__pycache__/
+*.pyc

@@ -240,9 +240,7 @@ export default function Dashboard() {
     const isSystemFinished = (hasBeenCyclonic && isNowLowPressure) || isExplicitlyDissipated
 
     if (isSystemFinished && track && track.length >= 2 && hasBeenCyclonic && !stormName.toLowerCase().includes('fair weather')) {
-      const cleanName = stormName.toLowerCase().includes('myanmar') || stormName.toLowerCase().includes('depression')
-        ? 'Myanmar Cyclone'
-        : (stormName.split('(')[0].trim() || 'Myanmar Cyclone')
+      const cleanName = stormName.split('(')[0].trim() || 'Bay of Bengal Cyclone'
       const completedArchive = buildLifecycleArchiveFromTrack(
         cleanName,
         track,
