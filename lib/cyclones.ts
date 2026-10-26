@@ -292,7 +292,7 @@ export function dynamicSystemTitle(
   }
 
   const loc = isPostLandfall ? 'Inland over Andhra Pradesh' : 'Bay of Bengal'
-  return `${cat.name} (${loc})`
+  return `${cat.name} "Arnab" (${loc})`
 }
 
 export const ACTIVE_NAME = 'Cyclonic Storm "Arnab" (Bay of Bengal)'

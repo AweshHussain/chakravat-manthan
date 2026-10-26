@@ -259,7 +259,7 @@ def stage_3_publish_live_telemetry(pass_id: str):
         "id": "active_primary",
         "name": curr["title"],
         "stage_code": curr["stage_code"],
-        "category_name": curr["category_name"],
+        "category_name": f"{curr['category_name']} 'Arnab'",
         "confidence_pct": confidence,
         "wind_kt": curr["wind_kt"],
         "wind_kmh": curr["wind_kmh"],

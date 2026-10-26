@@ -86,7 +86,7 @@ export async function GET() {
     {
       status: 'baseline',
       lifecycle_status: 'ACTIVE_OBSERVATION',
-      storm: 'Cyclonic Storm (Bay of Bengal)',
+      storm: 'Cyclonic Storm "Arnab" (Bay of Bengal)',
       intensity_stage: {
         code: 'CS',
         full_name: 'Cyclonic Storm',
