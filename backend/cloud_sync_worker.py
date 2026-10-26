@@ -236,7 +236,7 @@ def get_synoptic_state(t_now: float = None):
         "pressure_hpa": pressure,
         "stage_code": stage_code,
         "category_name": cat_name,
-        "title": f"{cat_name} (Inland over Andhra Pradesh)" if (lat > 16.3 and lon < 82.2) else f"{cat_name} (Bay of Bengal)",
+        "title": f"{cat_name} 'Arnab' (Inland over Andhra Pradesh)" if (lat > 16.3 and lon < 82.2) else f"{cat_name} 'Arnab' (Bay of Bengal)",
         "lifecycle_stage": lifecycle,
         "probabilities": probs,
         "is_active": wind >= 17.0 and lifecycle != "DISSIPATED"

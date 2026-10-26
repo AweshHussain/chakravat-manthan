@@ -295,9 +295,9 @@ export function dynamicSystemTitle(
   return `${cat.name} (${loc})`
 }
 
-export const ACTIVE_NAME = 'Deep Depression (Bay of Bengal)'
+export const ACTIVE_NAME = 'Cyclonic Storm "Arnab" (Bay of Bengal)'
 export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 9, 28, 6, 0, 0) // 28 Oct 06:00 UTC (11:30 IST)
-export const ACTIVE_LANDFALL_OFFSET_H = 56
+export const ACTIVE_LANDFALL_OFFSET_H = 41
 export const ACTIVE_LANDFALL_PLACE = 'Andhra Pradesh Coast (between Bapatla & Visakhapatnam)'
 
 export function activeCycleBase(now: number) {
