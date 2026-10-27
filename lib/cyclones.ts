@@ -430,6 +430,8 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
         c &&
         c.id !== 'dana-2026' &&
         c.id !== 'myanmar-2026' &&
+        c.id !== 'low-pressure-area-2026' &&
+        !c.name.toLowerCase().includes('low pressure area') &&
         !c.id.toLowerCase().includes('arnab') &&
         !c.name.toLowerCase().includes('arnab') &&
         !c.id.startsWith('depression-') &&

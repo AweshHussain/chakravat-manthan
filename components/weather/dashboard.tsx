@@ -282,8 +282,14 @@ export default function Dashboard() {
         list.push(c)
       }
     }
-    // Filter out the active storm so it NEVER appears in Archive Lab while active
-    return list.filter((c) => !c.id.toLowerCase().includes('arnab') && !c.name.toLowerCase().includes('arnab'))
+    // Filter out the active storm and any premature LPA captures so they NEVER appear in Archive Lab
+    return list.filter(
+      (c) =>
+        !c.id.toLowerCase().includes('arnab') &&
+        !c.name.toLowerCase().includes('arnab') &&
+        c.id !== 'low-pressure-area-2026' &&
+        !c.name.toLowerCase().includes('low pressure area')
+    )
   }, [savedArchives])
 
   const archiveCyclone = page === 'archive' ? (allAvailableArchives.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
