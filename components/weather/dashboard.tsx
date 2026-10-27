@@ -716,7 +716,7 @@ export default function Dashboard() {
             }
           }}
           simulatingId={simulatingId}
-          extraArchives={savedArchives}
+          extraArchives={allAvailableArchives}
           onSimulate={(id) => {
             setArchiveId(id)
             if (simulatingId === id) {

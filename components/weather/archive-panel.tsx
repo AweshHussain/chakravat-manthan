@@ -76,7 +76,16 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
         list.push(c)
       }
     }
-    return list
+    return list.filter(
+      (c) =>
+        c &&
+        c.id !== 'low-pressure-area-2026' &&
+        !c.name.toLowerCase().includes('low pressure area') &&
+        !c.id.toLowerCase().includes('arnab') &&
+        !c.name.toLowerCase().includes('arnab') &&
+        !c.id.startsWith('depression-') &&
+        !c.name.toLowerCase().includes('inland over')
+    )
   }, [extraArchives])
 
   const results = allCyclones.filter((c) => `${c.name} ${c.year} ${c.basin}`.toLowerCase().includes(query.toLowerCase()))
