@@ -240,9 +240,9 @@ export function interpolateArchiveProgress(cyclone: ArchiveCyclone, progress: nu
 /**
  * Real-world synoptic trajectory with absolute UTC calendar timestamps.
  * Genesis from the East-Central Bay of Bengal (24 Oct) -> Deep Depression (25 Oct)
- * -> Intensification to Cyclonic Storm (26 Oct) -> Severe / Very Severe Cyclonic Storm (27 Oct)
- * -> Landfall between Bapatla and Visakhapatnam, Andhra Pradesh (28 Oct forenoon)
- * -> Inland decay across Andhra Pradesh / Telangana borders (29 Oct).
+ * -> Intensification to Cyclonic Storm 'Arnab' (26 Oct) -> Very Severe Cyclonic Storm (27 Oct)
+ * -> Landfall South of Yanam / Kakinada (28 Oct early hours ~03:00 IST)
+ * -> Recurving North-Northwest (NNW) across East Godavari -> South Odisha (Malkangiri/Koraput) -> Chhattisgarh (AWAY from Hyderabad).
  */
 export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
   // 24 Oct 2026 - Formation & Low Pressure Area over Bay of Bengal
@@ -253,25 +253,27 @@ export const ACTIVE_TRACK_POINTS: TrackPoint[] = [
   { lat: 15.3, lon: 91.2, windKt: 25, t: Date.UTC(2026, 9, 25, 3, 0, 0) },   // 25 Oct 03:00 UTC (08:30 IST)
   { lat: 15.1, lon: 91.0, windKt: 30, t: Date.UTC(2026, 9, 25, 6, 0, 0) },   // 25 Oct 06:00 UTC (11:30 IST)
   { lat: 14.9, lon: 90.5, windKt: 32, t: Date.UTC(2026, 9, 25, 12, 0, 0) },  // 25 Oct 12:00 UTC (17:30 IST)
-  { lat: 14.8, lon: 90.1, windKt: 34, t: Date.UTC(2026, 9, 25, 18, 0, 0) },  // 25 Oct 18:00 UTC (23:30 IST - CURRENT TIME)
+  { lat: 14.8, lon: 90.1, windKt: 34, t: Date.UTC(2026, 9, 25, 18, 0, 0) },  // 25 Oct 18:00 UTC (23:30 IST)
 
-  // 26 Oct 2026 - Intensification into Cyclonic Storm moving WNW
+  // 26 Oct 2026 - Intensification into Named Cyclonic Storm 'Arnab'
   { lat: 14.9, lon: 89.3, windKt: 38, t: Date.UTC(2026, 9, 26, 0, 0, 0) },   // 26 Oct 00:00 UTC
   { lat: 15.0, lon: 88.4, windKt: 42, t: Date.UTC(2026, 9, 26, 6, 0, 0) },   // 26 Oct 06:00 UTC
   { lat: 15.2, lon: 87.5, windKt: 46, t: Date.UTC(2026, 9, 26, 12, 0, 0) },  // 26 Oct 12:00 UTC
-  { lat: 15.4, lon: 86.6, windKt: 52, t: Date.UTC(2026, 9, 26, 18, 0, 0) },  // 26 Oct 18:00 UTC
+  { lat: 15.4, lon: 86.6, windKt: 52, t: Date.UTC(2026, 9, 26, 18, 0, 0) },  // 26 Oct 18:00 UTC (Severe)
 
-  // 27 Oct 2026 - Severe Cyclonic Storm & Peak Intensification
+  // 27 Oct 2026 - Rapid Intensification to Very Severe Cyclonic Storm approaching AP Coast
   { lat: 15.7, lon: 85.0, windKt: 60, t: Date.UTC(2026, 9, 27, 6, 0, 0) },   // 27 Oct 06:00 UTC
-  { lat: 16.0, lon: 83.5, windKt: 65, t: Date.UTC(2026, 9, 27, 18, 0, 0) },  // 27 Oct 18:00 UTC
+  { lat: 16.0, lon: 84.1, windKt: 65, t: Date.UTC(2026, 9, 27, 12, 0, 0) },  // 27 Oct 12:00 UTC (Very Severe)
+  { lat: 16.4, lon: 83.1, windKt: 68, t: Date.UTC(2026, 9, 27, 18, 0, 0) },  // 27 Oct 18:00 UTC (23:30 IST - RIGHT NOW)
 
-  // 28 Oct 2026 - Landfall on Andhra Pradesh / Yanam Coast
-  { lat: 16.3, lon: 82.2, windKt: 65, t: Date.UTC(2026, 9, 28, 6, 0, 0) },   // 28 Oct 06:00 UTC - Landfall (forenoon)
-  { lat: 16.8, lon: 81.2, windKt: 35, t: Date.UTC(2026, 9, 28, 18, 0, 0) },  // 28 Oct 18:00 UTC - Inland over AP
-
-  // 29 Oct 2026 - Inland Decay
-  { lat: 17.5, lon: 80.2, windKt: 22, t: Date.UTC(2026, 9, 29, 6, 0, 0) },   // 29 Oct 06:00 UTC
-  { lat: 18.2, lon: 79.5, windKt: 14, t: Date.UTC(2026, 9, 29, 18, 0, 0) },  // 29 Oct 18:00 UTC
+  // 28 Oct 2026 - Landfall (Early hours ~03:00 IST) near South of Yanam / Kakinada & Recurvature NNW towards South Odisha (away from Hyderabad)
+  { lat: 16.7, lon: 82.4, windKt: 70, t: Date.UTC(2026, 9, 27, 21, 30, 0) }, // Landfall South of Yanam (03:00 IST early 28 Oct)
+  { lat: 17.1, lon: 82.2, windKt: 55, t: Date.UTC(2026, 9, 28, 3, 0, 0) },   // 28 Oct 03:00 UTC (08:30 IST) - East Godavari / Tuni
+  { lat: 17.6, lon: 82.0, windKt: 40, t: Date.UTC(2026, 9, 28, 9, 0, 0) },   // 28 Oct 09:00 UTC (14:30 IST) - Alluri Sitharama Raju
+  { lat: 18.2, lon: 81.8, windKt: 28, t: Date.UTC(2026, 9, 28, 15, 0, 0) },  // 28 Oct 15:00 UTC (20:30 IST) - South Odisha / Malkangiri border
+  { lat: 19.0, lon: 81.6, windKt: 20, t: Date.UTC(2026, 9, 29, 0, 0, 0) },   // 29 Oct 00:00 UTC (05:30 IST) - Koraput & Bastar border
+  { lat: 20.0, lon: 81.4, windKt: 15, t: Date.UTC(2026, 9, 29, 12, 0, 0) },  // 29 Oct 12:00 UTC (17:30 IST) - Chhattisgarh WML
+  { lat: 20.8, lon: 81.2, windKt: 10, t: Date.UTC(2026, 9, 29, 21, 0, 0) },  // 29 Oct 21:00 UTC (02:30 IST 30 Oct) - Dissipation
 ]
 
 export function dynamicSystemTitle(
@@ -282,7 +284,7 @@ export function dynamicSystemTitle(
 ): string {
   const cat = categoryFor(windKt)
   if (cat.code === 'FAIR') return 'Fair Weather (Normal Basin)'
-  const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 16.2 && lon < 82.2) : false
+  const isPostLandfall = (lat !== undefined && lon !== undefined) ? (lat > 16.7 && lon < 82.4) : false
 
   if (cat.code === 'LPA') {
     if (hasBeenCyclonic || isPostLandfall) {
@@ -291,14 +293,14 @@ export function dynamicSystemTitle(
     return 'Low Pressure Area (Active Formation)'
   }
 
-  const loc = isPostLandfall ? 'Inland over Andhra Pradesh' : 'Bay of Bengal'
+  const loc = isPostLandfall ? 'Inland over Coastal AP / South Odisha' : 'Bay of Bengal'
   return `${cat.name} "Arnab" (${loc})`
 }
 
-export const ACTIVE_NAME = 'Cyclonic Storm "Arnab" (Bay of Bengal)'
-export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 9, 28, 6, 0, 0) // 28 Oct 06:00 UTC (11:30 IST)
-export const ACTIVE_LANDFALL_OFFSET_H = 41
-export const ACTIVE_LANDFALL_PLACE = 'Andhra Pradesh Coast (between Bapatla & Visakhapatnam)'
+export const ACTIVE_NAME = 'Very Severe Cyclonic Storm "Arnab" (Bay of Bengal)'
+export const ACTIVE_LANDFALL_TIME = Date.UTC(2026, 9, 27, 21, 30, 0) // 28 Oct 03:00 IST (Early hours)
+export const ACTIVE_LANDFALL_OFFSET_H = 3 // Landfall in ~3 hours
+export const ACTIVE_LANDFALL_PLACE = 'Andhra Pradesh Coast (South of Yanam / Kakinada)'
 
 export function activeCycleBase(now: number) {
   return floorTo(now, 6 * HOUR)
@@ -422,13 +424,14 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
 
-    // Prune stale scratch test entries and duplicates from previous runs
+    // Prune stale scratch test entries and any instances of the actively running cyclone
     const sanitized = parsed.filter(
       (c) =>
         c &&
         c.id !== 'dana-2026' &&
         c.id !== 'myanmar-2026' &&
-        !c.id.includes('arnab') &&
+        !c.id.toLowerCase().includes('arnab') &&
+        !c.name.toLowerCase().includes('arnab') &&
         !c.id.startsWith('depression-') &&
         !c.name.toLowerCase().includes('inland over') &&
         !ARCHIVE_CYCLONES.some((def) => def.id === c.id || def.name.toLowerCase() === c.name.toLowerCase())
@@ -444,6 +447,10 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
 
 export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
   if (typeof window === 'undefined') return false
+  // NEVER archive the currently active cyclone while in operational tracking
+  if (cyclone.id.toLowerCase().includes('arnab') || cyclone.name.toLowerCase().includes('arnab')) {
+    return false
+  }
   try {
     // If already in standard archives, no need to duplicate in localStorage
     if (ARCHIVE_CYCLONES.some((def) => def.id === cyclone.id || def.name.toLowerCase() === cyclone.name.toLowerCase())) {

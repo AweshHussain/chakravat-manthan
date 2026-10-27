@@ -162,17 +162,21 @@ SYNOPTIC_TRACK = [
     (1792897200, 15.3, 91.2, 25),  # 2026-10-25 03:00 UTC - Depression
     (1792908000, 15.1, 91.0, 30),  # 2026-10-25 06:00 UTC - Deep Depression
     (1792929600, 14.9, 90.5, 32),  # 2026-10-25 12:00 UTC - Deep Depression
-    (1792951200, 14.8, 90.1, 34),  # 2026-10-25 18:00 UTC - Current active state
-    (1792972800, 14.9, 89.3, 38),  # 2026-10-26 00:00 UTC - Cyclonic Storm
-    (1792994400, 15.0, 88.4, 42),  # 2026-10-26 06:00 UTC - Cyclonic Storm
-    (1793016000, 15.2, 87.5, 46),  # 2026-10-26 12:00 UTC - Cyclonic Storm
+    (1792951200, 14.8, 90.1, 34),  # 2026-10-25 18:00 UTC - Deep Depression
+    (1792972800, 14.9, 89.3, 38),  # 2026-10-26 00:00 UTC - CS Arnab
+    (1792994400, 15.0, 88.4, 42),  # 2026-10-26 06:00 UTC - CS Arnab
+    (1793016000, 15.2, 87.5, 46),  # 2026-10-26 12:00 UTC - CS Arnab
     (1793037600, 15.4, 86.6, 52),  # 2026-10-26 18:00 UTC - Severe Cyclonic Storm
     (1793080800, 15.7, 85.0, 60),  # 2026-10-27 06:00 UTC - Severe Cyclonic Storm
-    (1793124000, 16.0, 83.5, 65),  # 2026-10-27 18:00 UTC - Very Severe Cyclonic Storm
-    (1793167200, 16.3, 82.2, 65),  # 2026-10-28 06:00 UTC - Landfall (between Bapatla & Visakhapatnam)
-    (1793210400, 16.8, 81.2, 35),  # 2026-10-28 18:00 UTC - Inland over AP
-    (1793253600, 17.5, 80.2, 22),  # 2026-10-29 06:00 UTC - Depression
-    (1793296800, 18.2, 79.5, 14),  # 2026-10-29 18:00 UTC - Well Marked Low
+    (1793102400, 16.0, 84.1, 65),  # 2026-10-27 12:00 UTC - Very Severe Cyclonic Storm
+    (1793124000, 16.4, 83.1, 68),  # 2026-10-27 18:00 UTC - Very Severe Cyclonic Storm (Right Now)
+    (1793136600, 16.7, 82.4, 70),  # 2026-10-27 21:30 UTC (03:00 IST 28 Oct) - Landfall South of Yanam
+    (1793156400, 17.1, 82.2, 55),  # 2026-10-28 03:00 UTC (08:30 IST) - East Godavari / Tuni
+    (1793178000, 17.6, 82.0, 40),  # 2026-10-28 09:00 UTC (14:30 IST) - Alluri Sitharama Raju
+    (1793199600, 18.2, 81.8, 28),  # 2026-10-28 15:00 UTC (20:30 IST) - South Odisha / Malkangiri
+    (1793232000, 19.0, 81.6, 20),  # 2026-10-29 00:00 UTC (05:30 IST) - Koraput & Bastar border
+    (1793275200, 20.0, 81.4, 15),  # 2026-10-29 12:00 UTC (17:30 IST) - Chhattisgarh WML
+    (1793307600, 20.8, 81.2, 10),  # 2026-10-29 21:00 UTC (02:30 IST 30 Oct) - Dissipation
 ]
 
 def classify_imd_telemetry(wind_kt: float):
@@ -223,7 +227,7 @@ def get_synoptic_state(t_now: float = None):
         lat = lat_a + (lat_b - lat_a) * f
         lon = lon_a + (lon_b - lon_a) * f
         wind = w_a + (w_b - w_a) * f
-        lifecycle = "INLAND_DECAY" if (lat > 16.3 and lon < 82.2) else "INTENSIFYING_OCEANIC"
+        lifecycle = "INLAND_DECAY" if (lat > 16.7 and lon < 82.4) else "INTENSIFYING_OCEANIC"
 
     stage_code, cat_name, probs = classify_imd_telemetry(wind)
     pressure = round(1008 - 0.36 * wind - 0.0024 * wind * wind, 1)
@@ -236,7 +240,7 @@ def get_synoptic_state(t_now: float = None):
         "pressure_hpa": pressure,
         "stage_code": stage_code,
         "category_name": cat_name,
-        "title": f"{cat_name} 'Arnab' (Inland over Andhra Pradesh)" if (lat > 16.3 and lon < 82.2) else f"{cat_name} 'Arnab' (Bay of Bengal)",
+        "title": f"{cat_name} 'Arnab' (Inland over Coastal AP / South Odisha)" if (lat > 16.7 and lon < 82.4) else f"{cat_name} 'Arnab' (Bay of Bengal)",
         "lifecycle_stage": lifecycle,
         "probabilities": probs,
         "is_active": wind >= 17.0 and lifecycle != "DISSIPATED"
@@ -270,7 +274,7 @@ def stage_3_publish_live_telemetry(pass_id: str):
         "movement_dir": "NNW",
         "outer_radius_km": round(curr["wind_kt"] * 6.5, 1),
         "cdo_radius_km": round(curr["wind_kt"] * 2.0, 1),
-        "eye_radius_km": 0.0,
+        "eye_radius_km": 18.0 if curr["wind_kt"] >= 64.0 else 0.0,
         "sat_pass_id": pass_id,
         "sat_timestamp": now_iso,
         "stage_probabilities": curr["probabilities"],
