@@ -65,11 +65,123 @@ export type ArchiveCyclone = {
   durationHours: number
   startDate: string
   track: TrackPoint[]
+  savedAt?: string
+}
+
+/**
+ * Calculates the chronological timeline timestamp for an archived cyclone.
+ * Uses savedAt, or lifecycle completion (startDate + durationHours), or startDate, or year.
+ * Allows sorting archives with the most recent cyclone at the very top.
+ */
+export function getArchiveTimelineTimestamp(c: ArchiveCyclone): number {
+  if (c.savedAt) {
+    const t = new Date(c.savedAt).getTime()
+    if (!isNaN(t)) return t
+  }
+  if (c.startDate) {
+    const startMs = new Date(c.startDate).getTime()
+    if (!isNaN(startMs)) {
+      const durationMs = (c.durationHours || 0) * 3600 * 1000
+      return startMs + durationMs
+    }
+  }
+  if (c.year) {
+    return new Date(c.year, 11, 31).getTime()
+  }
+  return 0
 }
 
 const tp = (lat: number, lon: number, windKt: number, hourOffset = 0): TrackPoint => ({ lat, lon, windKt, t: hourOffset })
 
 export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
+  {
+    id: 'arnab-2026',
+    name: 'Arnab',
+    year: 2026,
+    basin: 'Bay of Bengal',
+    peakWindKt: 70,
+    minPressure: 972,
+    landfall: 'South of Yanam / Kakinada, Andhra Pradesh · 28 Oct',
+    durationHours: 141,
+    startDate: '24 Oct 2026, 00:00 UTC',
+    savedAt: '2026-10-30T20:10:13.792Z',
+    track: [
+      tp(13.5, 93.0, 15, 0),      // 24 Oct 00:00 UTC (Genesis)
+      tp(14.0, 92.2, 18, 12),     // 24 Oct 12:00 UTC
+      tp(15.3, 91.2, 25, 27),     // 25 Oct 03:00 UTC (Deep Depression)
+      tp(15.1, 91.0, 30, 30),     // 25 Oct 06:00 UTC
+      tp(14.9, 90.5, 32, 36),     // 25 Oct 12:00 UTC
+      tp(14.8, 90.1, 34, 42),     // 25 Oct 18:00 UTC
+      tp(14.9, 89.3, 38, 48),     // 26 Oct 00:00 UTC (Cyclonic Storm Arnab named)
+      tp(15.0, 88.4, 42, 54),     // 26 Oct 06:00 UTC
+      tp(15.2, 87.5, 46, 60),     // 26 Oct 12:00 UTC
+      tp(15.4, 86.6, 52, 66),     // 26 Oct 18:00 UTC (Severe Cyclonic Storm)
+      tp(15.7, 85.0, 60, 78),     // 27 Oct 06:00 UTC (Very Severe Cyclonic Storm)
+      tp(16.0, 84.1, 65, 84),     // 27 Oct 12:00 UTC
+      tp(16.4, 83.1, 68, 90),     // 27 Oct 18:00 UTC
+      tp(16.7, 82.4, 70, 93.5),   // 27 Oct 21:30 UTC / 28 Oct 03:00 IST (Peak & Landfall South of Yanam)
+      tp(17.1, 82.2, 55, 99),     // 28 Oct 03:00 UTC (Inland over AP)
+      tp(17.6, 82.0, 40, 105),    // 28 Oct 09:00 UTC
+      tp(18.2, 81.8, 28, 111),    // 28 Oct 15:00 UTC (South Odisha border)
+      tp(19.0, 81.6, 20, 120),    // 29 Oct 00:00 UTC (Koraput & Bastar)
+      tp(20.0, 81.4, 15, 132),    // 29 Oct 12:00 UTC (Chhattisgarh WML)
+      tp(20.8, 81.2, 10, 141),    // 29 Oct 21:00 UTC (Dissipation)
+    ],
+  },
+  {
+    id: 'myanmar-2026',
+    name: 'Myanmar Cyclone',
+    year: 2026,
+    basin: 'Bay of Bengal',
+    peakWindKt: 35,
+    minPressure: 994,
+    landfall: 'Crossed near Kyaikto, Myanmar · 28 Sep',
+    durationHours: 126,
+    startDate: '27 Sep 2026, 00:00 UTC',
+    track: [
+      tp(13.8, 99.2, 18, 0),
+      tp(14.3, 98.7, 20, 6),
+      tp(14.8, 98.2, 22, 12),
+      tp(15.3, 97.8, 25, 18),
+      tp(15.8, 97.5, 28, 24),
+      tp(16.4, 97.3, 32, 30),
+      tp(16.8, 97.2, 35, 36),
+      tp(17.3, 97.0, 32, 39),
+      tp(17.6, 96.8, 28, 45),
+      tp(18.0, 96.6, 26, 51),
+      tp(18.6, 96.3, 24, 57),
+      tp(19.3, 96.0, 22, 62),
+      tp(20.0, 95.8, 20, 66),
+      tp(20.5, 95.5, 18, 71),
+      tp(21.0, 95.1, 16, 78),
+      tp(21.6, 94.6, 15, 86),
+      tp(22.2, 94.0, 14, 94),
+      tp(22.8, 93.2, 12, 104),
+      tp(23.3, 92.2, 10, 114),
+      tp(23.7, 91.2, 8, 126),
+    ],
+  },
+  {
+    id: 'tauktae-2021',
+    name: 'Tauktae',
+    year: 2021,
+    basin: 'Arabian Sea',
+    peakWindKt: 100,
+    minPressure: 950,
+    landfall: 'Diu / Saurashtra Coast, Gujarat · 17 May',
+    durationHours: 84,
+    startDate: '14 May 2021, 00:00 UTC',
+    track: [
+      tp(11.2, 72.5, 25, 0),
+      tp(12.8, 72.4, 45, 12),
+      tp(14.6, 72.6, 75, 24),
+      tp(16.5, 72.2, 95, 36),
+      tp(18.5, 71.5, 100, 48),
+      tp(20.8, 71.1, 100, 60),
+      tp(22.5, 71.5, 50, 72),
+      tp(24.0, 72.8, 25, 84),
+    ],
+  },
   {
     id: 'amphan-2020',
     name: 'Amphan',
@@ -135,93 +247,6 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
       tp(14.8, 84.2, 100, 72),
       tp(16.8, 84.8, 110, 84),
       tp(19.6, 85.7, 100, 96),
-    ],
-  },
-  {
-    id: 'tauktae-2021',
-    name: 'Tauktae',
-    year: 2021,
-    basin: 'Arabian Sea',
-    peakWindKt: 100,
-    minPressure: 950,
-    landfall: 'Diu / Saurashtra Coast, Gujarat · 17 May',
-    durationHours: 84,
-    startDate: '14 May 2021, 00:00 UTC',
-    track: [
-      tp(11.2, 72.5, 25, 0),
-      tp(12.8, 72.4, 45, 12),
-      tp(14.6, 72.6, 75, 24),
-      tp(16.5, 72.2, 95, 36),
-      tp(18.5, 71.5, 100, 48),
-      tp(20.8, 71.1, 100, 60),
-      tp(22.5, 71.5, 50, 72),
-      tp(24.0, 72.8, 25, 84),
-    ],
-  },
-  {
-    id: 'myanmar-2026',
-    name: 'Myanmar Cyclone',
-    year: 2026,
-    basin: 'Bay of Bengal',
-    peakWindKt: 35,
-    minPressure: 994,
-    landfall: 'Crossed near Kyaikto, Myanmar · 28 Sep',
-    durationHours: 126,
-    startDate: '27 Sep 2026, 00:00 UTC',
-    track: [
-      tp(13.8, 99.2, 18, 0),
-      tp(14.3, 98.7, 20, 6),
-      tp(14.8, 98.2, 22, 12),
-      tp(15.3, 97.8, 25, 18),
-      tp(15.8, 97.5, 28, 24),
-      tp(16.4, 97.3, 32, 30),
-      tp(16.8, 97.2, 35, 36),
-      tp(17.3, 97.0, 32, 39),
-      tp(17.6, 96.8, 28, 45),
-      tp(18.0, 96.6, 26, 51),
-      tp(18.6, 96.3, 24, 57),
-      tp(19.3, 96.0, 22, 62),
-      tp(20.0, 95.8, 20, 66),
-      tp(20.5, 95.5, 18, 71),
-      tp(21.0, 95.1, 16, 78),
-      tp(21.6, 94.6, 15, 86),
-      tp(22.2, 94.0, 14, 94),
-      tp(22.8, 93.2, 12, 104),
-      tp(23.3, 92.2, 10, 114),
-      tp(23.7, 91.2, 8, 126),
-    ],
-  },
-  {
-    id: 'arnab-2026',
-    name: 'Arnab',
-    year: 2026,
-    basin: 'Bay of Bengal',
-    peakWindKt: 70,
-    minPressure: 972,
-    landfall: 'South of Yanam / Kakinada, Andhra Pradesh · 28 Oct',
-    durationHours: 141,
-    startDate: '24 Oct 2026, 00:00 UTC',
-    track: [
-      tp(13.5, 93.0, 15, 0),      // 24 Oct 00:00 UTC (Genesis)
-      tp(14.0, 92.2, 18, 12),     // 24 Oct 12:00 UTC
-      tp(15.3, 91.2, 25, 27),     // 25 Oct 03:00 UTC (Deep Depression)
-      tp(15.1, 91.0, 30, 30),     // 25 Oct 06:00 UTC
-      tp(14.9, 90.5, 32, 36),     // 25 Oct 12:00 UTC
-      tp(14.8, 90.1, 34, 42),     // 25 Oct 18:00 UTC
-      tp(14.9, 89.3, 38, 48),     // 26 Oct 00:00 UTC (Cyclonic Storm Arnab named)
-      tp(15.0, 88.4, 42, 54),     // 26 Oct 06:00 UTC
-      tp(15.2, 87.5, 46, 60),     // 26 Oct 12:00 UTC
-      tp(15.4, 86.6, 52, 66),     // 26 Oct 18:00 UTC (Severe Cyclonic Storm)
-      tp(15.7, 85.0, 60, 78),     // 27 Oct 06:00 UTC (Very Severe Cyclonic Storm)
-      tp(16.0, 84.1, 65, 84),     // 27 Oct 12:00 UTC
-      tp(16.4, 83.1, 68, 90),     // 27 Oct 18:00 UTC
-      tp(16.7, 82.4, 70, 93.5),   // 27 Oct 21:30 UTC / 28 Oct 03:00 IST (Peak & Landfall South of Yanam)
-      tp(17.1, 82.2, 55, 99),     // 28 Oct 03:00 UTC (Inland over AP)
-      tp(17.6, 82.0, 40, 105),    // 28 Oct 09:00 UTC
-      tp(18.2, 81.8, 28, 111),    // 28 Oct 15:00 UTC (South Odisha border)
-      tp(19.0, 81.6, 20, 120),    // 29 Oct 00:00 UTC (Koraput & Bastar)
-      tp(20.0, 81.4, 15, 132),    // 29 Oct 12:00 UTC (Chhattisgarh WML)
-      tp(20.8, 81.2, 10, 141),    // 29 Oct 21:00 UTC (Dissipation)
     ],
   },
 ]
@@ -444,6 +469,7 @@ export function buildLifecycleArchiveFromTrack(
       year: 'numeric',
     }) + ', 00:00 UTC',
     track: normalizedTrack,
+    savedAt: new Date().toISOString(),
   }
 }
 
@@ -469,6 +495,9 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
         !c.name.toLowerCase().includes('inland over') &&
         !ARCHIVE_CYCLONES.some((def) => def.id === c.id || def.name.toLowerCase() === c.name.toLowerCase())
     )
+    // Sort in timeline order descending (most recent first)
+    sanitized.sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
+
     if (sanitized.length !== parsed.length) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized))
     }
@@ -489,10 +518,14 @@ export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
     if (ARCHIVE_CYCLONES.some((def) => def.id === cyclone.id || def.name.toLowerCase() === cyclone.name.toLowerCase())) {
       return false
     }
+    if (!cyclone.savedAt) {
+      cyclone.savedAt = new Date().toISOString()
+    }
     const current = getSavedArchivedCyclones()
     const exists = current.some((c) => c.id === cyclone.id || c.name.toLowerCase() === cyclone.name.toLowerCase())
     if (!exists) {
       current.unshift(cyclone)
+      current.sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
       localStorage.setItem(STORAGE_KEY, JSON.stringify(current))
       return true
     }

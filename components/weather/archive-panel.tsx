@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Archive, ArrowRight, BrainCircuit, Cpu, Layers, Search, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, X, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor, type ArchiveCyclone } from '@/lib/cyclones'
+import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor, getArchiveTimelineTimestamp, type ArchiveCyclone } from '@/lib/cyclones'
 
 interface InferenceResult {
   status: string
@@ -76,14 +76,16 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
         list.push(c)
       }
     }
-    return list.filter(
-      (c) =>
-        c &&
-        c.id !== 'low-pressure-area-2026' &&
-        !c.name.toLowerCase().includes('low pressure area') &&
-        !c.id.startsWith('depression-') &&
-        !c.name.toLowerCase().includes('inland over')
-    )
+    return list
+      .filter(
+        (c) =>
+          c &&
+          c.id !== 'low-pressure-area-2026' &&
+          !c.name.toLowerCase().includes('low pressure area') &&
+          !c.id.startsWith('depression-') &&
+          !c.name.toLowerCase().includes('inland over')
+      )
+      .sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
   }, [extraArchives])
 
   const results = allCyclones.filter((c) => `${c.name} ${c.year} ${c.basin}`.toLowerCase().includes(query.toLowerCase()))
@@ -154,7 +156,7 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
                         <span className="truncate text-sm font-medium text-slate-100">{c.name}</span>
-                        <span className="font-mono text-xs text-slate-400">{c.year}</span>
+                        <span className="font-mono text-xs text-cyan-300/80">{c.startDate ? c.startDate.split(',')[0] : c.year}</span>
                       </span>
                       <span className="mt-0.5 flex justify-between gap-2 text-[11px] text-slate-400">
                         <span className="truncate">{c.basin}</span>

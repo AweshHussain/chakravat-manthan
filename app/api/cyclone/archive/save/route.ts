@@ -52,7 +52,7 @@ export async function GET() {
       const { data, error } = await supabase
         .from('cyclone_archives')
         .select('*')
-        .order('year', { ascending: false })
+        .order('saved_at', { ascending: false, nullsFirst: false })
 
       if (!error && data && data.length > 0) {
         const mapped = data.map((row: any) => ({
@@ -66,6 +66,7 @@ export async function GET() {
           durationHours: Number(row.duration_hours),
           startDate: row.start_date,
           track: row.track_points,
+          savedAt: row.saved_at,
         }))
         return Response.json({ archives: mapped })
       }

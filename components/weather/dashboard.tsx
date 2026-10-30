@@ -21,6 +21,7 @@ import {
   warningStageIndex,
   getSavedArchivedCyclones,
   saveArchivedCyclone,
+  getArchiveTimelineTimestamp,
   buildLifecycleArchiveFromTrack,
   type ArchiveCyclone,
   type TrackPoint,
@@ -285,17 +286,22 @@ export default function Dashboard() {
       }
     }
     // Filter out premature LPA / placeholder captures so they NEVER appear in Archive Lab
-    return list.filter(
-      (c) =>
-        c &&
-        c.id !== 'low-pressure-area-2026' &&
-        !c.name.toLowerCase().includes('low pressure area') &&
-        !c.id.startsWith('depression-') &&
-        !c.name.toLowerCase().includes('inland over')
-    )
+    return list
+      .filter(
+        (c) =>
+          c &&
+          c.id !== 'low-pressure-area-2026' &&
+          !c.name.toLowerCase().includes('low pressure area') &&
+          !c.id.startsWith('depression-') &&
+          !c.name.toLowerCase().includes('inland over')
+      )
+      .sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
   }, [savedArchives])
 
-  const archiveCyclone = page === 'archive' ? (allAvailableArchives.find((c) => c.id === (simulatingId ?? archiveId)) ?? null) : null
+  const archiveCyclone =
+    page === 'archive'
+      ? (allAvailableArchives.find((c) => c.id === (simulatingId ?? archiveId)) ?? allAvailableArchives[0] ?? null)
+      : null
 
   const activeState = systemActive ? interpolateTrack(track, time) : null
 
