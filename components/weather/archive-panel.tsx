@@ -81,8 +81,6 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
         c &&
         c.id !== 'low-pressure-area-2026' &&
         !c.name.toLowerCase().includes('low pressure area') &&
-        !c.id.toLowerCase().includes('arnab') &&
-        !c.name.toLowerCase().includes('arnab') &&
         !c.id.startsWith('depression-') &&
         !c.name.toLowerCase().includes('inland over')
     )

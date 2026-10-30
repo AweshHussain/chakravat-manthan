@@ -191,6 +191,39 @@ export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
       tp(23.7, 91.2, 8, 126),
     ],
   },
+  {
+    id: 'arnab-2026',
+    name: 'Arnab',
+    year: 2026,
+    basin: 'Bay of Bengal',
+    peakWindKt: 70,
+    minPressure: 972,
+    landfall: 'South of Yanam / Kakinada, Andhra Pradesh · 28 Oct',
+    durationHours: 141,
+    startDate: '24 Oct 2026, 00:00 UTC',
+    track: [
+      tp(13.5, 93.0, 15, 0),      // 24 Oct 00:00 UTC (Genesis)
+      tp(14.0, 92.2, 18, 12),     // 24 Oct 12:00 UTC
+      tp(15.3, 91.2, 25, 27),     // 25 Oct 03:00 UTC (Deep Depression)
+      tp(15.1, 91.0, 30, 30),     // 25 Oct 06:00 UTC
+      tp(14.9, 90.5, 32, 36),     // 25 Oct 12:00 UTC
+      tp(14.8, 90.1, 34, 42),     // 25 Oct 18:00 UTC
+      tp(14.9, 89.3, 38, 48),     // 26 Oct 00:00 UTC (Cyclonic Storm Arnab named)
+      tp(15.0, 88.4, 42, 54),     // 26 Oct 06:00 UTC
+      tp(15.2, 87.5, 46, 60),     // 26 Oct 12:00 UTC
+      tp(15.4, 86.6, 52, 66),     // 26 Oct 18:00 UTC (Severe Cyclonic Storm)
+      tp(15.7, 85.0, 60, 78),     // 27 Oct 06:00 UTC (Very Severe Cyclonic Storm)
+      tp(16.0, 84.1, 65, 84),     // 27 Oct 12:00 UTC
+      tp(16.4, 83.1, 68, 90),     // 27 Oct 18:00 UTC
+      tp(16.7, 82.4, 70, 93.5),   // 27 Oct 21:30 UTC / 28 Oct 03:00 IST (Peak & Landfall South of Yanam)
+      tp(17.1, 82.2, 55, 99),     // 28 Oct 03:00 UTC (Inland over AP)
+      tp(17.6, 82.0, 40, 105),    // 28 Oct 09:00 UTC
+      tp(18.2, 81.8, 28, 111),    // 28 Oct 15:00 UTC (South Odisha border)
+      tp(19.0, 81.6, 20, 120),    // 29 Oct 00:00 UTC (Koraput & Bastar)
+      tp(20.0, 81.4, 15, 132),    // 29 Oct 12:00 UTC (Chhattisgarh WML)
+      tp(20.8, 81.2, 10, 141),    // 29 Oct 21:00 UTC (Dissipation)
+    ],
+  },
 ]
 
 /**
@@ -424,7 +457,7 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
 
-    // Prune stale scratch test entries and any instances of the actively running cyclone
+    // Prune stale scratch test entries and invalid placeholders
     const sanitized = parsed.filter(
       (c) =>
         c &&
@@ -432,8 +465,6 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
         c.id !== 'myanmar-2026' &&
         c.id !== 'low-pressure-area-2026' &&
         !c.name.toLowerCase().includes('low pressure area') &&
-        !c.id.toLowerCase().includes('arnab') &&
-        !c.name.toLowerCase().includes('arnab') &&
         !c.id.startsWith('depression-') &&
         !c.name.toLowerCase().includes('inland over') &&
         !ARCHIVE_CYCLONES.some((def) => def.id === c.id || def.name.toLowerCase() === c.name.toLowerCase())
@@ -449,8 +480,8 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
 
 export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
   if (typeof window === 'undefined') return false
-  // NEVER archive the currently active cyclone while in operational tracking
-  if (cyclone.id.toLowerCase().includes('arnab') || cyclone.name.toLowerCase().includes('arnab')) {
+  // Do not archive empty or stub sub-cyclonic systems
+  if (!cyclone || cyclone.peakWindKt < 17 || cyclone.id === 'low-pressure-area-2026') {
     return false
   }
   try {

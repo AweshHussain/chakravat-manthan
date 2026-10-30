@@ -250,7 +250,9 @@ export default function Dashboard() {
     const isSystemFinished = (hasBeenCyclonic && isNowLowPressure && isPastTrackEnd) || isExplicitlyDissipated
 
     if (isSystemFinished && track && track.length >= 2 && hasBeenCyclonic && !stormName.toLowerCase().includes('fair weather')) {
-      const cleanName = stormName.split('(')[0].trim() || 'Bay of Bengal Cyclone'
+      const nameMatch = stormName.match(/["']([^"']+)["']/)
+      let cleanName = nameMatch ? nameMatch[1].trim() : stormName.split('(')[0].trim()
+      cleanName = cleanName.replace(/^(super|extremely severe|very severe|severe)?\s*(cyclonic storm|cyclone|depression|deep depression|low pressure area|well marked low)\s*/i, '').trim() || 'Bay of Bengal Cyclone'
       const completedArchive = buildLifecycleArchiveFromTrack(
         cleanName,
         track,
@@ -282,13 +284,14 @@ export default function Dashboard() {
         list.push(c)
       }
     }
-    // Filter out the active storm and any premature LPA captures so they NEVER appear in Archive Lab
+    // Filter out premature LPA / placeholder captures so they NEVER appear in Archive Lab
     return list.filter(
       (c) =>
-        !c.id.toLowerCase().includes('arnab') &&
-        !c.name.toLowerCase().includes('arnab') &&
+        c &&
         c.id !== 'low-pressure-area-2026' &&
-        !c.name.toLowerCase().includes('low pressure area')
+        !c.name.toLowerCase().includes('low pressure area') &&
+        !c.id.startsWith('depression-') &&
+        !c.name.toLowerCase().includes('inland over')
     )
   }, [savedArchives])
 
