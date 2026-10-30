@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Archive, ArrowRight, BrainCircuit, Cpu, Layers, Search, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, X, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor, getArchiveTimelineTimestamp, type ArchiveCyclone } from '@/lib/cyclones'
+import { ARCHIVE_CYCLONES, IMD_CATEGORIES, categoryFor, getArchiveTimelineTimestamp, isDuplicateArchive, type ArchiveCyclone } from '@/lib/cyclones'
 
 interface InferenceResult {
   status: string
@@ -72,7 +72,7 @@ export function ArchivePanel({ selectedId, onSelect, onSimulate, simulatingId, e
   const allCyclones = useMemo(() => {
     const list = [...extraArchives]
     for (const c of ARCHIVE_CYCLONES) {
-      if (!list.some((existing) => existing.id === c.id)) {
+      if (!list.some((existing) => isDuplicateArchive(existing, c))) {
         list.push(c)
       }
     }

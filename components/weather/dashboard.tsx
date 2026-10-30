@@ -22,6 +22,7 @@ import {
   getSavedArchivedCyclones,
   saveArchivedCyclone,
   getArchiveTimelineTimestamp,
+  isDuplicateArchive,
   buildLifecycleArchiveFromTrack,
   type ArchiveCyclone,
   type TrackPoint,
@@ -207,7 +208,10 @@ export default function Dashboard() {
           setSavedArchives((prev) => {
             const combined = [...prev]
             for (const item of data.archives) {
-              if (!combined.some((c) => c.id === item.id)) {
+              if (
+                !combined.some((c) => isDuplicateArchive(c, item)) &&
+                !ARCHIVE_CYCLONES.some((c) => isDuplicateArchive(c, item))
+              ) {
                 combined.push(item)
               }
             }
@@ -281,7 +285,7 @@ export default function Dashboard() {
   const allAvailableArchives = useMemo(() => {
     const list = [...savedArchives]
     for (const c of ARCHIVE_CYCLONES) {
-      if (!list.some((existing) => existing.id === c.id)) {
+      if (!list.some((existing) => isDuplicateArchive(existing, c))) {
         list.push(c)
       }
     }

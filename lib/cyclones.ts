@@ -91,6 +91,21 @@ export function getArchiveTimelineTimestamp(c: ArchiveCyclone): number {
   return 0
 }
 
+/**
+ * Evaluates whether two archive cyclone entries represent the same storm.
+ * Matches on ID, normalized name & year, or ID normalized variants (e.g. myanmar-cyclone-2026 vs myanmar-2026).
+ */
+export function isDuplicateArchive(a: ArchiveCyclone, b: ArchiveCyclone): boolean {
+  if (a.id === b.id) return true
+  const normA = a.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const normB = b.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  if (normA && normB && normA === normB && a.year === b.year) return true
+  const normIdA = a.id.toLowerCase().replace(/-cyclone/g, '')
+  const normIdB = b.id.toLowerCase().replace(/-cyclone/g, '')
+  if (normIdA === normIdB) return true
+  return false
+}
+
 const tp = (lat: number, lon: number, windKt: number, hourOffset = 0): TrackPoint => ({ lat, lon, windKt, t: hourOffset })
 
 export const ARCHIVE_CYCLONES: ArchiveCyclone[] = [
@@ -483,17 +498,18 @@ export function getSavedArchivedCyclones(): ArchiveCyclone[] {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
 
-    // Prune stale scratch test entries and invalid placeholders
+    // Prune stale scratch test entries, invalid placeholders, and duplicate built-in archives
     const sanitized = parsed.filter(
       (c) =>
         c &&
         c.id !== 'dana-2026' &&
         c.id !== 'myanmar-2026' &&
+        c.id !== 'myanmar-cyclone-2026' &&
         c.id !== 'low-pressure-area-2026' &&
         !c.name.toLowerCase().includes('low pressure area') &&
         !c.id.startsWith('depression-') &&
         !c.name.toLowerCase().includes('inland over') &&
-        !ARCHIVE_CYCLONES.some((def) => def.id === c.id || def.name.toLowerCase() === c.name.toLowerCase())
+        !ARCHIVE_CYCLONES.some((def) => isDuplicateArchive(def, c))
     )
     // Sort in timeline order descending (most recent first)
     sanitized.sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
@@ -515,14 +531,14 @@ export function saveArchivedCyclone(cyclone: ArchiveCyclone): boolean {
   }
   try {
     // If already in standard archives, no need to duplicate in localStorage
-    if (ARCHIVE_CYCLONES.some((def) => def.id === cyclone.id || def.name.toLowerCase() === cyclone.name.toLowerCase())) {
+    if (ARCHIVE_CYCLONES.some((def) => isDuplicateArchive(def, cyclone))) {
       return false
     }
     if (!cyclone.savedAt) {
       cyclone.savedAt = new Date().toISOString()
     }
     const current = getSavedArchivedCyclones()
-    const exists = current.some((c) => c.id === cyclone.id || c.name.toLowerCase() === cyclone.name.toLowerCase())
+    const exists = current.some((c) => isDuplicateArchive(c, cyclone))
     if (!exists) {
       current.unshift(cyclone)
       current.sort((a, b) => getArchiveTimelineTimestamp(b) - getArchiveTimelineTimestamp(a))
